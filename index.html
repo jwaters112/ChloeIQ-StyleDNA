@@ -274,7 +274,7 @@
             align-items: center;
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             perspective: 1000px;
         }
 
@@ -300,6 +300,28 @@
 
         .swipe-card.active {
             z-index: 100;
+        }
+
+        /* Peek card - the next card sitting behind the active one.
+           Scale from bottom so the peek's top stays put and only the
+           bottom shrinks, leaving room for the peek to extend further up.
+           Combined with a negative translateY, the peek's TOP edge sits
+           visibly above the active card. */
+        .swipe-card.peek {
+            z-index: 50;
+            transform-origin: bottom center;
+            transform: scale(0.94) translateY(-14px);
+            opacity: 0.6;
+            pointer-events: none;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+        }
+
+        /* Promote-from-peek transition: when a peek card becomes active */
+        .swipe-card.promoting {
+            z-index: 100;
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
         }
 
         .swipe-card svg {
@@ -1671,43 +1693,68 @@
             return ranked[0][0];
         }
 
+        // Card factory - builds a single card DOM element for a given home.
+        function buildSwipeCard(home) {
+            const card = document.createElement('div');
+            card.className = 'swipe-card';
+            card.innerHTML = `<img class="swipe-card-img" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"><div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${home.style}</div><div class="swipe-card-title">${home.title}</div><div class="swipe-card-description">${home.desc}</div></div>`;
+            const img = card.querySelector('img');
+            let triedFallback = false;
+            img.addEventListener('error', () => {
+                if (triedFallback) return;
+                triedFallback = true;
+                img.src = home.fallback;
+            });
+            img.src = home.image;
+            return card;
+        }
+
+        // Render the active card (top) plus the next peek card (behind), if any.
+        // Only ever 2 cards in DOM - solves the ghost-stack issue and keeps things lean.
+        function renderCardStack() {
+            const container = document.getElementById('swipeContainer');
+            // Remove any existing cards (but keep the indicators div)
+            container.querySelectorAll('.swipe-card').forEach(c => c.remove());
+
+            const activeHome = currentHomes[currentSwipeIndex];
+            const peekHome = currentHomes[currentSwipeIndex + 1];
+
+            // Build the peek card FIRST so the active card sits on top in DOM order.
+            if (peekHome) {
+                const peek = buildSwipeCard(peekHome);
+                peek.classList.add('peek');
+                container.appendChild(peek);
+            }
+            if (activeHome) {
+                const active = buildSwipeCard(activeHome);
+                active.classList.add('active');
+                container.appendChild(active);
+            }
+        }
+
         function initializeSwipe() {
             const container = document.getElementById('swipeContainer');
             container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥</span></div>';
-            
-            currentHomes.forEach((home,index)=>{
-                const card = document.createElement('div');
-                card.className = 'swipe-card' + (index === 0 ? ' active' : '');
-                card.innerHTML = `<img class="swipe-card-img" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"><div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${home.style}</div><div class="swipe-card-title">${home.title}</div><div class="swipe-card-description">${home.desc}</div></div>`;
-                const img = card.querySelector('img');
-                let triedFallback = false;
-                img.addEventListener('error', () => {
-                    if (triedFallback) return;
-                    triedFallback = true;
-                    img.src = home.fallback;
-                });
-                img.src = home.image;
-                container.appendChild(card);
-            });
             currentSwipeIndex = 0;
+            renderCardStack();
             updateProgress();
             setupSwipeListeners();
         }
 
         function setupSwipeListeners() {
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
-            if(!card)return;
-            card.addEventListener('mousedown',startDrag);
-            document.addEventListener('mousemove',moveDrag);
-            document.addEventListener('mouseup',endDrag);
-            card.addEventListener('touchstart',startDrag);
-            document.addEventListener('touchmove',moveDrag);
-            document.addEventListener('touchend',endDrag);
+            const card = document.querySelector('.swipe-card.active');
+            if(!card) return;
+            card.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('mouseup', endDrag);
+            card.addEventListener('touchstart', startDrag, {passive: true});
+            document.addEventListener('touchmove', moveDrag, {passive: false});
+            document.addEventListener('touchend', endDrag);
         }
 
         function startDrag(e) {
             isDragging=true;
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
+            const card = document.querySelector('.swipe-card.active');
             if(!card)return;
             startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
@@ -1718,7 +1765,7 @@
 
         function moveDrag(e) {
             if(!isDragging)return;
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
+            const card = document.querySelector('.swipe-card.active');
             if(!card)return;
             currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
@@ -1731,7 +1778,7 @@
         function endDrag(e) {
             if(!isDragging)return;
             isDragging=false;
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
+            const card = document.querySelector('.swipe-card.active');
             if(!card)return;
             const diffX = currentX - startX;
             document.getElementById('indicatorLeft').style.opacity = 0;
@@ -1745,48 +1792,66 @@
                     card.style.transform = `translate(500px,${currentY-startY}px) rotate(20deg)`;
                     loves.push(currentHomes[currentSwipeIndex]);
                 }
-                setTimeout(()=>nextCard(),500);
+                setTimeout(()=>nextCard(),420);
             } else {
                 card.style.transition = 'all 0.3s ease-out';
                 card.style.transform = 'translate(0,0) rotate(0deg)';
             }
         }
 
+        // Advance to the next card with a smooth promote-from-peek animation.
         function nextCard() {
             currentSwipeIndex++;
             updateProgress();
-            if(currentSwipeIndex>=currentHomes.length) {goToLoading(); return;}
-            setTimeout(()=>{
-                const cards = document.querySelectorAll('.swipe-card');
-                cards.forEach((c,i)=>{
-                    if(i===currentSwipeIndex) {
-                        c.classList.add('active');
-                        c.style.transition = 'all 0.3s ease-out';
-                        c.style.transform = 'translate(0,0) rotate(0deg)';
-                    } else {
-                        c.classList.remove('active');
-                    }
-                });
-                setupSwipeListeners();
-            },100);
+            if (currentSwipeIndex >= currentHomes.length) { goToLoading(); return; }
+
+            const container = document.getElementById('swipeContainer');
+            // Remove the now-departed active card from the DOM.
+            const oldActive = container.querySelector('.swipe-card.active');
+            if (oldActive) oldActive.remove();
+
+            // Promote the peek card to active with a smooth scale-up.
+            const peek = container.querySelector('.swipe-card.peek');
+            if (peek) {
+                peek.classList.remove('peek');
+                peek.classList.add('promoting');
+                // After the promote animation completes, finalize the active state.
+                setTimeout(() => {
+                    peek.classList.remove('promoting');
+                    peek.classList.add('active');
+                    peek.style.transform = '';
+                    peek.style.opacity = '';
+                    peek.style.transition = '';
+                    setupSwipeListeners();
+                }, 400);
+            }
+
+            // Inject a new peek card behind it (if there's another home left).
+            const nextPeekHome = currentHomes[currentSwipeIndex + 1];
+            if (nextPeekHome) {
+                const newPeek = buildSwipeCard(nextPeekHome);
+                newPeek.classList.add('peek');
+                // Insert before the promoting card so it sits behind in DOM order.
+                container.insertBefore(newPeek, container.querySelector('.swipe-card.promoting') || container.querySelector('.swipe-card.active'));
+            }
         }
 
         function passCard() {
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
+            const card = document.querySelector('.swipe-card.active');
             if(!card)return;
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(-500px,0) rotate(-20deg)';
             passes.push(currentHomes[currentSwipeIndex]);
-            setTimeout(()=>nextCard(),500);
+            setTimeout(()=>nextCard(),420);
         }
 
         function loveCard() {
-            const card = document.querySelectorAll('.swipe-card')[currentSwipeIndex];
+            const card = document.querySelector('.swipe-card.active');
             if(!card)return;
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(500px,0) rotate(20deg)';
             loves.push(currentHomes[currentSwipeIndex]);
-            setTimeout(()=>nextCard(),500);
+            setTimeout(()=>nextCard(),420);
         }
 
         function updateProgress() {
