@@ -1506,9 +1506,31 @@
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-|-$/g, '');
         }
-        function styleImage(style) {
-            return './' + styleSlug(style) + '.png';
-        }
+        const STYLE_IMAGE_MAP = {
+    'Modern Minimalist': 'minimalist.png',
+    'Modern Farmhouse': 'farmhouse-chic.png',
+    'Modern Japanese': 'japanese-zen.png',
+    'Farmhouse': 'farmhouse-classic.png',
+    'Mid-Century Modern': 'midcentury.png',
+    'Industrial Loft': 'industrial.png',
+    'Industrial Contemporary': 'industrial-sleek.png',
+    'Art Deco': 'artdeco.png',
+    'Bohemian / Eclectic': 'bohemian.png',
+    'Coastal Modern': 'coastal.png',
+    'Contemporary Luxury': 'luxury-contemporary.png',
+    'Cottage Core': 'cottage.png',
+    'Mediterranean': 'mediterranean.png',
+    'Maximalist': 'maximalist.png',
+    'Scandinavian': 'scandinavian.png',
+    'Traditional / Classic': 'traditional.png',
+    'Transitional': 'transitional.png',
+    'Rustic Modern': 'rustic.png',
+    'Luxury Contemporary': 'luxury.png'
+};
+
+function styleImage(style) {
+    return './' + (STYLE_IMAGE_MAP[style] || 'placeholder.png');
+}
         function fallbackImage(style) {
             const palette = {
                 'Modern Minimalist':['#2A2A2A','#F5F5F3'],
