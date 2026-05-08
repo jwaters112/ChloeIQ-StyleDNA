@@ -22,11 +22,13 @@
 
         html, body {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
             background: var(--primary-black);
             color: var(--primary-white);
-            overflow: hidden;
+        }
+        body {
+            overflow-x: hidden;
         }
 
         /* Disable text selection on UI chrome only — keep it enabled on inputs and result content */
@@ -51,38 +53,34 @@
 
         .app-container {
             width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            min-height: 100vh;
             position: relative;
         }
 
         .screen {
-            position: absolute;
+            display: none;
+            min-height: 100vh;
             width: 100%;
-            height: 100%;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease-in-out;
-            display: flex;
             flex-direction: column;
         }
 
         .screen.active {
-            opacity: 1;
-            pointer-events: auto;
+            display: flex;
+            animation: fadeInScreen 0.4s ease-in-out;
+        }
+
+        @keyframes fadeInScreen {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* ===== WELCOME SCREEN ===== */
         .welcome-screen {
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
-            display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
             text-align: center;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         .welcome-content {
@@ -138,13 +136,9 @@
         /* ===== PREFERENCE SCREENS ===== */
         .preference-screen {
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
-            display: flex !important;
-            flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 40px 20px 100px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            padding: 80px 20px 60px;
         }
 
         .preference-content {
@@ -257,6 +251,8 @@
         .swipe-screen {
             padding: 0;
             justify-content: space-between;
+            height: 100vh;
+            min-height: 100vh;
         }
 
         .swipe-header {
@@ -476,12 +472,12 @@
 
         /* ===== LOADING SCREEN ===== */
         .loading-screen {
-            display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
             text-align: center;
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
+            min-height: 100vh;
         }
 
         .loading-content {
@@ -536,8 +532,6 @@
         /* ===== RESULTS SCREEN ===== */
         .results-screen {
             padding: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
             background: var(--primary-black);
         }
 
@@ -652,6 +646,7 @@
             height: 200px;
             display: block;
             background: var(--subtle-gray);
+            object-fit: cover;
         }
 
         .home-match-info {
@@ -696,14 +691,10 @@
 
         /* ===== DATA CAPTURE SCREEN ===== */
         .data-capture-screen {
-            padding: 40px 20px 100px;
-            display: flex !important;
-            flex-direction: column;
+            padding: 80px 20px 60px;
             justify-content: flex-start;
             align-items: center;
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         .form-container {
@@ -813,14 +804,10 @@
 
         /* ===== ACTIVATION SCREEN ===== */
         .activation-screen {
-            padding: 40px 20px 100px;
-            display: flex !important;
-            flex-direction: column;
+            padding: 60px 20px 80px;
             justify-content: flex-start;
             align-items: center;
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         .activation-content {
@@ -989,28 +976,30 @@
 
         /* ===== BACK BUTTON ===== */
         .back-btn {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            background: transparent;
-            border: 1px solid var(--muted-taupe);
-            color: var(--primary-white);
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: rgba(212, 165, 116, 0.15);
+            border: 1.5px solid var(--accent-gold);
+            color: var(--accent-gold);
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.25s ease;
-            z-index: 10;
+            z-index: 1000;
             line-height: 1;
             padding: 0;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .back-btn:hover {
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
+            background: var(--accent-gold);
+            color: var(--primary-black);
             transform: translateX(-2px);
         }
         .back-btn:active { transform: translateX(-1px) scale(0.96); }
@@ -1350,13 +1339,12 @@
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                                 <span>X</span>
                             </button>
-                            <button class="share-channel-btn share-channel-ig" onclick="shareInstagramStory()" aria-label="Share to Instagram Story">
+                            <button class="share-channel-btn share-channel-ig" onclick="shareToInstagram()" aria-label="Share to Instagram">
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg>
                                 <span>Instagram</span>
                             </button>
                         </div>
-                        <button class="welcome-cta share-cta-primary" onclick="shareResults()">&#128242; More options</button>
-                        <button class="welcome-cta share-cta-secondary" onclick="shareInstagramStory()">&#128248; Share Story Image</button>
+                        <button class="welcome-cta share-cta-primary" onclick="shareResults()">&#128242; More share options</button>
                         <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">&#128279; Copy Link</button>
                     </div>
                 </div>
@@ -1542,8 +1530,7 @@
             'Traditional / Classic': 'traditional.png',
             'Transitional': 'transitional.png',
             'Rustic Modern': 'rustic.png',
-            'Luxury Contemporary': 'luxury.png',
-            'Tropical': 'tropical.png'
+            'Luxury Contemporary': 'luxury.png'
         };
 
         function styleImage(style) {
@@ -1567,7 +1554,6 @@
                 'Industrial Contemporary':['#4A4A4A','#D4A574'],
                 'Art Deco':['#0A0A0A','#D4A574'],
                 'Maximalist':['#5D2E46','#D4A574'],
-                'Tropical':['#2D5016','#F5DEB3'],
                 'Modern Japanese':['#3E2723','#F5F5F3'],
                 'Luxury Contemporary':['#1B2A42','#F5F5F3'],
                 'Cottage Core':['#A8C2A0','#F5F5F3']
@@ -1613,7 +1599,7 @@
                 {id:5, style:'Bohemian / Eclectic', title:'Collected Living', desc:'Curated and personal', price:'$610K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'authenticist'},
                 {id:6, style:'Industrial Contemporary', title:'Sophisticated Industrial', desc:'Bold modern edge', price:'$645K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
                 {id:7, style:'Rustic Modern', title:'Refined Rustic', desc:'Natural luxury', price:'$625K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'authenticist'},
-                {id:8, style:'Tropical', title:'Vacation Living', desc:'Resort-inspired', price:'$685K', fp:'open', by:'large', ki:'modern', en:'frequent', archetype:'sanctuary'},
+                {id:8, style:'Industrial Loft', title:'Loft Conversion', desc:'Open warehouse style', price:'$685K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
                 {id:9, style:'Transitional', title:'Upscale Transitional', desc:'Refined blend', price:'$615K', fp:'balanced', by:'patio', ki:'cozy', en:'intimate', archetype:'sanctuary'}
             ],
             3: [
@@ -1624,7 +1610,7 @@
                 {id:4, style:'Coastal Modern', title:'Luxury Coastal', desc:'Resort lifestyle', price:'$915K', fp:'open', by:'large', ki:'modern', en:'frequent', archetype:'sanctuary'},
                 {id:5, style:'Modern Japanese', title:'Zen Sanctuary', desc:'Calm and balanced', price:'$870K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'visionary'},
                 {id:6, style:'Maximalist', title:'Bold Statement', desc:'Layered and unapologetic', price:'$945K', fp:'defined', by:'patio', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:7, style:'Tropical', title:'Resort Living', desc:'Lush and vacation-minded', price:'$905K', fp:'open', by:'large', ki:'modern', en:'frequent', archetype:'sanctuary'},
+                {id:7, style:'Industrial Contemporary', title:'Loft Estate', desc:'Modern industrial luxury', price:'$905K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
                 {id:8, style:'Bohemian / Eclectic', title:'Curated Luxury', desc:'Artistic and personal', price:'$890K', fp:'balanced', by:'large', ki:'statement', en:'intimate', archetype:'authenticist'},
                 {id:9, style:'Mid-Century Modern', title:'Designer Showcase', desc:'Iconic vintage modern', price:'$935K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'custodian'}
             ],
@@ -1732,19 +1718,26 @@
                 const want = prefs[key === 'fp' ? 'floorPlan' : key === 'by' ? 'backyard' : key === 'ki' ? 'kitchen' : 'entertaining'];
                 return !want || want === 'na' || h[key] === want;
             };
-            let perfect = homes.filter(h => matches(h,'fp') && matches(h,'by') && matches(h,'ki') && matches(h,'en'));
-            if (perfect.length >= 10) return perfect.slice(0, 10);
 
+            // Score every home by how many prefs it matches
             let scored = homes.map(h => {
                 let score = 0;
                 ['fp','by','ki','en'].forEach(k => { if (matches(h,k)) score++; });
                 return {h, score};
             }).sort((a,b) => b.score - a.score);
 
-            const combined = [];
-            const seen = new Set();
-            scored.forEach(({h}) => { if (!seen.has(h.id+h.style)) { seen.add(h.id+h.style); combined.push(h); }});
-            return combined.slice(0, 10);
+            // Dedupe by STYLE — only one card per style, keeping the highest-scored variant
+            const seenStyles = new Set();
+            const deduped = [];
+            scored.forEach(({h}) => {
+                if (!seenStyles.has(h.style)) {
+                    seenStyles.add(h.style);
+                    deduped.push(h);
+                }
+            });
+
+            // Return up to 10 distinct styles (in practice 6-9 per tier after dedup)
+            return deduped.slice(0, 10);
         }
 
         const PREF_WEIGHTS = {
@@ -1789,7 +1782,6 @@
             'Industrial Contemporary': {visionary:3, architect:1},
             'Art Deco':                {curator:3, custodian:1},
             'Maximalist':              {curator:3, authenticist:1},
-            'Tropical':                {architect:3, sanctuary:1},
             'Modern Japanese':         {sanctuary:3, visionary:1},
             'Luxury Contemporary':     {curator:3, visionary:1},
             'Cottage Core':            {custodian:3, authenticist:1}
@@ -2074,13 +2066,19 @@
             return `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz \u{1F3E0}\n\n${arch.desc}\n\nFind your home StyleDNA: ${url}`;
         }
 
+        // Detect if we're on mobile — navigator.share is the right path there
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
         function shareResults() {
             const text = buildShareText('native');
             const arch = archetypes[userArchetype];
             if (navigator.share) {
                 navigator.share({
                     title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
-                    text: text
+                    text: text,
+                    url: buildShareUrl('native')
                 }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
@@ -2120,8 +2118,21 @@
         }
 
         function shareToFacebook() {
+            // On mobile, native share sheet is far more reliable than sharer.php
+            // (the FB mobile app intercepts sharer.php URLs and frequently fails to load them).
+            if (isMobile() && navigator.share) {
+                const arch = archetypes[userArchetype];
+                navigator.share({
+                    title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
+                    text: buildShareText('facebook'),
+                    url: buildShareUrl('facebook')
+                }).catch(err => {
+                    if (err && err.name !== 'AbortError') console.warn('FB share failed:', err);
+                });
+                return;
+            }
+            // Desktop: open the public sharer in a popup
             const url = buildShareUrl('facebook');
-            // Uses public sharer endpoint — no Facebook App ID required.
             const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
             window.open(fb, '_blank', 'noopener,width=600,height=500');
         }
@@ -2135,88 +2146,23 @@
             window.open(tw, '_blank', 'noopener,width=600,height=500');
         }
 
-        function shareInstagramStory() {
-            const arch = archetypes[userArchetype];
-            if (!arch) return;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = 1080;
-            canvas.height = 1920;
-            const ctx = canvas.getContext('2d');
-
-            const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
-            grad.addColorStop(0, '#0A0A0A');
-            grad.addColorStop(1, '#1B2A42');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1080, 1920);
-
-            ctx.fillStyle = '#D4A574';
-            ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('CHLOEIQ', 540, 280);
-
-            ctx.fillStyle = '#8B7C6E';
-            ctx.font = '40px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText("My Home StyleDNA is", 540, 480);
-
-            ctx.font = '180px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText(arch.icon || '\u{1F3E0}', 540, 720);
-
-            ctx.fillStyle = '#F5F5F3';
-            ctx.font = 'bold 96px Georgia, "Playfair Display", serif';
-            ctx.fillText(arch.name, 540, 880);
-
-            ctx.fillStyle = '#D4A574';
-            ctx.font = 'italic 44px Georgia, serif';
-            wrapText(ctx, arch.lifestyle || '', 540, 970, 900, 56);
-
-            ctx.fillStyle = '#F5F5F3';
-            ctx.font = '38px -apple-system, sans-serif';
-            wrapText(ctx, arch.desc || '', 540, 1180, 900, 52);
-
-            ctx.fillStyle = '#D4A574';
-            ctx.fillRect(0, 1700, 1080, 4);
-            ctx.fillStyle = '#F5F5F3';
-            ctx.font = 'bold 44px -apple-system, sans-serif';
-            ctx.fillText('Find your StyleDNA', 540, 1790);
-            ctx.fillStyle = '#D4A574';
-            ctx.font = 'bold 38px -apple-system, sans-serif';
-            ctx.fillText('homestyledna.vercel.app', 540, 1850);
-
-            canvas.toBlob((blob) => {
-                if (!blob) {
-                    alert('Could not generate image. Try the regular share button instead.');
-                    return;
-                }
-                const file = new File([blob], 'my-styledna.png', { type: 'image/png' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                        files: [file],
-                        title: 'My Home StyleDNA',
-                        text: `I'm a ${arch.name.replace(/^The\s+/i,'')}! Find your StyleDNA: ${buildShareUrl('instagram')}`
-                    }).catch(err => {
-                        if (err && err.name !== 'AbortError') {
-                            triggerDownload(blob);
-                        }
-                    });
-                } else {
-                    triggerDownload(blob);
-                }
-            }, 'image/png');
-        }
-
-        function triggerDownload(blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'my-styledna-story.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-            setTimeout(() => {
-                alert('Image saved! Open Instagram, tap "+", choose Story, and select the image from your camera roll.');
-            }, 300);
+        function shareToInstagram() {
+            // Instagram has no public web share URL — they intentionally don't support it.
+            // The only path that works is the OS native share sheet on mobile, which includes Instagram.
+            if (isMobile() && navigator.share) {
+                const arch = archetypes[userArchetype];
+                navigator.share({
+                    title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
+                    text: buildShareText('instagram'),
+                    url: buildShareUrl('instagram')
+                }).catch(err => {
+                    if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
+                });
+                return;
+            }
+            // Desktop fallback: copy link with a note
+            copyShareLink();
+            alert("Instagram doesn't allow direct web sharing. We've copied the link — you can paste it into your Instagram bio or DM.");
         }
 
         function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
