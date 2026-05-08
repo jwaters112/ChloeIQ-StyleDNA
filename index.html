@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,8 +9,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
         :root {
@@ -30,6 +27,26 @@
             background: var(--primary-black);
             color: var(--primary-white);
             overflow: hidden;
+        }
+
+        /* Disable text selection on UI chrome only — keep it enabled on inputs and result content */
+        .welcome-screen,
+        .preference-screen,
+        .swipe-screen,
+        .loading-screen,
+        .activation-screen,
+        .results-sticky-header,
+        .swipe-button,
+        .pref-option,
+        .welcome-cta,
+        .pref-continue,
+        .activation-cta,
+        .btn-primary,
+        .btn-secondary,
+        .back-btn,
+        .share-channel-btn {
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .app-container {
@@ -296,6 +313,7 @@
             background: var(--subtle-gray);
             cursor: grab;
             user-select: none;
+            -webkit-user-select: none;
             touch-action: none;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             transition: none;
@@ -1033,7 +1051,6 @@
             cursor: pointer;
             transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
             min-height: 72px;
-            user-select: none;
         }
         .share-channel-btn svg { display: block; }
         .share-channel-btn span { line-height: 1; }
@@ -1257,14 +1274,14 @@
 
             <div class="swipe-container" id="swipeContainer">
                 <div class="swipe-indicators">
-                    <span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span>
-                    <span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥</span>
+                    <span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">&#10005;</span>
+                    <span class="swipe-indicator swipe-indicator-right" id="indicatorRight">&#9829;</span>
                 </div>
             </div>
 
             <div class="swipe-footer">
-                <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me">✕</button>
-                <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it">♥</button>
+                <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me">&#10005;</button>
+                <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it">&#9829;</button>
             </div>
         </div>
 
@@ -1284,7 +1301,7 @@
         <div class="screen results-screen" id="resultsScreen">
             <div class="results-sticky-header">
                 <div class="results-archetype">
-                    <div class="archetype-icon" id="archetypeIcon">🖼️</div>
+                    <div class="archetype-icon" id="archetypeIcon">&#128444;&#65039;</div>
                     <h2 class="archetype-name" id="archetypeName">The Curator</h2>
                     <p class="archetype-tagline">Your Aesthetic Signature</p>
                 </div>
@@ -1312,7 +1329,7 @@
                 <div class="results-section">
                     <h3 class="results-section-title">Your Lifestyle</h3>
                     <p class="lifestyle-text" id="lifestyleText">
-                        Entertainer • Collector • Design-Forward
+                        Entertainer &bull; Collector &bull; Design-Forward
                     </p>
                 </div>
 
@@ -1338,9 +1355,9 @@
                                 <span>Instagram</span>
                             </button>
                         </div>
-                        <button class="welcome-cta share-cta-primary" onclick="shareResults()">📲 More options</button>
-                        <button class="welcome-cta share-cta-secondary" onclick="shareInstagramStory()">📸 Share Story Image</button>
-                        <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">🔗 Copy Link</button>
+                        <button class="welcome-cta share-cta-primary" onclick="shareResults()">&#128242; More options</button>
+                        <button class="welcome-cta share-cta-secondary" onclick="shareInstagramStory()">&#128248; Share Story Image</button>
+                        <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">&#128279; Copy Link</button>
                     </div>
                 </div>
             </div>
@@ -1469,25 +1486,25 @@
         <!-- ACTIVATION SCREEN -->
         <div class="screen activation-screen" id="activationScreen">
             <div class="activation-content">
-                <div class="success-icon">✓</div>
+                <div class="success-icon">&#10003;</div>
                 <h2 class="activation-headline">Welcome to ChloeIQ</h2>
                 <p class="activation-subheading">Your StyleDNA is Live</p>
 
                 <div class="activation-cards">
                     <div class="activation-card">
-                        <div class="activation-card-icon">🏘️</div>
+                        <div class="activation-card-icon">&#127960;&#65039;</div>
                         <div class="activation-card-title">Homes Matched to Your Taste</div>
                         <div class="activation-card-desc">See every home that aligns with your StyleDNA in your budget</div>
                     </div>
 
                     <div class="activation-card">
-                        <div class="activation-card-icon">📅</div>
+                        <div class="activation-card-icon">&#128197;</div>
                         <div class="activation-card-title">Open Houses This Weekend</div>
                         <div class="activation-card-desc">Tour homes curated for your aesthetic and preferences</div>
                     </div>
 
                     <div class="activation-card">
-                        <div class="activation-card-icon">👥</div>
+                        <div class="activation-card-icon">&#128101;</div>
                         <div class="activation-card-title">Compare with Friends</div>
                         <div class="activation-card-desc">See how your taste aligns with people you know</div>
                     </div>
@@ -1507,31 +1524,31 @@
                 .replace(/^-|-$/g, '');
         }
         const STYLE_IMAGE_MAP = {
-    'Modern Minimalist': 'minimalist.png',
-    'Modern Farmhouse': 'farmhouse-chic.png',
-    'Modern Japanese': 'japanese-zen.png',
-    'Farmhouse': 'farmhouse-classic.png',
-    'Mid-Century Modern': 'midcentury.png',
-    'Industrial Loft': 'industrial.png',
-    'Industrial Contemporary': 'industrial-sleek.png',
-    'Art Deco': 'artdeco.png',
-    'Bohemian / Eclectic': 'bohemian.png',
-    'Coastal Modern': 'coastal.png',
-    'Contemporary Luxury': 'luxury-contemporary.png',
-    'Cottage Core': 'cottage.png',
-    'Mediterranean': 'mediterranean.png',
-    'Maximalist': 'maximalist.png',
-    'Scandinavian': 'scandinavian.png',
-    'Traditional / Classic': 'traditional.png',
-    'Transitional': 'transitional.png',
-    'Rustic Modern': 'rustic.png',
-    'Luxury Contemporary': 'luxury.png'
-    'Tropical': 'tropical.png'
-};
+            'Modern Minimalist': 'minimalist.png',
+            'Modern Farmhouse': 'farmhouse-chic.png',
+            'Modern Japanese': 'japanese-zen.png',
+            'Farmhouse': 'farmhouse-classic.png',
+            'Mid-Century Modern': 'midcentury.png',
+            'Industrial Loft': 'industrial.png',
+            'Industrial Contemporary': 'industrial-sleek.png',
+            'Art Deco': 'artdeco.png',
+            'Bohemian / Eclectic': 'bohemian.png',
+            'Coastal Modern': 'coastal.png',
+            'Contemporary Luxury': 'luxury-contemporary.png',
+            'Cottage Core': 'cottage.png',
+            'Mediterranean': 'mediterranean.png',
+            'Maximalist': 'maximalist.png',
+            'Scandinavian': 'scandinavian.png',
+            'Traditional / Classic': 'traditional.png',
+            'Transitional': 'transitional.png',
+            'Rustic Modern': 'rustic.png',
+            'Luxury Contemporary': 'luxury.png',
+            'Tropical': 'tropical.png'
+        };
 
-function styleImage(style) {
-    return './' + (STYLE_IMAGE_MAP[style] || 'placeholder.png');
-}
+        function styleImage(style) {
+            return './' + (STYLE_IMAGE_MAP[style] || 'placeholder.png');
+        }
         function fallbackImage(style) {
             const palette = {
                 'Modern Minimalist':['#2A2A2A','#F5F5F3'],
@@ -1628,12 +1645,12 @@ function styleImage(style) {
         Object.values(homesByPrice).forEach(tier => tier.forEach(h => { h.image = styleImage(h.style); h.fallback = fallbackImage(h.style); }));
 
         const archetypes = {
-            'curator': {name:'The Curator', icon:'🖼️', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer • Collector • Design-Forward'},
-            'sanctuary': {name:'The Sanctuary Seeker', icon:'🕯️', desc:'Your home is a peaceful retreat from the world.', aesthetic:['Warm Modern','Transitional','Hygge'], lifestyle:'Family-Centered • Wellness • Quiet Entertainer'},
-            'architect': {name:'The Experience Architect', icon:'🎪', desc:'Your home is a stage for connection and togetherness.', aesthetic:['Open-Concept','Industrial','Contemporary'], lifestyle:'Host • Community-Builder • Social'},
-            'custodian': {name:'The Heritage Custodian', icon:'🏛️', desc:'You respect the past and live with intention.', aesthetic:['Historic','Transitional','Eclectic'], lifestyle:'Storyteller • Traditionalist • Cultural'},
-            'visionary': {name:'The Visionary', icon:'✨', desc:'Forward-thinking, unafraid of unconventional beauty.', aesthetic:['Modern','Brutalist','Avant-Garde'], lifestyle:'Innovator • Trendsetter • Creative'},
-            'authenticist': {name:'The Authenticist', icon:'🌿', desc:'Real beats perfect. Honest materials and character.', aesthetic:['Industrial','Rustic-Modern','Sustainable'], lifestyle:'Values-Driven • Eco-Conscious • Independent'}
+            'curator': {name:'The Curator', icon:'\u{1F5BC}\uFE0F', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
+            'sanctuary': {name:'The Sanctuary Seeker', icon:'\u{1F56F}\uFE0F', desc:'Your home is a peaceful retreat from the world.', aesthetic:['Warm Modern','Transitional','Hygge'], lifestyle:'Family-Centered \u2022 Wellness \u2022 Quiet Entertainer'},
+            'architect': {name:'The Experience Architect', icon:'\u{1F3AA}', desc:'Your home is a stage for connection and togetherness.', aesthetic:['Open-Concept','Industrial','Contemporary'], lifestyle:'Host \u2022 Community-Builder \u2022 Social'},
+            'custodian': {name:'The Heritage Custodian', icon:'\u{1F3DB}\uFE0F', desc:'You respect the past and live with intention.', aesthetic:['Historic','Transitional','Eclectic'], lifestyle:'Storyteller \u2022 Traditionalist \u2022 Cultural'},
+            'visionary': {name:'The Visionary', icon:'\u2728', desc:'Forward-thinking, unafraid of unconventional beauty.', aesthetic:['Modern','Brutalist','Avant-Garde'], lifestyle:'Innovator \u2022 Trendsetter \u2022 Creative'},
+            'authenticist': {name:'The Authenticist', icon:'\u{1F33F}', desc:'Real beats perfect. Honest materials and character.', aesthetic:['Industrial','Rustic-Modern','Sustainable'], lifestyle:'Values-Driven \u2022 Eco-Conscious \u2022 Independent'}
         };
 
         let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = 'curator', selectedPrice = null, selectedPriceLabel = '';
@@ -1669,35 +1686,35 @@ function styleImage(style) {
         function selectPrice(index, label, btn) {
             selectedPrice = index;
             selectedPriceLabel = label;
-            setActiveOption('priceScreen', btn || (event && event.target && event.target.closest('.pref-option')));
+            setActiveOption('priceScreen', btn);
             setTimeout(()=>goToFloorPlan(), AUTO_ADVANCE_MS);
         }
         function goToFloorPlan() { if (selectedPrice === null) return; showScreen('floorPlanScreen', true); }
 
         function selectFloorPlan(value, btn) {
             userPreferences.floorPlan = value;
-            setActiveOption('floorPlanScreen', btn || (event && event.target && event.target.closest('.pref-option')));
+            setActiveOption('floorPlanScreen', btn);
             setTimeout(()=>goToBackyard(), AUTO_ADVANCE_MS);
         }
         function goToBackyard() { if (userPreferences.floorPlan === null) return; showScreen('backyardScreen', true); }
 
         function selectBackyard(value, btn) {
             userPreferences.backyard = value;
-            setActiveOption('backyardScreen', btn || (event && event.target && event.target.closest('.pref-option')));
+            setActiveOption('backyardScreen', btn);
             setTimeout(()=>goToKitchen(), AUTO_ADVANCE_MS);
         }
         function goToKitchen() { if (userPreferences.backyard === null) return; showScreen('kitchenScreen', true); }
 
         function selectKitchen(value, btn) {
             userPreferences.kitchen = value;
-            setActiveOption('kitchenScreen', btn || (event && event.target && event.target.closest('.pref-option')));
+            setActiveOption('kitchenScreen', btn);
             setTimeout(()=>goToEntertaining(), AUTO_ADVANCE_MS);
         }
         function goToEntertaining() { if (userPreferences.kitchen === null) return; showScreen('entertainingScreen', true); }
 
         function selectEntertaining(value, btn) {
             userPreferences.entertaining = value;
-            setActiveOption('entertainingScreen', btn || (event && event.target && event.target.closest('.pref-option')));
+            setActiveOption('entertainingScreen', btn);
             setTimeout(()=>goToSwipe(), AUTO_ADVANCE_MS);
         }
 
@@ -1845,7 +1862,7 @@ function styleImage(style) {
 
         function initializeSwipe() {
             const container = document.getElementById('swipeContainer');
-            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥</span></div>';
+            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665</span></div>';
             currentSwipeIndex = 0;
             renderCardStack();
             updateProgress();
@@ -2005,11 +2022,11 @@ function styleImage(style) {
                 });
                 img.src = h.image;
             });
-            showScreen('resultsScreen');
+            showScreen('resultsScreen', false);
         }
 
-        function captureEmail() {showScreen('dataCaptureScreen');}
-        function skipDataCapture() {showScreen('activationScreen');}
+        function captureEmail() { showScreen('dataCaptureScreen', true); }
+        function skipDataCapture() { showScreen('activationScreen', true); }
         function handleNeighborhoodChange(value) {
             const otherInput = document.getElementById('otherNeighborhoodInput');
             if (value === '__other__') {
@@ -2035,9 +2052,9 @@ function styleImage(style) {
                 email: document.getElementById('emailInput').value,
                 neighborhood: neighborhood
             };
-            showScreen('activationScreen', false);
+            showScreen('activationScreen', true);
         }
-        function finalAction() {alert(`Thank you, ${userData?.name||'friend'}!`);}
+        function finalAction() { alert(`Thank you, ${userData?.name||'friend'}!`); }
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
@@ -2054,7 +2071,7 @@ function styleImage(style) {
             const arch = archetypes[userArchetype];
             const url = buildShareUrl(medium);
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            return `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz 🏠\n\n${arch.desc}\n\nFind your home StyleDNA: ${url}`;
+            return `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz \u{1F3E0}\n\n${arch.desc}\n\nFind your home StyleDNA: ${url}`;
         }
 
         function shareResults() {
@@ -2067,6 +2084,8 @@ function styleImage(style) {
                 }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
+            } else {
+                copyShareLink();
             }
         }
 
@@ -2079,7 +2098,7 @@ function styleImage(style) {
                 const btn = document.getElementById('copyLinkBtn');
                 if (btn) {
                     const original = btn.textContent;
-                    btn.textContent = '✓ Copied!';
+                    btn.textContent = '\u2713 Copied!';
                     setTimeout(() => { btn.textContent = original; }, 2000);
                 }
             }).catch(() => {
@@ -2094,24 +2113,23 @@ function styleImage(style) {
                 const btn = document.getElementById('copyLinkBtn');
                 if (btn) {
                     const original = btn.textContent;
-                    btn.textContent = '✓ Copied!';
+                    btn.textContent = '\u2713 Copied!';
                     setTimeout(() => { btn.textContent = original; }, 2000);
                 }
             });
         }
 
         function shareToFacebook() {
-            const arch = archetypes[userArchetype];
-            const cleanName = (arch.name || '').replace(/^The\s+/i, '');
             const url = buildShareUrl('facebook');
-            const fb = `https://www.facebook.com/dialog/share?app_id=YOUR_APP_ID&display=popup&href=${encodeURIComponent(url)}&quote=${encodeURIComponent(`I'm a ${cleanName} - ${arch.desc}`)}`;
-            window.open(fb, '_blank', 'noopener,width=600,height=400');
+            // Uses public sharer endpoint — no Facebook App ID required.
+            const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            window.open(fb, '_blank', 'noopener,width=600,height=500');
         }
 
         function shareToTwitter() {
             const arch = archetypes[userArchetype];
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const text = `I'm a ${cleanName} on @ChloeIQ's StyleDNA quiz 🏠 What's yours?`;
+            const text = `I'm a ${cleanName} on @ChloeIQ's StyleDNA quiz \u{1F3E0} What's yours?`;
             const url = buildShareUrl('twitter');
             const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=StyleDNA,HomeDesign`;
             window.open(tw, '_blank', 'noopener,width=600,height=500');
@@ -2142,7 +2160,7 @@ function styleImage(style) {
             ctx.fillText("My Home StyleDNA is", 540, 480);
 
             ctx.font = '180px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText(arch.icon || '🏠', 540, 720);
+            ctx.fillText(arch.icon || '\u{1F3E0}', 540, 720);
 
             ctx.fillStyle = '#F5F5F3';
             ctx.font = 'bold 96px Georgia, "Playfair Display", serif';
