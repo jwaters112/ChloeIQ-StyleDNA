@@ -1749,36 +1749,36 @@
 
         const PREF_WEIGHTS = {
             floorPlan: {
-                open:      {architect:3, visionary:2, curator:1},
-                defined:   {custodian:3, curator:1, authenticist:1},
-                balanced:  {sanctuary:3, custodian:1, authenticist:1}
+                open:      {architect:3, visionary:3, curator:1},
+                defined:   {authenticist:3, custodian:2, curator:1},
+                balanced:  {sanctuary:2, custodian:1, authenticist:1}
             },
             backyard: {
-                large:     {architect:3, sanctuary:2, custodian:1},
-                patio:     {sanctuary:2, authenticist:2, curator:1},
-                minimal:   {curator:2, visionary:3},
+                large:     {architect:3, custodian:1, authenticist:1},
+                patio:     {authenticist:3, sanctuary:1, curator:1},
+                minimal:   {visionary:3, curator:2},
                 na:        {}
             },
             kitchen: {
-                statement: {curator:3, architect:2, visionary:1},
-                modern:    {curator:2, visionary:3, sanctuary:1},
-                cozy:      {sanctuary:3, custodian:2, authenticist:2},
+                statement: {curator:3, architect:3, visionary:1},
+                modern:    {visionary:3, curator:2, sanctuary:1},
+                cozy:      {custodian:2, authenticist:2, sanctuary:1},
                 na:        {}
             },
             entertaining: {
-                frequent:  {architect:3, curator:1, visionary:1},
-                intimate:  {sanctuary:3, custodian:2, authenticist:2},
+                frequent:  {architect:3, visionary:2, curator:1},
+                intimate:  {authenticist:3, custodian:2, sanctuary:1},
                 na:        {}
             }
         };
 
         const STYLE_ARCHETYPE = {
-            'Modern Minimalist':       {curator:3, visionary:1},
+            'Modern Minimalist':       {visionary:3, curator:1},
             'Contemporary Luxury':     {curator:3, architect:1},
             'Transitional':            {sanctuary:3, custodian:1},
-            'Industrial Loft':         {visionary:3, architect:1},
+            'Industrial Loft':         {architect:3, visionary:1},
             'Bohemian / Eclectic':     {authenticist:3, custodian:1},
-            'Coastal Modern':          {sanctuary:3, curator:1},
+            'Coastal Modern':          {sanctuary:3, architect:1},
             'Scandinavian':            {sanctuary:3, curator:1},
             'Traditional / Classic':   {custodian:3, sanctuary:1},
             'Farmhouse':               {authenticist:3, sanctuary:1},
@@ -1786,11 +1786,11 @@
             'Mediterranean':           {custodian:3, authenticist:1},
             'Rustic Modern':           {authenticist:3, sanctuary:1},
             'Modern Farmhouse':        {sanctuary:3, authenticist:1},
-            'Industrial Contemporary': {visionary:3, curator:1},
+            'Industrial Contemporary': {visionary:3, architect:1},
             'Art Deco':                {curator:3, custodian:1},
-            'Maximalist':              {authenticist:3, custodian:1},
-            'Tropical':                {sanctuary:3, authenticist:1},
-            'Modern Japanese':         {visionary:3, sanctuary:1},
+            'Maximalist':              {curator:3, authenticist:1},
+            'Tropical':                {architect:3, sanctuary:1},
+            'Modern Japanese':         {sanctuary:3, visionary:1},
             'Luxury Contemporary':     {curator:3, visionary:1},
             'Cottage Core':            {custodian:3, authenticist:1}
         };
