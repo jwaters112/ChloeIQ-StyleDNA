@@ -59,6 +59,7 @@
         /* ===== WELCOME SCREEN ===== */
         .welcome-screen {
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
+            display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
@@ -120,8 +121,11 @@
         /* ===== PREFERENCE SCREENS ===== */
         .preference-screen {
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
+            display: flex !important;
+            flex-direction: column;
             justify-content: flex-start;
-            padding: 40px 20px;
+            align-items: center;
+            padding: 40px 20px 100px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -129,9 +133,7 @@
         .preference-content {
             max-width: 600px;
             width: 100%;
-            margin: 0 auto;
             animation: fadeInUp 0.8s ease-out;
-            min-height: fit-content;
         }
 
         .preference-headline {
@@ -451,6 +453,7 @@
 
         /* ===== LOADING SCREEN ===== */
         .loading-screen {
+            display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
@@ -670,19 +673,19 @@
 
         /* ===== DATA CAPTURE SCREEN ===== */
         .data-capture-screen {
-            padding: 40px 20px;
+            padding: 40px 20px 100px;
+            display: flex !important;
+            flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            min-height: 100vh;
         }
 
         .form-container {
             max-width: 500px;
             width: 100%;
-            margin: 0 auto;
         }
 
         .form-heading {
@@ -787,20 +790,20 @@
 
         /* ===== ACTIVATION SCREEN ===== */
         .activation-screen {
-            padding: 40px 20px;
+            padding: 40px 20px 100px;
+            display: flex !important;
+            flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-navy) 100%);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            min-height: 100vh;
         }
 
         .activation-content {
             max-width: 500px;
             width: 100%;
             text-align: center;
-            margin: 0 auto;
         }
 
         .success-icon {
