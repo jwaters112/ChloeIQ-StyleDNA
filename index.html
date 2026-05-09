@@ -2059,11 +2059,13 @@
             return url.toString();
         }
 
-        function buildShareText(medium) {
+        function buildShareText(medium, includeUrl) {
             const arch = archetypes[userArchetype];
-            const url = buildShareUrl(medium);
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            return `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz \u{1F3E0}\n\n${arch.desc}\n\nFind your home StyleDNA: ${url}`;
+            const base = `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz \u{1F3E0}\n\n${arch.desc}`;
+            if (includeUrl === false) return base;
+            const url = buildShareUrl(medium);
+            return `${base}\n\nFind your home StyleDNA: ${url}`;
         }
 
         // Detect if we're on mobile — navigator.share is the right path there
@@ -2072,7 +2074,7 @@
         }
 
         function shareResults() {
-            const text = buildShareText('native');
+            const text = buildShareText('native', false);
             const arch = archetypes[userArchetype];
             if (navigator.share) {
                 navigator.share({
@@ -2124,7 +2126,7 @@
                 const arch = archetypes[userArchetype];
                 navigator.share({
                     title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
-                    text: buildShareText('facebook'),
+                    text: buildShareText('facebook', false),
                     url: buildShareUrl('facebook')
                 }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('FB share failed:', err);
@@ -2153,7 +2155,7 @@
                 const arch = archetypes[userArchetype];
                 navigator.share({
                     title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
-                    text: buildShareText('instagram'),
+                    text: buildShareText('instagram', false),
                     url: buildShareUrl('instagram')
                 }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
