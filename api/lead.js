@@ -12,6 +12,17 @@ const BUDGETS = {
   4: { label: '$1M+', priceMin: 1000000 },
 };
 
+// Neighborhoods that are not cities map to ZIP codes so Lofty search criteria match real listings.
+const AREA_ZIPS = {
+  'Uptown': ['75201', '75204'], 'Downtown Dallas': ['75201', '75202'], 'Preston Hollow': ['75225', '75229', '75230'],
+  'Bishop Arts': ['75208'], 'Lakewood': ['75214'], 'Lake Highlands': ['75238', '75243'], 'M Streets': ['75206'],
+  'Oak Lawn': ['75219'], 'Oak Cliff': ['75208', '75211', '75224'], 'Deep Ellum': ['75226'], 'Knox-Henderson': ['75205', '75206'],
+  'Turtle Creek': ['75219'], 'Devonshire': ['75209'],
+  'TCU/West Cliff': ['76109', '76110'], 'Tanglewood': ['76109'], 'Rivercrest': ['76107'], 'Cultural District': ['76107'],
+  'Near Southside': ['76104'], 'Mistletoe Heights': ['76104'], 'Downtown Fort Worth': ['76102'],
+  'Las Colinas': ['75038', '75039', '75063'],
+};
+
 const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).trim().slice(0, n) : '';
 const list = (v, n = 20) => (Array.isArray(v) ? v.slice(0, n).map((x) => clip(x, 60)).filter(Boolean) : []);
 
@@ -104,7 +115,11 @@ async function handle(req, res) {
     lead.inquiry = {};
     if (budget && budget.priceMin) lead.inquiry.priceMin = budget.priceMin;
     if (budget && budget.priceMax) lead.inquiry.priceMax = budget.priceMax;
-    if (area) lead.inquiry.locations = [{ description: area, stateCode: 'TX' }];
+    if (area) {
+      lead.inquiry.locations = AREA_ZIPS[area]
+        ? AREA_ZIPS[area].map((z) => ({ zipCode: z, stateCode: 'TX', description: area }))
+        : [{ city: area, stateCode: 'TX', description: area }];
+    }
   }
 
   try {

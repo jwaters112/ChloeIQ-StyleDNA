@@ -1215,6 +1215,10 @@
         .contact-lines a { color: var(--soft-white); text-decoration: none; border-bottom: 1px solid var(--hairline); }
         .contact-lines a:hover { color: var(--gold); }
 
+        .text-link { display: block; margin: 14px auto 0; background: none; border: none; color: var(--silver); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--hairline); cursor: pointer; padding: 6px; }
+        .text-link:hover { color: var(--gold); }
+        .activation-share { margin-top: 12px; }
+
         /* Legal footer (TREC: IABS and Consumer Protection Notice links) */
         .legal { text-align: center; font-size: 13px; line-height: 1.7; color: var(--silver); padding-top: 28px; }
         .legal p { margin-bottom: 8px; }
@@ -1496,6 +1500,7 @@
                         A design-driven perfectionist who believes every home is a curated expression of taste.
                     </p>
                     <button class="welcome-cta" onclick="captureEmail()">Get Homes That Fit My Style</button>
+                    <button class="text-link" onclick="openHomes('range')" id="browseRangeLink">Or browse homes for sale in your range</button>
                 </div>
 
                 <div class="results-section">
@@ -1703,7 +1708,8 @@
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
                 <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
-                <button class="activation-cta" onclick="shareResults()">Share My StyleDNA</button>
+                <button class="activation-cta" id="homesBtn" onclick="openHomes('area')">See Homes For Sale Now</button>
+                <button class="welcome-cta share-cta-secondary activation-share" onclick="shareResults()">Share My StyleDNA</button>
                 <button class="activation-link" onclick="finalAction()">Back to My Results</button>
             </div>
         </div>
@@ -2168,6 +2174,7 @@
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
+            document.getElementById('browseRangeLink').textContent = `Or browse DFW homes for sale, ${selectedPriceLabel}`;
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
@@ -2198,6 +2205,36 @@
             });
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
+        }
+
+
+        // ===== Real listings: link into Josh's Lofty IDX search (joshwaters.com) =====
+        const IDX_BASE = 'https://joshwaters.com/listing';
+        const PRICE_RANGES = { 0: ',300000', 1: '300000,500000', 2: '500000,750000', 3: '750000,1000000', 4: '1000000,' };
+        // Neighborhoods that are not cities search by ZIP code. Everything else searches as "<Name>, TX".
+        const AREA_ZIPS = {
+            'Uptown': ['75201','75204'], 'Downtown Dallas': ['75201','75202'], 'Preston Hollow': ['75225','75229','75230'],
+            'Bishop Arts': ['75208'], 'Lakewood': ['75214'], 'Lake Highlands': ['75238','75243'], 'M Streets': ['75206'],
+            'Oak Lawn': ['75219'], 'Oak Cliff': ['75208','75211','75224'], 'Deep Ellum': ['75226'], 'Knox-Henderson': ['75205','75206'],
+            'Turtle Creek': ['75219'], 'Devonshire': ['75209'],
+            'TCU/West Cliff': ['76109','76110'], 'Tanglewood': ['76109'], 'Rivercrest': ['76107'], 'Cultural District': ['76107'],
+            'Near Southside': ['76104'], 'Mistletoe Heights': ['76104'], 'Downtown Fort Worth': ['76102'],
+            'Las Colinas': ['75038','75039','75063']
+        };
+        const KNOWN_AREAS = new Set([...document.querySelectorAll('#neighborhoodInput option')].map(o => o.value).filter(v => v && v !== '__other__'));
+        function homesUrl(area, budgetIdx) {
+            const cond = { purchasetype: ['For Sale'] };
+            if (area && AREA_ZIPS[area]) cond.location = { zipCode: AREA_ZIPS[area] };
+            else if (area && KNOWN_AREAS.has(area)) cond.location = { city: [area + ', TX'] };
+            if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
+            const q = [['listingSource', 'all listings'], ['condition', JSON.stringify(cond)], ['page', '1'],
+                ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
+            return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+        }
+        function openHomes(where) {
+            const area = where === 'area' && userData ? userData.neighborhood : null;
+            track('homes_clicked', { where, archetype: userArchetype, budget: selectedPriceLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
+            window.open(homesUrl(area, selectedPrice), '_blank', 'noopener');
         }
 
         function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
@@ -2282,6 +2319,8 @@
             document.getElementById('activationText').textContent = saved
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
                 : 'Share your result and see how your taste compares with your friends.';
+            const area2 = userData && userData.neighborhood;
+            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See Homes For Sale in ${area2}` : 'See Homes For Sale Now';
             showScreen('activationScreen', true);
         }
         function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
