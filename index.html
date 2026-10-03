@@ -1863,7 +1863,7 @@
             if (btn) btn.classList.add('active');
         }
 
-        function goToPrice() { track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct' }); showScreen('priceScreen', true); }
+        function goToPrice() { if (!window.__quizStart) window.__quizStart = Date.now(); track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct' }); showScreen('priceScreen', true); }
         function selectPrice(index, label, btn) {
             selectedPrice = index;
             selectedPriceLabel = label;
@@ -2289,7 +2289,8 @@
                 preferences: userPreferences,
                 loved: loves.map(h => h.style),
                 passed: passes.map(h => h.style),
-                utm: window.__utm || {}
+                utm: window.__utm || {},
+                elapsed: window.__quizStart ? Math.round((Date.now() - window.__quizStart) / 1000) : null
             };
 
             const btn = document.getElementById('submitBtn');

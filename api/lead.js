@@ -23,6 +23,22 @@ const AREA_ZIPS = {
   'Las Colinas': ['75038', '75039', '75063'],
 };
 
+// Spam limits. Serverless instances are short-lived, so these are a best-effort first line;
+// the honeypot and the too-fast check below catch most bots on their own.
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX_PER_IP = 5;
+const MIN_QUIZ_SECONDS = 20; // a real person can't finish the price step, 5 questions and the swipes faster
+const recentByIp = new Map();
+const recentEmails = new Map();
+
+function overLimit(ip, now) {
+  const hits = (recentByIp.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
+  hits.push(now);
+  recentByIp.set(ip, hits);
+  if (recentByIp.size > 5000) recentByIp.clear();
+  return hits.length > RATE_MAX_PER_IP;
+}
+
 const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).trim().slice(0, n) : '';
 const list = (v, n = 20) => (Array.isArray(v) ? v.slice(0, n).map((x) => clip(x, 60)).filter(Boolean) : []);
 
@@ -51,6 +67,14 @@ async function handle(req, res) {
 
   // Spam trap: real people never fill this hidden field.
   if (body.website) return res.status(200).json({ ok: true });
+  // Finished the whole quiz in under 20 seconds: a bot. Answer ok so it doesn't retry.
+  const elapsed = Number(body.elapsed);
+  if (body.elapsed !== null && body.elapsed !== undefined && Number.isFinite(elapsed) && elapsed < MIN_QUIZ_SECONDS) {
+    return res.status(200).json({ ok: true });
+  }
+  const now = Date.now();
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  if (overLimit(ip, now)) return res.status(429).json({ ok: false, error: 'too_many' });
 
   const name = clip(body.name, 60);
   const email = clip(body.email, 120).toLowerCase();
@@ -59,6 +83,10 @@ async function handle(req, res) {
   if (!name || !/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) {
     return res.status(400).json({ ok: false, error: 'missing_fields' });
   }
+
+  // Same email again within 10 minutes (double submit, back button): don't create a second lead.
+  const seen = recentEmails.get(email);
+  if (seen && now - seen < RATE_WINDOW_MS) return res.status(200).json({ ok: true, duplicate: true });
 
   const key = process.env.LOFTY_API_KEY;
   if (!key) {
@@ -134,6 +162,8 @@ async function handle(req, res) {
       console.error('Lofty create lead failed', r.status, text.slice(0, 500));
       return res.status(502).json({ ok: false, error: 'crm_error' });
     }
+    recentEmails.set(email, now);
+    if (recentEmails.size > 5000) recentEmails.clear();
     let leadId = null;
     try { leadId = JSON.parse(text).leadId || null; } catch (e) {}
     return res.status(200).json({ ok: true, leadId });

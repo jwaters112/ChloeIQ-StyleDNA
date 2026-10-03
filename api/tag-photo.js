@@ -37,6 +37,9 @@ module.exports = async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'method_not_allowed' });
   }
+  // Test tool only: refuse on the public site so nobody can spend the API credits.
+  // Preview links sit behind Vercel sign-in. The daily run will get its own protected route.
+  if (process.env.VERCEL_ENV === 'production') return res.status(404).json({ ok: false, error: 'not_found' });
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return res.status(503).json({ ok: false, error: 'not_configured' });
 
