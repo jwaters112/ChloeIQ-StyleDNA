@@ -1612,7 +1612,7 @@
             'Art Deco': 'artdeco.png',
             'Bohemian / Eclectic': 'bohemian.png',
             'Coastal Modern': 'coastal.png',
-            'Contemporary Luxury': 'luxury-contemporary.png',
+            'Open-Concept Contemporary': 'luxury-contemporary.png',
             'Cottage Core': 'cottage.png',
             'Mediterranean': 'mediterranean.png',
             'Maximalist': 'maximalist.png',
@@ -1630,7 +1630,7 @@
         function fallbackImage(style) {
             const palette = {
                 'Modern Minimalist':['#2A2A2A','#F5F5F3'],
-                'Contemporary Luxury':['#1B2A42','#D4A574'],
+                'Open-Concept Contemporary':['#1B2A42','#D4A574'],
                 'Transitional':['#1B2A42','#8B7C6E'],
                 'Industrial Loft':['#696969','#F5F5F3'],
                 'Bohemian / Eclectic':['#CD853F','#F5DEB3'],
@@ -1656,70 +1656,36 @@
             return styleImage(style);
         }
 
-        const homesByPrice = {
-            0: [
-                {id:0, style:'Farmhouse', title:'Cozy Farmhouse', desc:'Warm and welcoming charm', price:'$275K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:1, style:'Cottage Core', title:'Storybook Cottage', desc:'Charming and nostalgic', price:'$268K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
-                {id:2, style:'Transitional', title:'Classic Blend', desc:'Traditional meets modern', price:'$295K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'sanctuary'},
-                {id:3, style:'Traditional / Classic', title:'Heritage Home', desc:'Timeless character', price:'$285K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
-                {id:4, style:'Modern Farmhouse', title:'Contemporary Cottage', desc:'Fresh farmhouse charm', price:'$290K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'},
-                {id:5, style:'Scandinavian', title:'Minimal Warmth', desc:'Clean lines, soft feel', price:'$280K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'sanctuary'},
-                {id:6, style:'Cottage Core', title:'Garden Cottage', desc:'Romantic and inviting', price:'$272K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
-                {id:7, style:'Farmhouse', title:'Rural Charm', desc:'Rustic with updates', price:'$270K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:8, style:'Traditional / Classic', title:'Lasting Heritage', desc:'Established character', price:'$282K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
-                {id:9, style:'Transitional', title:'Updated Classic', desc:'Heritage with modern', price:'$298K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'sanctuary'}
-            ],
-            1: [
-                {id:0, style:'Modern Farmhouse', title:'Refined Farmhouse', desc:'Elevated rustic', price:'$450K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'},
-                {id:1, style:'Transitional', title:'Perfect Balance', desc:'Classic with updates', price:'$425K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'sanctuary'},
-                {id:2, style:'Scandinavian', title:'Nordic Calm', desc:'Light and serene', price:'$435K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'sanctuary'},
-                {id:3, style:'Coastal Modern', title:'Bright & Airy', desc:'Light open spaces', price:'$465K', fp:'open', by:'patio', ki:'modern', en:'frequent', archetype:'sanctuary'},
-                {id:4, style:'Mid-Century Modern', title:'Retro Elegance', desc:'Vintage with comfort', price:'$480K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'custodian'},
-                {id:5, style:'Farmhouse', title:'Welcoming Farmhouse', desc:'Spacious and welcoming', price:'$435K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:6, style:'Rustic Modern', title:'Natural Refinement', desc:'Wood, stone, warmth', price:'$470K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'authenticist'},
-                {id:7, style:'Traditional / Classic', title:'Refined Heritage', desc:'Elevated traditional', price:'$445K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
-                {id:8, style:'Transitional', title:'Sophisticated Living', desc:'Refined blend', price:'$455K', fp:'balanced', by:'large', ki:'modern', en:'intimate', archetype:'sanctuary'},
-                {id:9, style:'Modern Farmhouse', title:'Updated Country', desc:'Contemporary upgrades', price:'$492K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'}
-            ],
-            2: [
-                {id:0, style:'Contemporary Luxury', title:'Premium Contemporary', desc:'Polished modern', price:'$665K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:1, style:'Modern Minimalist', title:'Sophisticated Minimal', desc:'Elegant simplicity', price:'$650K', fp:'open', by:'minimal', ki:'modern', en:'intimate', archetype:'curator'},
-                {id:2, style:'Industrial Loft', title:'Urban Loft', desc:'Raw urban character', price:'$680K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
-                {id:3, style:'Mid-Century Modern', title:'Designer Classic', desc:'Iconic mid-century', price:'$620K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'custodian'},
-                {id:4, style:'Coastal Modern', title:'Serene Living', desc:'Light and peaceful', price:'$595K', fp:'open', by:'patio', ki:'modern', en:'frequent', archetype:'sanctuary'},
-                {id:5, style:'Bohemian / Eclectic', title:'Collected Living', desc:'Curated and personal', price:'$610K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'authenticist'},
-                {id:6, style:'Industrial Contemporary', title:'Sophisticated Industrial', desc:'Bold modern edge', price:'$645K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
-                {id:7, style:'Rustic Modern', title:'Refined Rustic', desc:'Natural luxury', price:'$625K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'authenticist'},
-                {id:8, style:'Industrial Loft', title:'Loft Conversion', desc:'Open warehouse style', price:'$685K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
-                {id:9, style:'Transitional', title:'Upscale Transitional', desc:'Refined blend', price:'$615K', fp:'balanced', by:'patio', ki:'cozy', en:'intimate', archetype:'sanctuary'}
-            ],
-            3: [
-                {id:0, style:'Contemporary Luxury', title:'Architectural Masterpiece', desc:'Statement modern', price:'$925K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:1, style:'Modern Minimalist', title:'Refined Luxury Minimal', desc:'Elegant simplicity', price:'$895K', fp:'open', by:'minimal', ki:'modern', en:'intimate', archetype:'curator'},
-                {id:2, style:'Mediterranean', title:'Romantic Villa', desc:'Old-world warmth', price:'$960K', fp:'defined', by:'large', ki:'statement', en:'frequent', archetype:'custodian'},
-                {id:3, style:'Industrial Contemporary', title:'Urban Estate', desc:'Sophisticated industrial', price:'$880K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
-                {id:4, style:'Coastal Modern', title:'Luxury Coastal', desc:'Resort lifestyle', price:'$915K', fp:'open', by:'large', ki:'modern', en:'frequent', archetype:'sanctuary'},
-                {id:5, style:'Modern Japanese', title:'Zen Sanctuary', desc:'Calm and balanced', price:'$870K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'visionary'},
-                {id:6, style:'Maximalist', title:'Bold Statement', desc:'Layered and unapologetic', price:'$945K', fp:'defined', by:'patio', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:7, style:'Industrial Contemporary', title:'Loft Estate', desc:'Modern industrial luxury', price:'$905K', fp:'open', by:'minimal', ki:'modern', en:'frequent', archetype:'visionary'},
-                {id:8, style:'Bohemian / Eclectic', title:'Curated Luxury', desc:'Artistic and personal', price:'$890K', fp:'balanced', by:'large', ki:'statement', en:'intimate', archetype:'authenticist'},
-                {id:9, style:'Mid-Century Modern', title:'Designer Showcase', desc:'Iconic vintage modern', price:'$935K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'custodian'}
-            ],
-            4: [
-                {id:0, style:'Luxury Contemporary', title:'Ultra-Luxury Contemporary', desc:'Designed masterpiece', price:'$1.4M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:1, style:'Modern Minimalist', title:'Exclusive Minimal Luxury', desc:'Refined simplicity', price:'$1.65M', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'curator'},
-                {id:2, style:'Art Deco', title:'Glamour Estate', desc:'Dramatic and luxe', price:'$1.55M', fp:'defined', by:'minimal', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:3, style:'Contemporary Luxury', title:'Modern Architectural', desc:'Statement piece', price:'$1.45M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:4, style:'Mediterranean', title:'Tuscan Estate', desc:'Old-world luxury', price:'$1.6M', fp:'defined', by:'large', ki:'statement', en:'frequent', archetype:'custodian'},
-                {id:5, style:'Modern Japanese', title:'Zen Compound', desc:'Peaceful minimalism', price:'$1.5M', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'visionary'},
-                {id:6, style:'Maximalist', title:'Collector\'s Estate', desc:'Bold layered luxury', price:'$1.7M', fp:'defined', by:'patio', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:7, style:'Luxury Contemporary', title:'Sleek Designed Estate', desc:'High-end architectural', price:'$1.85M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
-                {id:8, style:'Bohemian / Eclectic', title:'Artist\'s Estate', desc:'Curated masterpiece', price:'$1.75M', fp:'balanced', by:'large', ki:'statement', en:'intimate', archetype:'authenticist'},
-                {id:9, style:'Coastal Modern', title:'Ultra-Premium Coastal', desc:'Light-filled retreat', price:'$1.8M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'}
-            ]
+        // One card per style. Every quiz taker sees a balanced deck: 2 styles per archetype,
+        // picked at random from that archetype's pool, so budget never changes the result.
+        const STYLE_CARDS = {
+            // Curator
+            'Luxury Contemporary':        {arch:'curator',      second:'visionary',    title:'Sleek Designed Estate',  desc:'Gallery-clean and polished'},
+            'Art Deco':                   {arch:'curator',      second:'custodian',    title:'Glamour Estate',         desc:'Dramatic and luxe'},
+            'Maximalist':                 {arch:'curator',      second:'authenticist', title:'Bold Statement',         desc:'Layered and unapologetic'},
+            // Experience Architect
+            'Open-Concept Contemporary':  {arch:'architect',    second:'curator',      title:'Built to Host',          desc:'Soaring, open and social'},
+            'Industrial Loft':            {arch:'architect',    second:'visionary',    title:'Urban Loft',             desc:'Raw, open gathering space'},
+            'Modern Farmhouse':           {arch:'architect',    second:'sanctuary',    title:'Gathering Kitchen',      desc:'Big island, open living'},
+            // Sanctuary Seeker
+            'Transitional':               {arch:'sanctuary',    second:'custodian',    title:'Perfect Balance',        desc:'Classic with calm updates'},
+            'Scandinavian':               {arch:'sanctuary',    second:'visionary',    title:'Nordic Calm',            desc:'Light and serene'},
+            'Modern Japanese':            {arch:'sanctuary',    second:'authenticist',    title:'Zen Retreat',            desc:'Quiet and balanced'},
+            // Heritage Custodian
+            'Traditional / Classic':      {arch:'custodian',    second:'sanctuary',    title:'Heritage Home',          desc:'Timeless character'},
+            'Mid-Century Modern':         {arch:'custodian',    second:'curator',      title:'Designer Classic',       desc:'Iconic mid-century'},
+            'Mediterranean':              {arch:'custodian',    second:'architect', title:'Old-World Villa',        desc:'Warm stone and arches'},
+            'Cottage Core':               {arch:'custodian',    second:'authenticist', title:'Storybook Cottage',      desc:'Charming and nostalgic'},
+            // Visionary
+            'Modern Minimalist':          {arch:'visionary',    second:'curator',      title:'Pure Minimal',           desc:'Nothing extra, all intent'},
+            'Industrial Contemporary':    {arch:'visionary',    second:'architect',    title:'Modern Edge',            desc:'Bold, sharp and unexpected'},
+            // Authenticist
+            'Bohemian / Eclectic':        {arch:'authenticist', second:'custodian',      title:'Collected Living',       desc:'Personal and well-traveled'},
+            'Farmhouse':                  {arch:'authenticist', second:'architect',    title:'Classic Farmhouse',      desc:'Honest wood and warmth'},
+            'Rustic Modern':              {arch:'authenticist', second:'sanctuary',    title:'Natural Refinement',     desc:'Wood, stone, warmth'}
         };
-
-        Object.values(homesByPrice).forEach(tier => tier.forEach(h => { h.image = styleImage(h.style); h.fallback = fallbackImage(h.style); }));
+        // Coastal Modern is held out until it has a DFW-appropriate photo (current image shows an ocean view).
+        const CARDS_PER_ARCHETYPE = 2;
 
         const archetypes = {
             'curator': {name:'The Curator', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
@@ -1798,115 +1764,87 @@
         function goToSwipe() {
             if (Object.values(userPreferences).some(v => v === null)) return;
             showScreen('swipeScreen', true);
-            currentHomes = filterHomesByPreferences();
+            currentHomes = buildDeck();
             initializeSwipe();
         }
 
-        function filterHomesByPreferences() {
-            let homes = homesByPrice[selectedPrice];
-            const prefs = userPreferences;
-            const matches = (h, key) => {
-                const want = prefs[key === 'fp' ? 'floorPlan' : key === 'by' ? 'backyard' : key === 'ki' ? 'kitchen' : 'entertaining'];
-                return !want || want === 'na' || h[key] === want;
-            };
-
-            // Score every home by how many prefs it matches
-            let scored = homes.map(h => {
-                let score = 0;
-                ['fp','by','ki','en'].forEach(k => { if (matches(h,k)) score++; });
-                return {h, score};
-            }).sort((a,b) => b.score - a.score);
-
-            // Dedupe by STYLE — only one card per style, keeping the highest-scored variant
-            const seenStyles = new Set();
-            const deduped = [];
-            scored.forEach(({h}) => {
-                if (!seenStyles.has(h.style)) {
-                    seenStyles.add(h.style);
-                    deduped.push(h);
-                }
-            });
-
-            // Return up to 10 distinct styles (in practice 6-9 per tier after dedup)
-            return deduped.slice(0, 10);
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+            return a;
         }
 
+        // 2 styles per archetype, shuffled so no two cards from the same archetype sit side by side.
+        function buildDeck() {
+            const byArch = {};
+            Object.entries(STYLE_CARDS).forEach(([style, c]) => { (byArch[c.arch] = byArch[c.arch] || []).push(style); });
+            let picks = [];
+            Object.values(byArch).forEach(styles => { picks = picks.concat(shuffle(styles).slice(0, CARDS_PER_ARCHETYPE)); });
+            let deck = shuffle(picks);
+            for (let tries = 0; tries < 50; tries++) {
+                const clash = deck.some((s, i) => i > 0 && STYLE_CARDS[s].arch === STYLE_CARDS[deck[i - 1]].arch);
+                if (!clash) break;
+                deck = shuffle(picks);
+            }
+            return deck.map(style => ({ style, ...STYLE_CARDS[style], image: styleImage(style), fallback: fallbackImage(style) }));
+        }
+
+        // Question answers: each archetype can earn the same maximum, so no archetype is favored by the questions.
         const PREF_WEIGHTS = {
             floorPlan: {
-                open:      {architect:3, visionary:3, curator:1},
-                defined:   {authenticist:3, custodian:2, curator:1},
-                balanced:  {sanctuary:2, custodian:1, authenticist:1}
+                open:      {architect:3, visionary:2, curator:1},
+                defined:   {custodian:3, curator:2, authenticist:1},
+                balanced:  {sanctuary:3, authenticist:2, custodian:1}
             },
             backyard: {
-                large:     {architect:3, custodian:1, authenticist:1},
-                patio:     {authenticist:3, sanctuary:1, curator:1},
+                large:     {architect:3, authenticist:2, custodian:1},
+                patio:     {sanctuary:3, custodian:2},
                 minimal:   {visionary:3, curator:2},
                 na:        {}
             },
             kitchen: {
-                statement: {curator:3, architect:3, visionary:1},
-                modern:    {visionary:3, curator:2, sanctuary:1},
-                cozy:      {custodian:2, authenticist:2, sanctuary:1},
+                statement: {curator:3, architect:1, visionary:1},
+                modern:    {visionary:3, sanctuary:1},
+                cozy:      {authenticist:3, custodian:2},
                 na:        {}
             },
             entertaining: {
-                frequent:  {architect:3, visionary:2, curator:1},
-                intimate:  {authenticist:3, custodian:2, sanctuary:1},
+                frequent:  {architect:3, curator:2},
+                intimate:  {sanctuary:3, authenticist:2, custodian:1},
                 na:        {}
             }
         };
+        const ARCHES = ['curator','sanctuary','architect','custodian','visionary','authenticist'];
+        const PREF_MAX = (() => {
+            const max = Object.fromEntries(ARCHES.map(a => [a, 0]));
+            Object.values(PREF_WEIGHTS).forEach(q => ARCHES.forEach(a => {
+                max[a] += Math.max(0, ...Object.values(q).map(o => o[a] || 0));
+            }));
+            return max;
+        })();
+        const PREF_SCALE = 4;   // questions are worth less than swipes: about the same as one loved card
+        const LOVE_PRIMARY = 4, LOVE_SECOND = 1.5, PASS_PRIMARY = 1.5;
 
-        const STYLE_ARCHETYPE = {
-            'Modern Minimalist':       {visionary:3, curator:1},
-            'Contemporary Luxury':     {curator:3, architect:1},
-            'Transitional':            {sanctuary:3, custodian:1},
-            'Industrial Loft':         {architect:3, visionary:1},
-            'Bohemian / Eclectic':     {authenticist:3, custodian:1},
-            'Coastal Modern':          {sanctuary:3, architect:1},
-            'Scandinavian':            {sanctuary:3, curator:1},
-            'Traditional / Classic':   {custodian:3, sanctuary:1},
-            'Farmhouse':               {authenticist:3, sanctuary:1},
-            'Mid-Century Modern':      {custodian:3, curator:1},
-            'Mediterranean':           {custodian:3, authenticist:1},
-            'Rustic Modern':           {authenticist:3, sanctuary:1},
-            'Modern Farmhouse':        {sanctuary:3, authenticist:1},
-            'Industrial Contemporary': {visionary:3, architect:1},
-            'Art Deco':                {curator:3, custodian:1},
-            'Maximalist':              {curator:3, authenticist:1},
-            'Modern Japanese':         {sanctuary:3, visionary:1},
-            'Luxury Contemporary':     {curator:3, visionary:1},
-            'Cottage Core':            {custodian:3, authenticist:1}
-        };
+        function scoreArchetypes() {
+            const prefRaw = Object.fromEntries(ARCHES.map(a => [a, 0]));
+            ['floorPlan','backyard','kitchen','entertaining'].forEach(k => {
+                const w = (PREF_WEIGHTS[k] || {})[userPreferences[k]] || {};
+                Object.entries(w).forEach(([a, pts]) => { prefRaw[a] += pts; });
+            });
+            const pref = Object.fromEntries(ARCHES.map(a => [a, PREF_MAX[a] ? prefRaw[a] / PREF_MAX[a] * PREF_SCALE : 0]));
+            const swipe = Object.fromEntries(ARCHES.map(a => [a, 0]));
+            const lovedPrimary = Object.fromEntries(ARCHES.map(a => [a, 0]));
+            loves.forEach(h => { swipe[h.arch] += LOVE_PRIMARY; swipe[h.second] += LOVE_SECOND; lovedPrimary[h.arch]++; });
+            passes.forEach(h => { swipe[h.arch] -= PASS_PRIMARY; });
+            const total = Object.fromEntries(ARCHES.map(a => [a, pref[a] + swipe[a]]));
+            return { total, pref, lovedPrimary };
+        }
 
         function computeArchetype() {
-            const score = {curator:0, sanctuary:0, architect:0, custodian:0, visionary:0, authenticist:0};
-            const prefScore = {curator:0, sanctuary:0, architect:0, custodian:0, visionary:0, authenticist:0};
-
-            ['floorPlan','backyard','kitchen','entertaining'].forEach(k => {
-                const v = userPreferences[k];
-                if (!v) return;
-                const weights = (PREF_WEIGHTS[k] || {})[v] || {};
-                Object.entries(weights).forEach(([arch, pts]) => {
-                    score[arch] += pts;
-                    prefScore[arch] += pts;
-                });
-            });
-
-            loves.forEach(h => {
-                const w = STYLE_ARCHETYPE[h.style] || {};
-                Object.entries(w).forEach(([arch, pts]) => { score[arch] += pts * 2; });
-            });
-            passes.forEach(h => {
-                const w = STYLE_ARCHETYPE[h.style] || {};
-                Object.entries(w).forEach(([arch, pts]) => { score[arch] -= Math.min(1, pts); });
-            });
-
-            const ranked = Object.entries(score).sort((a,b) => {
-                if (b[1] !== a[1]) return b[1] - a[1];
-                if (prefScore[b[0]] !== prefScore[a[0]]) return prefScore[b[0]] - prefScore[a[0]];
-                return a[0].localeCompare(b[0]);
-            });
-            return ranked[0][0];
+            const { total, pref, lovedPrimary } = scoreArchetypes();
+            const ranked = ARCHES.slice().sort((a, b) =>
+                (total[b] - total[a]) || (lovedPrimary[b] - lovedPrimary[a]) || (pref[b] - pref[a]) || (Math.random() - 0.5));
+            return ranked[0];
         }
 
         function buildSwipeCard(home) {
