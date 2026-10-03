@@ -1799,7 +1799,7 @@
         }
         const STYLE_IMAGE_MAP = {
             'Modern Minimalist': 'minimalist.png',
-            'Modern Farmhouse': 'farmhouse-chic.png',
+            'Modern Farmhouse': 'farmhouse-classic.png',
             'Modern Japanese': 'japanese-zen.png',
             'Farmhouse': 'farmhouse-classic.png',
             'Mid-Century Modern': 'midcentury.png',
@@ -1856,30 +1856,27 @@
         // picked at random from that archetype's pool, so budget never changes the result.
         const STYLE_CARDS = {
             // Curator
-            'Luxury Contemporary':        {arch:'curator',      second:'visionary',    title:'Sleek Designed Estate',  desc:'Gallery-clean and polished'},
-            'Art Deco':                   {arch:'curator',      second:'custodian',    title:'Glamour Estate',         desc:'Dramatic and luxe'},
+            'Art Deco':                   {arch:'curator',      second:'visionary',    title:'Glamour Estate',         desc:'Dramatic and luxe'},
             'Maximalist':                 {arch:'curator',      second:'authenticist', title:'Bold Statement',         desc:'Layered and unapologetic'},
-            // Experience Architect
-            'Open-Concept Contemporary':  {arch:'architect',    second:'curator',      title:'Built to Host',          desc:'Soaring, open and social'},
-            'Industrial Loft':            {arch:'architect',    second:'visionary',    title:'Urban Loft',             desc:'Raw, open gathering space'},
-            'Modern Farmhouse':           {arch:'architect',    second:'sanctuary',    title:'Gathering Kitchen',      desc:'Big island, open living'},
-            // Sanctuary Seeker
-            'Transitional':               {arch:'sanctuary',    second:'custodian',    title:'Perfect Balance',        desc:'Classic with calm updates'},
-            'Scandinavian':               {arch:'sanctuary',    second:'visionary',    title:'Nordic Calm',            desc:'Light and serene'},
-            'Modern Japanese':            {arch:'sanctuary',    second:'authenticist',    title:'Zen Retreat',            desc:'Quiet and balanced'},
-            // Heritage Custodian
-            'Traditional / Classic':      {arch:'custodian',    second:'sanctuary',    title:'Heritage Home',          desc:'Timeless character'},
-            'Mid-Century Modern':         {arch:'custodian',    second:'curator',      title:'Designer Classic',       desc:'Iconic mid-century'},
-            'Mediterranean':              {arch:'custodian',    second:'architect', title:'Old-World Villa',        desc:'Warm stone and arches'},
-            'Cottage Core':               {arch:'custodian',    second:'authenticist', title:'Storybook Cottage',      desc:'Charming and nostalgic'},
             // Visionary
             'Modern Minimalist':          {arch:'visionary',    second:'curator',      title:'Pure Minimal',           desc:'Nothing extra, all intent'},
-            'Industrial Contemporary':    {arch:'visionary',    second:'architect',    title:'Modern Edge',            desc:'Bold, sharp and unexpected'},
+            'Industrial Contemporary':    {arch:'visionary',    second:'architect',    title:'Modern Edge',            desc:'Steel, brick and city light'},
+            // Experience Architect
+            'Modern Farmhouse':           {arch:'architect',    second:'sanctuary',    title:'Gathering Kitchen',      desc:'Big island, room for everyone'},
+            'Mediterranean':              {arch:'architect',    second:'custodian',    title:'Courtyard Living',       desc:'Indoor-outdoor and made to host'},
+            // Sanctuary Seeker
+            'Scandinavian':               {arch:'sanctuary',    second:'curator',      title:'Nordic Calm',            desc:'Light and serene'},
+            'Modern Japanese':            {arch:'sanctuary',    second:'authenticist', title:'Zen Retreat',            desc:'Quiet and balanced'},
+            // Heritage Custodian
+            'Traditional / Classic':      {arch:'custodian',    second:'sanctuary',    title:'Heritage Home',          desc:'Timeless character'},
+            'Mid-Century Modern':         {arch:'custodian',    second:'visionary',    title:'Designer Classic',       desc:'Iconic mid-century'},
+            'Cottage Core':               {arch:'custodian',    second:'sanctuary', title:'Storybook Cottage',      desc:'Charming and nostalgic'},
             // Authenticist
-            'Bohemian / Eclectic':        {arch:'authenticist', second:'custodian',      title:'Collected Living',       desc:'Personal and well-traveled'},
-            'Farmhouse':                  {arch:'authenticist', second:'architect',    title:'Classic Farmhouse',      desc:'Honest wood and warmth'},
-            'Rustic Modern':              {arch:'authenticist', second:'sanctuary',    title:'Natural Refinement',     desc:'Wood, stone, warmth'}
+            'Bohemian / Eclectic':        {arch:'authenticist', second:'custodian',    title:'Collected Living',       desc:'Personal and well-traveled'},
+            'Rustic Modern':              {arch:'authenticist', second:'architect',    title:'Natural Refinement',     desc:'Wood, stone and a big hearth'}
         };
+        // One photo per look. Held out because their photos are near-copies of a card above:
+        // Industrial Loft, Open-Concept Contemporary, Luxury Contemporary, Farmhouse, Transitional.
         // Coastal Modern is held out until it has a DFW-appropriate photo (current image shows an ocean view).
         const CARDS_PER_ARCHETYPE = 2;
 
