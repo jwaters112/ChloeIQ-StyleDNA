@@ -7,12 +7,12 @@
 <h1>StyleDNA photo tag test</h1>
 <p id="s">Waiting for listings from the Matrix tab.</p>
 <script>
-// Internal test page: receives listing photo links from the Matrix tab, sends them to /api/tag-photo, returns the results.
-const ALLOWED = 'https://ntrdd.mlsmatrix.com';
+// Internal test page. The Matrix tab opens this page with the listing photo links in the address after "#"
+// (that part never goes to a server). This page sends them to /api/tag-photo and shows the results.
 const s = document.getElementById('s');
-window.addEventListener('message', async (ev) => {
-  if (ev.origin !== ALLOWED || !ev.data || !Array.isArray(ev.data.homes)) return;
-  const homes = ev.data.homes, out = [];
+window.__out = null;
+async function run(homes) {
+  const out = [];
   for (let i = 0; i < homes.length; i += 25) {
     s.innerHTML = `Tagging <b>${i}</b> of ${homes.length}...`;
     try {
@@ -22,9 +22,15 @@ window.addEventListener('message', async (ev) => {
       out.push(...(j.results || [{ error: j.error || ('http_' + r.status) }]));
     } catch (e) { out.push({ error: 'fetch_failed', detail: String(e) }); }
   }
+  window.__out = out;
   s.innerHTML = `Done: <b>${out.length}</b> homes tagged. You can close this tab.`;
-  ev.source.postMessage({ sdnaResults: out }, ALLOWED);
-});
-if (window.opener) window.opener.postMessage({ sdnaReady: true }, ALLOWED);
+}
+const h = location.hash.slice(1);
+if (h) {
+  let homes = [];
+  try { homes = JSON.parse(decodeURIComponent(h)).homes || []; } catch (e) { s.textContent = 'Could not read the listings.'; }
+  history.replaceState(null, '', location.pathname);
+  if (homes.length) run(homes);
+}
 </script>
 </body></html>
