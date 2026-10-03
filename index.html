@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChloeIQ - Discover Your Home StyleDNA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <style>
         * {
             margin: 0;
@@ -458,6 +463,10 @@
             transform: scale(0.95);
         }
 
+        .swipe-button-no {
+            color: var(--primary-white);
+        }
+
         .swipe-button-no:hover {
             color: var(--accent-gold);
         }
@@ -549,6 +558,14 @@
             text-align: center;
         }
 
+        .archetype-kicker {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--muted-taupe);
+            margin-bottom: 8px;
+        }
+
         .archetype-icon {
             font-size: 48px;
             margin-bottom: 16px;
@@ -624,6 +641,12 @@
             font-size: 15px;
             color: var(--muted-taupe);
             line-height: 1.8;
+        }
+
+        .results-empty {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--muted-taupe);
         }
 
         .home-match-card {
@@ -757,8 +780,13 @@
 
         .form-buttons {
             display: flex;
-            gap: 12px;
-            margin-top: 32px;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 28px;
+        }
+        .form-buttons .btn-secondary {
+            border: none;
+            padding: 10px;
         }
 
         .btn-primary {
@@ -876,6 +904,63 @@
             color: var(--muted-taupe);
             line-height: 1.5;
         }
+
+        .activation-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--muted-taupe);
+            margin: 0 auto 36px;
+            max-width: 380px;
+        }
+
+        .activation-link {
+            margin-top: 18px;
+            background: none;
+            border: none;
+            color: var(--muted-taupe);
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 10px;
+            font-family: inherit;
+        }
+        .activation-link:hover { color: var(--primary-white); }
+
+        /* ===== FORM EXTRAS ===== */
+        .form-optional {
+            color: var(--muted-taupe);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: none;
+            margin-left: 6px;
+        }
+        .form-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+        .consent-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--muted-taupe);
+            margin: 4px 0 8px;
+            cursor: pointer;
+        }
+        .consent-row input {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--accent-gold);
+        }
+        .form-error {
+            display: none;
+            font-size: 13px;
+            color: #E8A598;
+            margin-top: 12px;
+        }
+        .form-error.show { display: block; }
+        .btn-primary:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
         .activation-cta {
             background: var(--accent-gold);
@@ -1107,28 +1192,29 @@
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
                 <h2 class="preference-headline">What's Your Budget?</h2>
-                <p class="preference-subheading">We'll show you homes that match your price range</p>
+                <p class="preference-subheading">We'll match your style to homes in your range</p>
+                <div class="progress-indicator">STEP 1 OF 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectPrice(0, 'Under $300K', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Under $300K - First-time & value seekers</span>
+                        <span>Under $300K</span>
                     </button>
-                    <button class="pref-option" onclick="selectPrice(1, '$300K - $500K', this)">
+                    <button class="pref-option" onclick="selectPrice(1, '$300K to $500K', this)">
                         <div class="pref-checkbox"></div>
-                        <span>$300K - $500K - Growing families & professionals</span>
+                        <span>$300K to $500K</span>
                     </button>
-                    <button class="pref-option" onclick="selectPrice(2, '$500K - $750K', this)">
+                    <button class="pref-option" onclick="selectPrice(2, '$500K to $750K', this)">
                         <div class="pref-checkbox"></div>
-                        <span>$500K - $750K - Design-conscious buyers</span>
+                        <span>$500K to $750K</span>
                     </button>
-                    <button class="pref-option" onclick="selectPrice(3, '$750K - $1M', this)">
+                    <button class="pref-option" onclick="selectPrice(3, '$750K to $1M', this)">
                         <div class="pref-checkbox"></div>
-                        <span>$750K - $1M - Luxury market</span>
+                        <span>$750K to $1M</span>
                     </button>
                     <button class="pref-option" onclick="selectPrice(4, '$1M+', this)">
                         <div class="pref-checkbox"></div>
-                        <span>$1M+ - Ultra-luxury & collectors</span>
+                        <span>$1M+</span>
                     </button>
                 </div>
 
@@ -1142,7 +1228,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Preferred Floor Plan</h2>
                 <p class="preference-subheading">How do you like your spaces organized?</p>
-                <div class="progress-indicator">STEP 1 OF 4</div>
+                <div class="progress-indicator">STEP 2 OF 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectFloorPlan('open', this)">
@@ -1169,7 +1255,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Outdoor Space</h2>
                 <p class="preference-subheading">What matters to you outside?</p>
-                <div class="progress-indicator">STEP 2 OF 4</div>
+                <div class="progress-indicator">STEP 3 OF 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectBackyard('large', this)">
@@ -1200,7 +1286,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Kitchen Style</h2>
                 <p class="preference-subheading">What's your kitchen personality?</p>
-                <div class="progress-indicator">STEP 3 OF 4</div>
+                <div class="progress-indicator">STEP 4 OF 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectKitchen('statement', this)">
@@ -1231,7 +1317,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Entertaining Preference</h2>
                 <p class="preference-subheading">How do you like to gather?</p>
-                <div class="progress-indicator">STEP 4 OF 4</div>
+                <div class="progress-indicator">STEP 5 OF 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectEntertaining('frequent', this)">
@@ -1258,19 +1344,19 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">0/10</div>
+                <div class="progress-text" id="progressText"></div>
             </div>
 
             <div class="swipe-container" id="swipeContainer">
                 <div class="swipe-indicators">
                     <span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">&#10005;</span>
-                    <span class="swipe-indicator swipe-indicator-right" id="indicatorRight">&#9829;</span>
+                    <span class="swipe-indicator swipe-indicator-right" id="indicatorRight">&#9829;&#xFE0E;</span>
                 </div>
             </div>
 
             <div class="swipe-footer">
-                <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me">&#10005;</button>
-                <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it">&#9829;</button>
+                <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me" aria-label="Not for me">&#10005;</button>
+                <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it" aria-label="Love it">&#9829;&#xFE0E;</button>
             </div>
         </div>
 
@@ -1290,9 +1376,9 @@
         <div class="screen results-screen" id="resultsScreen">
             <div class="results-sticky-header">
                 <div class="results-archetype">
-                    <div class="archetype-icon" id="archetypeIcon">&#128444;&#65039;</div>
+                    <div class="archetype-kicker">Your StyleDNA</div>
                     <h2 class="archetype-name" id="archetypeName">The Curator</h2>
-                    <p class="archetype-tagline">Your Aesthetic Signature</p>
+                    
                 </div>
             </div>
 
@@ -1304,6 +1390,7 @@
                     <p class="results-description" id="archetypeDescription">
                         A design-driven perfectionist who believes every home is a curated expression of taste.
                     </p>
+                    <button class="welcome-cta" onclick="captureEmail()">Get Homes That Fit My Style</button>
                 </div>
 
                 <div class="results-section">
@@ -1323,12 +1410,12 @@
                 </div>
 
                 <div class="results-section">
-                    <h3 class="results-section-title">Homes That Match Your StyleDNA</h3>
+                    <h3 class="results-section-title" id="lovedTitle">Styles You Loved</h3>
                     <div id="matchedHomes"></div>
                 </div>
 
                 <div class="results-section" style="text-align: center;">
-                    <button class="welcome-cta" onclick="captureEmail()" style="margin-bottom: 12px;">See More Homes Like These</button>
+                    <button class="welcome-cta" onclick="captureEmail()" style="margin-bottom: 12px;">Get Homes That Fit My Style</button>
                     <div class="share-button-stack">
                         <div class="share-channel-row">
                             <button class="share-channel-btn share-channel-fb" onclick="shareToFacebook()" aria-label="Share to Facebook">
@@ -1344,8 +1431,8 @@
                                 <span>Instagram</span>
                             </button>
                         </div>
-                        <button class="welcome-cta share-cta-primary" onclick="shareResults()">&#128242; More share options</button>
-                        <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">&#128279; Copy Link</button>
+                        <button class="welcome-cta share-cta-secondary" onclick="shareResults()">More Share Options</button>
+                        <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">Copy Link</button>
                     </div>
                 </div>
             </div>
@@ -1354,18 +1441,28 @@
         <!-- DATA CAPTURE SCREEN -->
         <div class="screen data-capture-screen" id="dataCaptureScreen">
             <div class="form-container">
-                <h2 class="form-heading">Save Your Discovery</h2>
-                <p class="form-subheading">Get notified when we find homes that match your StyleDNA</p>
+                <h2 class="form-heading">Save Your StyleDNA</h2>
+                <p class="form-subheading">Get real DFW listings that fit your style and budget, sent to your inbox.</p>
 
-                <form onsubmit="submitData(event)">
+                <form onsubmit="submitData(event)" novalidate>
                     <div class="form-group">
-                        <label class="form-label">Your Name</label>
-                        <input type="text" class="form-input" id="nameInput" placeholder="Your name" required>
+                        <label class="form-label" for="nameInput">Your Name</label>
+                        <input type="text" class="form-input" id="nameInput" placeholder="First and last name" autocomplete="name" maxlength="60" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Your Email</label>
-                        <input type="email" class="form-input" id="emailInput" placeholder="your@email.com" required>
+                        <label class="form-label" for="emailInput">Your Email</label>
+                        <input type="email" class="form-input" id="emailInput" placeholder="your@email.com" autocomplete="email" maxlength="120" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phoneInput">Mobile <span class="form-optional">Optional</span></label>
+                        <input type="tel" class="form-input" id="phoneInput" placeholder="(214) 555-0123" autocomplete="tel" maxlength="20">
+                    </div>
+
+                    <div class="form-hp" aria-hidden="true">
+                        <label for="websiteInput">Website</label>
+                        <input type="text" id="websiteInput" tabindex="-1" autocomplete="off">
                     </div>
 
                     <div class="form-group">
@@ -1463,9 +1560,16 @@
                         <input type="text" class="form-input" id="otherNeighborhoodInput" placeholder="Enter your city or area">
                     </div>
 
+                    <label class="consent-row" for="consentInput">
+                        <input type="checkbox" id="consentInput">
+                        <span>Yes, Josh Waters with Dallas Collective Group, brokered by REAL Broker, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
+                    </label>
+
+                    <p class="form-error" id="formError" role="alert"></p>
+
                     <div class="form-buttons">
-                        <button type="submit" class="btn-primary">Continue</button>
-                        <button type="button" class="btn-secondary" onclick="skipDataCapture()">Skip</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Save My StyleDNA</button>
+                        <button type="button" class="btn-secondary" onclick="skipDataCapture()">Not Now</button>
                     </div>
                 </form>
             </div>
@@ -1475,35 +1579,21 @@
         <div class="screen activation-screen" id="activationScreen">
             <div class="activation-content">
                 <div class="success-icon">&#10003;</div>
-                <h2 class="activation-headline">Welcome to ChloeIQ</h2>
-                <p class="activation-subheading">Your StyleDNA is Live</p>
+                <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
+                <p class="activation-text" id="activationText">Watch your inbox. You'll get real listings that fit your style and your budget.</p>
 
-                <div class="activation-cards">
-                    <div class="activation-card">
-                        <div class="activation-card-icon">&#127960;&#65039;</div>
-                        <div class="activation-card-title">Homes Matched to Your Taste</div>
-                        <div class="activation-card-desc">See every home that aligns with your StyleDNA in your budget</div>
-                    </div>
-
-                    <div class="activation-card">
-                        <div class="activation-card-icon">&#128197;</div>
-                        <div class="activation-card-title">Open Houses This Weekend</div>
-                        <div class="activation-card-desc">Tour homes curated for your aesthetic and preferences</div>
-                    </div>
-
-                    <div class="activation-card">
-                        <div class="activation-card-icon">&#128101;</div>
-                        <div class="activation-card-title">Compare with Friends</div>
-                        <div class="activation-card-desc">See how your taste aligns with people you know</div>
-                    </div>
-                </div>
-
-                <button class="activation-cta" onclick="finalAction()">Continue Exploring</button>
+                <button class="activation-cta" onclick="shareResults()">Share My StyleDNA</button>
+                <button class="activation-link" onclick="finalAction()">Back to My Results</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Vercel Web Analytics custom events (no-op if analytics is off)
+        function track(name, data) {
+            try { window.va('event', { name, data: data || {} }); } catch (e) {}
+        }
+
         // Generate a simple SVG image for a home style
         function styleSlug(style) {
             return style.toLowerCase()
@@ -1534,7 +1624,8 @@
         };
 
         function styleImage(style) {
-            return './' + (STYLE_IMAGE_MAP[style] || 'placeholder.png');
+            const file = STYLE_IMAGE_MAP[style];
+            return file ? './img/' + file.replace('.png', '.webp') : fallbackImage(style);
         }
         function fallbackImage(style) {
             const palette = {
@@ -1575,7 +1666,7 @@
                 {id:5, style:'Scandinavian', title:'Minimal Warmth', desc:'Clean lines, soft feel', price:'$280K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'sanctuary'},
                 {id:6, style:'Cottage Core', title:'Garden Cottage', desc:'Romantic and inviting', price:'$272K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
                 {id:7, style:'Farmhouse', title:'Rural Charm', desc:'Rustic with updates', price:'$270K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
-                {id:8, style:'Traditional / Classic', title:'Family Heritage', desc:'Established character', price:'$282K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
+                {id:8, style:'Traditional / Classic', title:'Lasting Heritage', desc:'Established character', price:'$282K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
                 {id:9, style:'Transitional', title:'Updated Classic', desc:'Heritage with modern', price:'$298K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'sanctuary'}
             ],
             1: [
@@ -1584,7 +1675,7 @@
                 {id:2, style:'Scandinavian', title:'Nordic Calm', desc:'Light and serene', price:'$435K', fp:'open', by:'patio', ki:'modern', en:'intimate', archetype:'sanctuary'},
                 {id:3, style:'Coastal Modern', title:'Bright & Airy', desc:'Light open spaces', price:'$465K', fp:'open', by:'patio', ki:'modern', en:'frequent', archetype:'sanctuary'},
                 {id:4, style:'Mid-Century Modern', title:'Retro Elegance', desc:'Vintage with comfort', price:'$480K', fp:'balanced', by:'patio', ki:'statement', en:'intimate', archetype:'custodian'},
-                {id:5, style:'Farmhouse', title:'Family Farmhouse', desc:'Spacious and welcoming', price:'$435K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
+                {id:5, style:'Farmhouse', title:'Welcoming Farmhouse', desc:'Spacious and welcoming', price:'$435K', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'authenticist'},
                 {id:6, style:'Rustic Modern', title:'Natural Refinement', desc:'Wood, stone, warmth', price:'$470K', fp:'balanced', by:'large', ki:'cozy', en:'intimate', archetype:'authenticist'},
                 {id:7, style:'Traditional / Classic', title:'Refined Heritage', desc:'Elevated traditional', price:'$445K', fp:'defined', by:'large', ki:'cozy', en:'intimate', archetype:'custodian'},
                 {id:8, style:'Transitional', title:'Sophisticated Living', desc:'Refined blend', price:'$455K', fp:'balanced', by:'large', ki:'modern', en:'intimate', archetype:'sanctuary'},
@@ -1624,19 +1715,19 @@
                 {id:6, style:'Maximalist', title:'Collector\'s Estate', desc:'Bold layered luxury', price:'$1.7M', fp:'defined', by:'patio', ki:'statement', en:'frequent', archetype:'authenticist'},
                 {id:7, style:'Luxury Contemporary', title:'Sleek Designed Estate', desc:'High-end architectural', price:'$1.85M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'curator'},
                 {id:8, style:'Bohemian / Eclectic', title:'Artist\'s Estate', desc:'Curated masterpiece', price:'$1.75M', fp:'balanced', by:'large', ki:'statement', en:'intimate', archetype:'authenticist'},
-                {id:9, style:'Coastal Modern', title:'Ultra-Premium Coastal', desc:'Waterfront sanctuary', price:'$1.8M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'}
+                {id:9, style:'Coastal Modern', title:'Ultra-Premium Coastal', desc:'Light-filled retreat', price:'$1.8M', fp:'open', by:'large', ki:'statement', en:'frequent', archetype:'sanctuary'}
             ]
         };
 
         Object.values(homesByPrice).forEach(tier => tier.forEach(h => { h.image = styleImage(h.style); h.fallback = fallbackImage(h.style); }));
 
         const archetypes = {
-            'curator': {name:'The Curator', icon:'\u{1F5BC}\uFE0F', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
-            'sanctuary': {name:'The Sanctuary Seeker', icon:'\u{1F56F}\uFE0F', desc:'Your home is a peaceful retreat from the world.', aesthetic:['Warm Modern','Transitional','Hygge'], lifestyle:'Family-Centered \u2022 Wellness \u2022 Quiet Entertainer'},
-            'architect': {name:'The Experience Architect', icon:'\u{1F3AA}', desc:'Your home is a stage for connection and togetherness.', aesthetic:['Open-Concept','Industrial','Contemporary'], lifestyle:'Host \u2022 Community-Builder \u2022 Social'},
-            'custodian': {name:'The Heritage Custodian', icon:'\u{1F3DB}\uFE0F', desc:'You respect the past and live with intention.', aesthetic:['Historic','Transitional','Eclectic'], lifestyle:'Storyteller \u2022 Traditionalist \u2022 Cultural'},
-            'visionary': {name:'The Visionary', icon:'\u2728', desc:'Forward-thinking, unafraid of unconventional beauty.', aesthetic:['Modern','Brutalist','Avant-Garde'], lifestyle:'Innovator \u2022 Trendsetter \u2022 Creative'},
-            'authenticist': {name:'The Authenticist', icon:'\u{1F33F}', desc:'Real beats perfect. Honest materials and character.', aesthetic:['Industrial','Rustic-Modern','Sustainable'], lifestyle:'Values-Driven \u2022 Eco-Conscious \u2022 Independent'}
+            'curator': {name:'The Curator', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
+            'sanctuary': {name:'The Sanctuary Seeker', desc:'Your home is a peaceful retreat from the world.', aesthetic:['Warm Modern','Transitional','Hygge'], lifestyle:'Home-Centered \u2022 Wellness \u2022 Quiet Entertainer'},
+            'architect': {name:'The Experience Architect', desc:'Your home is a stage for connection and togetherness.', aesthetic:['Open-Concept','Industrial','Contemporary'], lifestyle:'Host \u2022 Community-Builder \u2022 Social'},
+            'custodian': {name:'The Heritage Custodian', desc:'You respect the past and live with intention.', aesthetic:['Historic','Transitional','Eclectic'], lifestyle:'Storyteller \u2022 Traditionalist \u2022 Cultural'},
+            'visionary': {name:'The Visionary', desc:'Forward-thinking, unafraid of unconventional beauty.', aesthetic:['Modern','Brutalist','Avant-Garde'], lifestyle:'Innovator \u2022 Trendsetter \u2022 Creative'},
+            'authenticist': {name:'The Authenticist', desc:'Real beats perfect. Honest materials and character.', aesthetic:['Industrial','Rustic-Modern','Sustainable'], lifestyle:'Values-Driven \u2022 Eco-Conscious \u2022 Independent'}
         };
 
         let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = 'curator', selectedPrice = null, selectedPriceLabel = '';
@@ -1668,7 +1759,7 @@
             if (btn) btn.classList.add('active');
         }
 
-        function goToPrice() { showScreen('priceScreen', true); }
+        function goToPrice() { track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct' }); showScreen('priceScreen', true); }
         function selectPrice(index, label, btn) {
             selectedPrice = index;
             selectedPriceLabel = label;
@@ -1854,7 +1945,7 @@
 
         function initializeSwipe() {
             const container = document.getElementById('swipeContainer');
-            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665</span></div>';
+            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665\uFE0E</span></div>';
             currentSwipeIndex = 0;
             renderCardStack();
             updateProgress();
@@ -1985,23 +2076,26 @@
         function showResults() {
             const arch = archetypes[userArchetype];
             document.getElementById('archetypeName').textContent = arch.name;
-            document.getElementById('archetypeIcon').textContent = arch.icon;
-            document.getElementById('archetypeDescription').textContent = arch.desc;
+                        document.getElementById('archetypeDescription').textContent = arch.desc;
             document.getElementById('aestheticTags').innerHTML = arch.aesthetic.map(t=>`<div class="tag">${t}</div>`).join('');
             document.getElementById('lifestyleText').textContent = arch.lifestyle;
-            document.getElementById('budgetNote').textContent = `Based on your ${selectedPriceLabel} budget and ${arch.name} StyleDNA`;
+            document.getElementById('budgetNote').textContent = `Built from your ${loves.length} loves, ${passes.length} passes and your ${selectedPriceLabel} range.`;
 
-            document.getElementById('matchedHomes').innerHTML = loves.slice(0,3).map((h,i)=>`
+            if (loves.length === 0) {
+                document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
+                document.getElementById('matchedHomes').innerHTML = `<p class="results-empty">That tells us a lot too. Real homes often land differently than style photos, so save your StyleDNA and we'll send listings in your range to react to.</p>`;
+            } else {
+                document.getElementById('lovedTitle').textContent = 'Styles You Loved';
+                document.getElementById('matchedHomes').innerHTML = loves.slice(0,3).map((h,i)=>`
                 <div class="home-match-card">
-                    <img class="home-match-image" data-match-idx="${i}">
+                    <img class="home-match-image" data-match-idx="${i}" alt="${h.style} style example">
                     <div class="home-match-info">
-                        <div class="home-match-name">${h.title}</div>
-                        <div class="home-match-location">${h.style}</div>
-                        <span class="match-score">${85+Math.floor(Math.random()*15)}% Match</span>
-                        <span class="match-price">${h.price}</span>
+                        <div class="home-match-name">${h.style}</div>
+                        <div class="home-match-location">${h.desc}</div>
                     </div>
                 </div>
             `).join('');
+            }
             document.querySelectorAll('#matchedHomes img.home-match-image').forEach((img) => {
                 const idx = parseInt(img.dataset.matchIdx, 10);
                 const h = loves[idx];
@@ -2015,10 +2109,11 @@
                 img.src = h.image;
             });
             showScreen('resultsScreen', false);
+            track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
         }
 
-        function captureEmail() { showScreen('dataCaptureScreen', true); }
-        function skipDataCapture() { showScreen('activationScreen', true); }
+        function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
+        function skipDataCapture() { track('lead_skipped', { archetype: userArchetype }); finalAction(); }
         function handleNeighborhoodChange(value) {
             const otherInput = document.getElementById('otherNeighborhoodInput');
             if (value === '__other__') {
@@ -2031,22 +2126,77 @@
                 otherInput.value = '';
             }
         }
-        function submitData(event) {
+        function showFormError(msg, field) {
+            const el = document.getElementById('formError');
+            el.textContent = msg || '';
+            el.classList.toggle('show', !!msg);
+            if (field) field.focus();
+        }
+
+        let submitting = false;
+        async function submitData(event) {
             event.preventDefault();
+            if (submitting) return;
+            const nameEl = document.getElementById('nameInput');
+            const emailEl = document.getElementById('emailInput');
+            const phoneEl = document.getElementById('phoneInput');
             const select = document.getElementById('neighborhoodInput');
+            const name = nameEl.value.trim();
+            const email = emailEl.value.trim();
+            const phone = phoneEl.value.trim();
             let neighborhood = select.value;
-            if (neighborhood === '__other__') {
-                neighborhood = document.getElementById('otherNeighborhoodInput').value.trim();
-                if (!neighborhood) { document.getElementById('otherNeighborhoodInput').focus(); return; }
-            }
-            userData = {
-                name: document.getElementById('nameInput').value,
-                email: document.getElementById('emailInput').value,
-                neighborhood: neighborhood
+            if (neighborhood === '__other__') neighborhood = document.getElementById('otherNeighborhoodInput').value.trim();
+
+            if (!name) return showFormError('Please add your name.', nameEl);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showFormError('Please check your email address.', emailEl);
+            if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
+            if (!neighborhood) return showFormError('Please pick the area you are most interested in.', select.value === '__other__' ? document.getElementById('otherNeighborhoodInput') : select);
+            showFormError('');
+
+            userData = { name, email, phone, neighborhood };
+            const payload = {
+                name, email, phone,
+                area: neighborhood,
+                consent: document.getElementById('consentInput').checked,
+                website: document.getElementById('websiteInput').value,
+                archetype: archetypes[userArchetype].name,
+                budget: selectedPrice,
+                preferences: userPreferences,
+                loved: loves.map(h => h.style),
+                passed: passes.map(h => h.style),
+                utm: window.__utm || {}
             };
+
+            const btn = document.getElementById('submitBtn');
+            const label = btn.textContent;
+            submitting = true; btn.disabled = true; btn.textContent = 'Saving...';
+            try {
+                const r = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok || !data.ok) throw new Error(data.error || ('status ' + r.status));
+                track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: neighborhood, phone: phone ? 'yes' : 'no' });
+                showActivation(true);
+            } catch (err) {
+                console.warn('Lead save failed:', err && err.message);
+                showFormError("We couldn't save that just now. Please try again in a moment.");
+            } finally {
+                submitting = false; btn.disabled = false; btn.textContent = label;
+            }
+        }
+
+        function showActivation(saved) {
+            const area = userData && userData.neighborhood;
+            document.getElementById('activationHeadline').textContent = saved ? "You're All Set" : 'Your StyleDNA';
+            document.getElementById('activationText').textContent = saved
+                ? `Watch your inbox. You'll get real listings${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style and your budget.`
+                : 'Share your result and see how your taste compares with your friends.';
             showScreen('activationScreen', true);
         }
-        function finalAction() { alert(`Thank you, ${userData?.name||'friend'}!`); }
+        function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
@@ -2062,7 +2212,7 @@
         function buildShareText(medium, includeUrl) {
             const arch = archetypes[userArchetype];
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const base = `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz \u{1F3E0}\n\n${arch.desc}`;
+            const base = `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz\n\n${arch.desc}`;
             if (includeUrl === false) return base;
             const url = buildShareUrl(medium);
             return `${base}\n\nFind your home StyleDNA: ${url}`;
@@ -2074,6 +2224,7 @@
         }
 
         function shareResults() {
+            track('shared', { channel: 'native', archetype: userArchetype });
             const text = buildShareText('native', false);
             const arch = archetypes[userArchetype];
             if (navigator.share) {
@@ -2090,6 +2241,7 @@
         }
 
         function copyShareLink() {
+            track('shared', { channel: 'copy', archetype: userArchetype });
             const text = buildShareText('copy');
             const tryCopy = navigator.clipboard && navigator.clipboard.writeText
                 ? navigator.clipboard.writeText(text)
@@ -2120,6 +2272,7 @@
         }
 
         function shareToFacebook() {
+            track('shared', { channel: 'facebook', archetype: userArchetype });
             // On mobile, native share sheet is far more reliable than sharer.php
             // (the FB mobile app intercepts sharer.php URLs and frequently fails to load them).
             if (isMobile() && navigator.share) {
@@ -2140,15 +2293,17 @@
         }
 
         function shareToTwitter() {
+            track('shared', { channel: 'x', archetype: userArchetype });
             const arch = archetypes[userArchetype];
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const text = `I'm a ${cleanName} on @ChloeIQ's StyleDNA quiz \u{1F3E0} What's yours?`;
+            const text = `I'm a ${cleanName} on @ChloeIQ's StyleDNA quiz. What's yours?`;
             const url = buildShareUrl('twitter');
             const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=StyleDNA,HomeDesign`;
             window.open(tw, '_blank', 'noopener,width=600,height=500');
         }
 
         function shareToInstagram() {
+            track('shared', { channel: 'instagram', archetype: userArchetype });
             // Instagram has no public web share URL — they intentionally don't support it.
             // The only path that works is the OS native share sheet on mobile, which includes Instagram.
             if (isMobile() && navigator.share) {
