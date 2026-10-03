@@ -1217,6 +1217,11 @@
 
         .text-link { display: block; margin: 14px auto 0; background: none; border: none; color: var(--silver); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--hairline); cursor: pointer; padding: 6px; }
         .text-link:hover { color: var(--gold); }
+        .homes-picker { margin: 22px 0 0; text-align: left; }
+        .homes-row { display: flex; gap: 8px; align-items: stretch; }
+        .homes-row .form-select { flex: 1 1 auto; min-width: 0; }
+        .homes-row .btn-secondary { flex: 0 0 auto; padding: 0 18px; white-space: nowrap; color: var(--gold); border-color: var(--hairline); }
+        .homes-note { margin: 8px 0 0; font-size: 12px; color: var(--silver); }
         .activation-share { margin-top: 12px; }
 
         /* Legal footer (TREC: IABS and Consumer Protection Notice links) */
@@ -1500,7 +1505,16 @@
                         A design-driven perfectionist who believes every home is a curated expression of taste.
                     </p>
                     <button class="welcome-cta" onclick="captureEmail()">Get Homes That Fit My Style</button>
-                    <button class="text-link" onclick="openHomes('range')" id="browseRangeLink">Or browse homes for sale in your range</button>
+                    <div class="homes-picker">
+                        <label class="form-label" for="homesArea">Browse homes for sale</label>
+                        <div class="homes-row">
+                            <select class="form-select" id="homesArea" onchange="syncHomesButton()">
+                                <option value="">Anywhere in DFW</option>
+                            </select>
+                            <button type="button" class="btn-secondary" id="browseRangeLink" onclick="openHomes('picker')">See Homes</button>
+                        </div>
+                        <p class="homes-note" id="homesNote">In your price range, on joshwaters.com</p>
+                    </div>
                 </div>
 
                 <div class="results-section">
@@ -2174,7 +2188,9 @@
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
-            document.getElementById('browseRangeLink').textContent = `Or browse DFW homes for sale, ${selectedPriceLabel}`;
+            document.getElementById('homesNote').textContent = `${selectedPriceLabel}, on joshwaters.com`;
+            if (userData && KNOWN_AREAS.has(userData.neighborhood)) document.getElementById('homesArea').value = userData.neighborhood;
+            syncHomesButton();
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
@@ -2231,8 +2247,22 @@
                 ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
             return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
         }
+        // Area picker on the results screen: same areas as the lead form, minus "Other".
+        (function fillHomesArea() {
+            const target = document.getElementById('homesArea');
+            document.querySelectorAll('#neighborhoodInput optgroup').forEach(g => {
+                const copy = g.cloneNode(true);
+                copy.querySelectorAll('option[value="__other__"]').forEach(o => o.remove());
+                target.appendChild(copy);
+            });
+        })();
+        function syncHomesButton() {
+            const v = document.getElementById('homesArea').value;
+            document.getElementById('browseRangeLink').textContent = v ? 'See Homes' : 'See All Homes';
+        }
         function openHomes(where) {
-            const area = where === 'area' && userData ? userData.neighborhood : null;
+            const area = where === 'picker' ? (document.getElementById('homesArea').value || null)
+                : (where === 'area' && userData ? userData.neighborhood : null);
             track('homes_clicked', { where, archetype: userArchetype, budget: selectedPriceLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
             window.open(homesUrl(area, selectedPrice), '_blank', 'noopener');
         }
@@ -2279,6 +2309,7 @@
             showFormError('');
 
             userData = { name, email, phone, neighborhood };
+            if (KNOWN_AREAS.has(neighborhood)) { document.getElementById('homesArea').value = neighborhood; syncHomesButton(); }
             const payload = {
                 name, email, phone,
                 area: neighborhood,
