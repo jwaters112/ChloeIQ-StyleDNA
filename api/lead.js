@@ -12,10 +12,19 @@ const BUDGETS = {
   4: { label: '$1M+', priceMin: 1000000 },
 };
 
-const clip = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).trim().slice(0, n) : '';
 const list = (v, n = 20) => (Array.isArray(v) ? v.slice(0, n).map((x) => clip(x, 60)).filter(Boolean) : []);
 
 module.exports = async function handler(req, res) {
+  try {
+    return await handle(req, res);
+  } catch (err) {
+    console.error('lead handler error', err && err.message);
+    return res.status(400).json({ ok: false, error: 'bad_request' });
+  }
+};
+
+async function handle(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'method_not_allowed' });
@@ -34,8 +43,9 @@ module.exports = async function handler(req, res) {
 
   const name = clip(body.name, 60);
   const email = clip(body.email, 120).toLowerCase();
-  const phoneDigits = clip(body.phone, 30).replace(/[^\d+]/g, '');
-  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const phoneRaw = clip(body.phone, 30).replace(/[^\d+]/g, '');
+  const phoneDigits = phoneRaw.replace(/\D/g, '').length >= 10 ? phoneRaw : '';
+  if (!name || !/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) {
     return res.status(400).json({ ok: false, error: 'missing_fields' });
   }
 
@@ -48,10 +58,11 @@ module.exports = async function handler(req, res) {
   const lastName = rest.join(' ');
   const archetype = clip(body.archetype, 40);
   const area = clip(body.area, 60);
-  const budget = BUDGETS[body.budget] || null;
+  const budgetKey = Number(body.budget);
+  const budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
   const consent = body.consent === true;
-  const prefs = body.preferences || {};
-  const utm = body.utm || {};
+  const prefs = (body.preferences && typeof body.preferences === 'object') ? body.preferences : {};
+  const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {};
   const loved = list(body.loved);
   const passed = list(body.passed);
 
@@ -101,6 +112,7 @@ module.exports = async function handler(req, res) {
       method: 'POST',
       headers: { Authorization: 'token ' + key, 'Content-Type': 'application/json' },
       body: JSON.stringify(lead),
+      signal: AbortSignal.timeout(8000),
     });
     const text = await r.text();
     if (!r.ok) {
@@ -114,4 +126,4 @@ module.exports = async function handler(req, res) {
     console.error('Lofty request error', err && err.message);
     return res.status(502).json({ ok: false, error: 'crm_unreachable' });
   }
-};
+}

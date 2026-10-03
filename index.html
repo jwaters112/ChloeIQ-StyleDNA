@@ -115,7 +115,7 @@
 
         .welcome-logo {
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 2px;
             margin-bottom: 40px;
             color: var(--accent-gold);
@@ -126,7 +126,7 @@
             font-family: 'Montserrat', sans-serif;
             font-style: italic;
             font-size: 48px;
-            font-weight: 700;
+            font-weight: 600;
             line-height: 1.2;
             margin-bottom: 20px;
             color: var(--primary-white);
@@ -177,7 +177,7 @@
             font-family: 'Montserrat', sans-serif;
             font-style: italic;
             font-size: 42px;
-            font-weight: 700;
+            font-weight: 600;
             text-align: center;
             margin-bottom: 16px;
             color: var(--primary-white);
@@ -279,7 +279,9 @@
             padding: 0;
             justify-content: space-between;
             height: 100vh;
+            height: 100dvh;
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .swipe-header {
@@ -406,7 +408,7 @@
 
         .swipe-card-title {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--primary-white);
             margin-bottom: 6px;
             opacity: 0;
@@ -437,7 +439,7 @@
 
         .swipe-indicator {
             font-size: 80px;
-            font-weight: 700;
+            font-weight: 600;
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -589,17 +591,11 @@
             margin-bottom: 8px;
         }
 
-        .archetype-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
         .archetype-name {
             font-family: 'Montserrat', sans-serif;
             font-style: italic;
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--accent-gold);
             margin-bottom: 8px;
         }
@@ -713,29 +709,6 @@
             margin-bottom: 8px;
         }
 
-        .match-score {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(224, 178, 77, 0.1);
-            border: 1px solid var(--accent-gold);
-            border-radius: 2px;
-            font-size: 12px;
-            color: var(--accent-gold);
-            font-weight: 600;
-            margin-right: 8px;
-        }
-
-        .match-price {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(27, 42, 66, 0.5);
-            border: 1px solid var(--secondary-navy);
-            border-radius: 2px;
-            font-size: 12px;
-            color: var(--primary-white);
-            font-weight: 600;
-        }
-
         /* ===== DATA CAPTURE SCREEN ===== */
         .data-capture-screen {
             padding: 80px 20px 60px;
@@ -753,7 +726,7 @@
             font-family: 'Montserrat', sans-serif;
             font-style: italic;
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 12px;
             color: var(--primary-white);
             text-align: center;
@@ -878,57 +851,9 @@
             font-family: 'Montserrat', sans-serif;
             font-style: italic;
             font-size: 36px;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 12px;
             color: var(--primary-white);
-        }
-
-        .activation-subheading {
-            font-size: 16px;
-            color: var(--accent-gold);
-            margin-bottom: 32px;
-            font-weight: 500;
-        }
-
-        .activation-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .activation-card {
-            background: var(--subtle-gray);
-            border: 1px solid var(--muted-taupe);
-            padding: 20px;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .activation-card:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-4px);
-            background: rgba(224, 178, 77, 0.05);
-        }
-
-        .activation-card-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .activation-card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary-white);
-            margin-bottom: 6px;
-        }
-
-        .activation-card-desc {
-            font-size: 12px;
-            color: var(--muted-taupe);
-            line-height: 1.5;
         }
 
         .activation-text {
@@ -1344,7 +1269,7 @@
 <body>
     <div class="app-container">
         <!-- WELCOME SCREEN -->
-        <div class="screen welcome-screen active">
+        <div class="screen welcome-screen active" id="welcomeScreen">
             <div class="welcome-content">
                 <img class="welcome-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="528">
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
@@ -1368,7 +1293,7 @@
             <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="preference-content">
                 <h2 class="preference-headline">What's Your Budget?</h2>
-                <p class="preference-subheading">We'll match your style to homes in your range</p>
+                <p class="preference-subheading">So we can show you homes in the right range</p>
                 <div class="progress-indicator">STEP 1 OF 5</div>
 
                 <div class="pref-options">
@@ -1638,7 +1563,7 @@
             <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="form-container">
                 <h2 class="form-heading">Save Your StyleDNA</h2>
-                <p class="form-subheading">Get real DFW listings that fit your style and budget, sent to your inbox.</p>
+                <p class="form-subheading">Josh will follow up with DFW homes that fit your style and budget.</p>
 
                 <form onsubmit="submitData(event)" novalidate>
                     <div class="form-group">
@@ -1662,7 +1587,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Area You're Interested In</label>
+                        <label class="form-label" for="neighborhoodInput">Area You're Interested In</label>
                         <select class="form-select" id="neighborhoodInput" required onchange="handleNeighborhoodChange(this.value)">
                             <option value="">Select an area...</option>
                             <optgroup label="Dallas Neighborhoods">
@@ -1776,7 +1701,7 @@
             <div class="activation-content">
                 <div class="success-icon" aria-hidden="true"><span>&#10003;</span></div>
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
-                <p class="activation-text" id="activationText">Watch your inbox. You'll get real listings that fit your style and your budget.</p>
+                <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
                 <button class="activation-cta" onclick="shareResults()">Share My StyleDNA</button>
                 <button class="activation-link" onclick="finalAction()">Back to My Results</button>
@@ -1826,11 +1751,11 @@
         function fallbackImage(style) {
             const palette = {
                 'Modern Minimalist':['#2A2A2A','#F5F5F3'],
-                'Open-Concept Contemporary':['#1B2A42','#D4A574'],
-                'Transitional':['#1B2A42','#8B7C6E'],
+                'Open-Concept Contemporary':['#0E2926','#D4A574'],
+                'Transitional':['#0E2926','#8B7C6E'],
                 'Industrial Loft':['#696969','#F5F5F3'],
                 'Bohemian / Eclectic':['#CD853F','#F5DEB3'],
-                'Coastal Modern':['#87CEEB','#F5F5F3'],
+                'Coastal Modern':['#213D37','#F5F5F3'],
                 'Scandinavian':['#D4D4D0','#F5F5F3'],
                 'Traditional / Classic':['#3E2723','#D2B48C'],
                 'Farmhouse':['#D4A574','#F5F5F3'],
@@ -1842,7 +1767,7 @@
                 'Art Deco':['#0A0A0A','#D4A574'],
                 'Maximalist':['#5D2E46','#D4A574'],
                 'Modern Japanese':['#3E2723','#F5F5F3'],
-                'Luxury Contemporary':['#1B2A42','#F5F5F3'],
+                'Luxury Contemporary':['#0E2926','#F5F5F3'],
                 'Cottage Core':['#A8C2A0','#F5F5F3']
             };
             const [c1,c2] = palette[style] || ['#8B7C6E','#F5F5F3'];
@@ -1922,9 +1847,9 @@
         function goBack() {
             if (screenHistory.length === 0) return;
             const prev = screenHistory.pop();
+            const target = document.getElementById(prev) || document.getElementById('welcomeScreen');
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            const target = document.getElementById(prev);
-            if (target) target.classList.add('active');
+            target.classList.add('active');
         }
 
         function setActiveOption(screenId, btn) {
@@ -2099,6 +2024,7 @@
             const container = document.getElementById('swipeContainer');
             container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665\uFE0E</span></div>';
             currentSwipeIndex = 0;
+            swipeLocked = false;
             renderCardStack();
             updateProgress();
             setupSwipeListeners();
@@ -2147,6 +2073,8 @@
             document.getElementById('indicatorLeft').style.opacity = 0;
             document.getElementById('indicatorRight').style.opacity = 0;
             if(Math.abs(diffX)>100) {
+                if (swipeLocked) return;
+                lockSwipe(card);
                 card.style.transition = 'all 0.5s ease-out';
                 if(diffX<0) {
                     card.style.transform = `translate(-500px,${currentY-startY}px) rotate(-20deg)`;
@@ -2165,11 +2093,10 @@
         function nextCard() {
             currentSwipeIndex++;
             updateProgress();
-            if (currentSwipeIndex >= currentHomes.length) { goToLoading(); return; }
+            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToLoading(); return; }
 
             const container = document.getElementById('swipeContainer');
-            const oldActive = container.querySelector('.swipe-card.active');
-            if (oldActive) oldActive.remove();
+            container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
 
             const peek = container.querySelector('.swipe-card.peek');
             if (peek) {
@@ -2181,6 +2108,7 @@
                     peek.style.transform = '';
                     peek.style.opacity = '';
                     peek.style.transition = '';
+                    swipeLocked = false;
                     setupSwipeListeners();
                 }, 400);
             }
@@ -2193,9 +2121,13 @@
             }
         }
 
+        let swipeLocked = false;
+        function lockSwipe(card) { swipeLocked = true; card.classList.remove('active'); card.classList.add('leaving'); }
         function passCard() {
+            if (swipeLocked) return;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
+            lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(-500px,0) rotate(-20deg)';
             passes.push(currentHomes[currentSwipeIndex]);
@@ -2203,8 +2135,10 @@
         }
 
         function loveCard() {
+            if (swipeLocked) return;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
+            lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(500px,0) rotate(20deg)';
             loves.push(currentHomes[currentSwipeIndex]);
@@ -2231,11 +2165,13 @@
                         document.getElementById('archetypeDescription').textContent = arch.desc;
             document.getElementById('aestheticTags').innerHTML = arch.aesthetic.map(t=>`<div class="tag">${t}</div>`).join('');
             document.getElementById('lifestyleText').textContent = arch.lifestyle;
-            document.getElementById('budgetNote').textContent = `Built from your ${loves.length} loves, ${passes.length} passes and your ${selectedPriceLabel} range.`;
+            const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
+            const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
+            document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
-                document.getElementById('matchedHomes').innerHTML = `<p class="results-empty">That tells us a lot too. Real homes often land differently than style photos, so save your StyleDNA and we'll send listings in your range to react to.</p>`;
+                document.getElementById('matchedHomes').innerHTML = `<p class="results-empty">That tells us a lot too. Real homes often land differently than style photos, so save your StyleDNA and Josh will send a few real homes in your range to react to.</p>`;
             } else {
                 document.getElementById('lovedTitle').textContent = 'Styles You Loved';
                 document.getElementById('matchedHomes').innerHTML = loves.slice(0,3).map((h,i)=>`
@@ -2300,7 +2236,7 @@
             if (neighborhood === '__other__') neighborhood = document.getElementById('otherNeighborhoodInput').value.trim();
 
             if (!name) return showFormError('Please add your name.', nameEl);
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showFormError('Please check your email address.', emailEl);
+            if (!/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) return showFormError('Please check your email address.', emailEl);
             if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
             if (!neighborhood) return showFormError('Please pick the area you are most interested in.', select.value === '__other__' ? document.getElementById('otherNeighborhoodInput') : select);
             showFormError('');
@@ -2330,7 +2266,7 @@
                 });
                 const data = await r.json().catch(() => ({}));
                 if (!r.ok || !data.ok) throw new Error(data.error || ('status ' + r.status));
-                track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: neighborhood, phone: phone ? 'yes' : 'no' });
+                track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: select.value === '__other__' ? 'other' : neighborhood, phone: phone ? 'yes' : 'no' });
                 showActivation(true);
             } catch (err) {
                 console.warn('Lead save failed:', err && err.message);
@@ -2344,7 +2280,7 @@
             const area = userData && userData.neighborhood;
             document.getElementById('activationHeadline').textContent = saved ? "You're All Set" : 'Your StyleDNA';
             document.getElementById('activationText').textContent = saved
-                ? `Watch your inbox. You'll get real listings${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style and your budget.`
+                ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
                 : 'Share your result and see how your taste compares with your friends.';
             showScreen('activationScreen', true);
         }
@@ -2361,10 +2297,12 @@
             return url.toString();
         }
 
+        function archLabel() { return (archetypes[userArchetype].name || '').replace(/^The\s+/i, ''); }
+        function withArticle(w) { return (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w; }
         function buildShareText(medium, includeUrl) {
             const arch = archetypes[userArchetype];
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const base = `I'm a ${cleanName} on ChloeIQ's StyleDNA quiz\n\n${arch.desc}`;
+            const base = `I'm ${withArticle(cleanName)} on the StyleDNA quiz\n\n${arch.desc}`;
             if (includeUrl === false) return base;
             const url = buildShareUrl(medium);
             return `${base}\n\nFind your home StyleDNA: ${url}`;
@@ -2381,7 +2319,7 @@
             const arch = archetypes[userArchetype];
             if (navigator.share) {
                 navigator.share({
-                    title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
+                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
                     text: text,
                     url: buildShareUrl('native')
                 }).catch(err => {
@@ -2430,7 +2368,7 @@
             if (isMobile() && navigator.share) {
                 const arch = archetypes[userArchetype];
                 navigator.share({
-                    title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
+                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
                     text: buildShareText('facebook', false),
                     url: buildShareUrl('facebook')
                 }).catch(err => {
@@ -2448,7 +2386,7 @@
             track('shared', { channel: 'x', archetype: userArchetype });
             const arch = archetypes[userArchetype];
             const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const text = `I'm a ${cleanName} on @ChloeIQ's StyleDNA quiz. What's yours?`;
+            const text = `I'm ${withArticle(cleanName)} on the StyleDNA quiz. What's yours?`;
             const url = buildShareUrl('twitter');
             const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=StyleDNA,HomeDesign`;
             window.open(tw, '_blank', 'noopener,width=600,height=500');
@@ -2461,7 +2399,7 @@
             if (isMobile() && navigator.share) {
                 const arch = archetypes[userArchetype];
                 navigator.share({
-                    title: `I'm a ${arch.name} - ChloeIQ StyleDNA`,
+                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
                     text: buildShareText('instagram', false),
                     url: buildShareUrl('instagram')
                 }).catch(err => {
@@ -2471,7 +2409,7 @@
             }
             // Desktop fallback: copy link with a note
             copyShareLink();
-            alert("Instagram doesn't allow direct web sharing. We've copied the link — you can paste it into your Instagram bio or DM.");
+            alert("Instagram doesn't allow direct web sharing. We've copied the link. You can paste it into your Instagram bio or a DM.");
         }
 
         function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
