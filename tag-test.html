@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>StyleDNA photo tag test</title>
+<style>body{margin:0;background:#030C0D;color:#F5F5F3;font:15px/1.5 -apple-system,Segoe UI,sans-serif;padding:24px}b{color:#E0B24D}</style>
+</head><body>
+<h1>StyleDNA photo tag test</h1>
+<p id="s">Waiting for listings from the Matrix tab.</p>
+<script>
+// Internal test page: receives listing photo links from the Matrix tab, sends them to /api/tag-photo, returns the results.
+const ALLOWED = 'https://ntrdd.mlsmatrix.com';
+const s = document.getElementById('s');
+window.addEventListener('message', async (ev) => {
+  if (ev.origin !== ALLOWED || !ev.data || !Array.isArray(ev.data.homes)) return;
+  const homes = ev.data.homes, out = [];
+  for (let i = 0; i < homes.length; i += 25) {
+    s.innerHTML = `Tagging <b>${i}</b> of ${homes.length}...`;
+    try {
+      const r = await fetch('/api/tag-photo', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ homes: homes.slice(i, i + 25) }) });
+      const j = await r.json();
+      out.push(...(j.results || [{ error: j.error || ('http_' + r.status) }]));
+    } catch (e) { out.push({ error: 'fetch_failed', detail: String(e) }); }
+  }
+  s.innerHTML = `Done: <b>${out.length}</b> homes tagged. You can close this tab.`;
+  ev.source.postMessage({ sdnaResults: out }, ALLOWED);
+});
+if (window.opener) window.opener.postMessage({ sdnaReady: true }, ALLOWED);
+</script>
+</body></html>
