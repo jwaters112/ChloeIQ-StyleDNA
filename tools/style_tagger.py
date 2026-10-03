@@ -4,7 +4,7 @@ Reads a Matrix "Export for Chloe Data - Active Listings" CSV (private remarks re
 and tags every listing with a StyleDNA style, archetype scores, finish level and the
 signals behind them. Text-only: photo checks are done separately and recorded as overrides.
 
-Usage: python3 style_tagger.py <in.csv> <out.csv> [<out.json>]
+Usage: python3 style_tagger.py <in.csv> <out.csv> [<out.json>] [--photos photo_styles.csv]
 """
 import csv
 import json
@@ -184,6 +184,32 @@ MID_SURFACES = [r'quartz', r'granite']
 
 FREQ = {}  # label -> share of listings with it, filled in main()
 
+# Photo review: a person (or vision model) looks at the front photo and records a style code.
+# A photo beats listing text because agents often skip style words or use them loosely.
+PHOTO_STYLES = {
+    'TR': ('Traditional', 'custodian', 'sanctuary'),
+    'TS': ('Transitional', 'sanctuary', 'custodian'),
+    'MO': ('Modern / Contemporary', 'visionary', 'curator'),
+    'MF': ('Modern Farmhouse', 'architect', 'sanctuary'),
+    'FH': ('Farmhouse', 'authenticist', 'sanctuary'),
+    'CR': ('Craftsman', 'custodian', 'authenticist'),
+    'TU': ('Tudor', 'custodian', 'curator'),
+    'ME': ('Mediterranean / Spanish', 'architect', 'custodian'),
+    'FR': ('French / European', 'curator', 'custodian'),
+    'CO': ('Cottage', 'custodian', 'sanctuary'),
+    'MC': ('Mid-Century Modern', 'custodian', 'visionary'),
+    'RR': ('Ranch', 'custodian', 'authenticist'),
+    'HC': ('Hill Country', 'authenticist', 'custodian'),
+    'CT': ('Colonial / Georgian', 'custodian', 'curator'),
+    'IN': ('Industrial', 'visionary', 'architect'),
+}
+# Everyday builder looks say less about taste than a distinctive style, so they count for less.
+WEAK_STYLES = {'Traditional', 'Transitional', 'Ranch'}
+PHOTO_INTERIOR = {'m': ('visionary', 1.0, 'modern'), 'l': ('curator', 1.0, 'luxe'), 'f': ('architect', 0.5, 'farmhouse'),
+                  's': ('sanctuary', 0.5, 'soft transitional'), 't': ('custodian', 0.5, 'traditional'),
+                  'r': ('authenticist', 1.0, 'rustic'), 'x': (None, 0, 'dated')}
+PHOTOS = {}  # mls -> (exterior code, interior code), filled in main()
+
 
 def rarity(label):
     f = FREQ.get(label, 0.1)
@@ -219,14 +245,31 @@ def tag(row):
         if h:
             style, style_hits = (name, prim, sec), h
             break
+    if style and style[0] == 'Farmhouse' and year >= 2015:
+        style = ('Modern Farmhouse', 'architect', 'sanctuary')
+    text_style = style[0] if style else ''
+    source = 'listing text' if style else 'blank'
+    ext, inte = PHOTOS.get(row.get('ML #', ''), ('', ''))
+    photo_style = PHOTO_STYLES[ext][0] if ext in PHOTO_STYLES else ''
+    if photo_style:
+        style = PHOTO_STYLES[ext]
+        source = 'photo + text agree' if photo_style == text_style else 'photo'
     if style:
         name, prim, sec = style
-        if name == 'Farmhouse' and year >= 2015:
-            style = ('Modern Farmhouse', 'architect', 'sanctuary')
-            name, prim, sec = style
-        score[prim] += 4
-        score[sec] += 1.5
-        why.append(f'style words: {", ".join(sorted(set(style_hits)))}')
+        weak = name in WEAK_STYLES
+        score[prim] += 2 if weak else 4
+        score[sec] += 0.75 if weak else 1.5
+        if source == 'photo + text agree' and not weak:
+            score[prim] += 1
+        if photo_style:
+            why.append(f'front photo: {photo_style}' + (f' (text said {text_style})' if text_style and text_style != photo_style else ''))
+        else:
+            why.append(f'style words: {", ".join(sorted(set(style_hits)))}')
+    if inte in PHOTO_INTERIOR:
+        arch, pts, label = PHOTO_INTERIOR[inte]
+        if arch:
+            score[arch] += pts
+        why.append(f'lead photo interior: {label}')
 
     signals = []
     for label, arch, w, pats in SIGNALS:
@@ -312,7 +355,9 @@ def tag(row):
         'pool': 'Yes' if pool else 'No',
         'cdom': row.get('CDOM', ''),
         'styledna_style': style[0] if style else 'Not confirmed',
-        'style_source': 'listing text' if style else 'blank',
+        'style_source': source,
+        'text_style': text_style or 'none',
+        'photo_style': photo_style or ('no front photo' if ext == 'NA' else 'not reviewed'),
         'archetype': top,
         'archetype_2': second,
         'confidence': confidence,
@@ -327,6 +372,13 @@ def tag(row):
 
 
 def main():
+    args = sys.argv[1:]
+    if '--photos' in args:
+        i = args.index('--photos')
+        for r in csv.DictReader(open(args[i + 1])):
+            PHOTOS[r['mls']] = (r['photo_exterior'], r.get('photo_interior', ''))
+        del args[i:i + 2]
+    sys.argv[1:] = args
     src, out = sys.argv[1], sys.argv[2]
     rows = list(csv.DictReader(open(src, encoding='utf-8-sig')))
     # Pass 1: how common is each signal across this market?
@@ -351,7 +403,8 @@ def main():
         t['archetype'], t['archetype_2'] = ranked[0], ranked[1]
         lead = rel[ranked[0]] - rel[ranked[1]]
         styled = t['styledna_style'] != 'Not confirmed'
-        t['confidence'] = 'High' if styled and lead >= 2 else ('Low' if (not styled and rel[ranked[0]] < 2) else 'Medium')
+        strong = styled and t['styledna_style'] not in WEAK_STYLES
+        t['confidence'] = 'High' if strong and lead >= 2 else ('Low' if (not styled and rel[ranked[0]] < 2) else 'Medium')
         t['stands_out_by'] = round(rel[ranked[0]], 1)
         if not styled and rel[ranked[0]] < 0.75:
             t['archetype'], t['archetype_2'], t['confidence'] = 'unclear', '', 'Low'
