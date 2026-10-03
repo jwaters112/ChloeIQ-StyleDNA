@@ -1856,22 +1856,34 @@
         // picked at random from that archetype's pool, so budget never changes the result.
         const STYLE_CARDS = {
             // Curator
+            'Dark Luxe Kitchen':          {arch:'curator',      second:'architect',    title:'Statement Kitchen',      desc:'Marble, brass and drama', img:'marble-kitchen.webp'},
+            'Gallery Modern':             {arch:'curator',      second:'visionary',    title:'Collector\'s Home',      desc:'Walls made for art', img:'gallery-modern.webp'},
             'Art Deco':                   {arch:'curator',      second:'visionary',    title:'Glamour Estate',         desc:'Dramatic and luxe'},
             'Maximalist':                 {arch:'curator',      second:'authenticist', title:'Bold Statement',         desc:'Layered and unapologetic'},
             // Visionary
             'Modern Minimalist':          {arch:'visionary',    second:'curator',      title:'Pure Minimal',           desc:'Nothing extra, all intent'},
+            'Concrete Modern':            {arch:'visionary',    second:'curator',      title:'Glass and Concrete',     desc:'Architecture first', img:'concrete-modern.webp'},
+            'Organic Modern':             {arch:'visionary',    second:'sanctuary',    title:'Soft Curves',            desc:'Sculpted, warm and new', img:'organic-modern.webp'},
             'Industrial Contemporary':    {arch:'visionary',    second:'architect',    title:'Modern Edge',            desc:'Steel, brick and city light'},
             // Experience Architect
+            'Pool Great Room':            {arch:'architect',    second:'authenticist', title:'Indoor-Outdoor Living',  desc:'Walls open to the pool', img:'pool-great-room.webp'},
+            'Game Room and Bar':          {arch:'architect',    second:'visionary',    title:'The Game Room',          desc:'Bar, billiards and big nights', img:'game-room.webp'},
             'Modern Farmhouse':           {arch:'architect',    second:'sanctuary',    title:'Gathering Kitchen',      desc:'Big island, room for everyone'},
             'Mediterranean':              {arch:'architect',    second:'custodian',    title:'Courtyard Living',       desc:'Indoor-outdoor and made to host'},
             // Sanctuary Seeker
+            'Spa Bath':                   {arch:'sanctuary',    second:'authenticist', title:'Spa Retreat',            desc:'Stone tub and garden light', img:'spa-bath.webp'},
+            'Sunroom':                    {arch:'sanctuary',    second:'custodian',    title:'The Sunroom',            desc:'Windows, green and quiet', img:'sunroom.webp'},
             'Scandinavian':               {arch:'sanctuary',    second:'curator',      title:'Nordic Calm',            desc:'Light and serene'},
             'Modern Japanese':            {arch:'sanctuary',    second:'authenticist', title:'Zen Retreat',            desc:'Quiet and balanced'},
             // Heritage Custodian
+            'Tudor Library':              {arch:'custodian',    second:'curator',      title:'The Library',            desc:'Paneled, storied and warm', img:'tudor-library.webp'},
+            'Craftsman Bungalow':         {arch:'custodian',    second:'authenticist', title:'Classic Craftsman',      desc:'Original wood and built-ins', img:'craftsman.webp'},
             'Traditional / Classic':      {arch:'custodian',    second:'sanctuary',    title:'Heritage Home',          desc:'Timeless character'},
             'Mid-Century Modern':         {arch:'custodian',    second:'visionary',    title:'Designer Classic',       desc:'Iconic mid-century'},
             'Cottage Core':               {arch:'custodian',    second:'sanctuary', title:'Storybook Cottage',      desc:'Charming and nostalgic'},
             // Authenticist
+            'Hill Country Ranch':         {arch:'authenticist', second:'custodian',    title:'Limestone Ranch',        desc:'Texas stone, cedar and oaks', img:'hill-country-ranch.webp'},
+            'Modern Ranch':               {arch:'authenticist', second:'architect',    title:'Reclaimed Ranch',        desc:'Barnwood, steel and pasture', img:'reclaimed-ranch.webp'},
             'Bohemian / Eclectic':        {arch:'authenticist', second:'custodian',    title:'Collected Living',       desc:'Personal and well-traveled'},
             'Rustic Modern':              {arch:'authenticist', second:'architect',    title:'Natural Refinement',     desc:'Wood, stone and a big hearth'}
         };
@@ -1879,6 +1891,8 @@
         // Industrial Loft, Open-Concept Contemporary, Luxury Contemporary, Farmhouse, Transitional.
         // Coastal Modern is held out until it has a DFW-appropriate photo (current image shows an ocean view).
         const CARDS_PER_ARCHETYPE = 2;
+        // Rooms that read alike never appear in the same quiz.
+        const LOOKALIKE = { 'Hill Country Ranch': 'stone-beam', 'Rustic Modern': 'stone-beam', 'Modern Minimalist': 'white-modern', 'Organic Modern': 'white-modern' };
 
         const archetypes = {
             'curator': {name:'The Curator', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
@@ -1972,14 +1986,21 @@
             const byArch = {};
             Object.entries(STYLE_CARDS).forEach(([style, c]) => { (byArch[c.arch] = byArch[c.arch] || []).push(style); });
             let picks = [];
-            Object.values(byArch).forEach(styles => { picks = picks.concat(shuffle(styles).slice(0, CARDS_PER_ARCHETYPE)); });
+            Object.values(byArch).forEach(styles => {
+                const chosen = [], groups = new Set();
+                shuffle(styles).forEach(st => {
+                    const g = LOOKALIKE[st] || st;
+                    if (chosen.length < CARDS_PER_ARCHETYPE && !groups.has(g)) { chosen.push(st); groups.add(g); }
+                });
+                picks = picks.concat(chosen);
+            });
             let deck = shuffle(picks);
             for (let tries = 0; tries < 50; tries++) {
                 const clash = deck.some((s, i) => i > 0 && STYLE_CARDS[s].arch === STYLE_CARDS[deck[i - 1]].arch);
                 if (!clash) break;
                 deck = shuffle(picks);
             }
-            return deck.map(style => ({ style, ...STYLE_CARDS[style], image: styleImage(style), fallback: fallbackImage(style) }));
+            return deck.map(style => { const c = STYLE_CARDS[style]; return { style, ...c, image: c.img ? './img/' + c.img : styleImage(style), fallback: fallbackImage(style) }; });
         }
 
         // Question answers: each archetype can earn the same maximum, so no archetype is favored by the questions.
