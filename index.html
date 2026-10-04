@@ -1218,10 +1218,10 @@
         .text-link { display: block; margin: 14px auto 0; background: none; border: none; color: var(--silver); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--hairline); cursor: pointer; padding: 6px; }
         .text-link:hover { color: var(--gold); }
         .homes-picker { margin: 22px 0 0; text-align: left; }
-        .homes-row { display: flex; gap: 8px; align-items: stretch; }
-        .homes-row .form-select { flex: 1 1 auto; min-width: 0; }
-        .homes-row .btn-secondary { flex: 0 0 auto; padding: 0 18px; white-space: nowrap; color: var(--gold); border-color: var(--hairline); }
-        .homes-note { margin: 8px 0 0; font-size: 12px; color: var(--silver); }
+        .btn-secondary.homes-style-btn { display: block; width: 100%; margin-top: 8px; color: var(--gold); border-color: var(--hairline); }
+        .homes-note { margin: 10px 0 0; font-size: 12px; color: var(--silver); }
+        .homes-all { background: none; border: 0; padding: 0; font: inherit; color: var(--silver); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+        .homes-all:hover { color: var(--gold); }
         .activation-share { margin-top: 12px; }
 
         /* Legal footer (TREC: IABS and Consumer Protection Notice links) */
@@ -1507,13 +1507,11 @@
                     <button class="welcome-cta" onclick="captureEmail()">Get Homes That Fit My Style</button>
                     <div class="homes-picker">
                         <label class="form-label" for="homesArea">Browse homes for sale</label>
-                        <div class="homes-row">
-                            <select class="form-select" id="homesArea" onchange="syncHomesButton()">
-                                <option value="">Anywhere in DFW</option>
-                            </select>
-                            <button type="button" class="btn-secondary" id="browseRangeLink" onclick="openHomes('picker')">See Homes</button>
-                        </div>
-                        <p class="homes-note" id="homesNote">In your price range, on joshwaters.com</p>
+                        <select class="form-select" id="homesArea" aria-label="Area">
+                            <option value="">Anywhere in DFW</option>
+                        </select>
+                        <button type="button" class="btn-secondary homes-style-btn" id="browseRangeLink" onclick="openHomes('picker', true)">See Homes in My Style</button>
+                        <p class="homes-note"><span id="homesNote">In your price range, on joshwaters.com</span> &middot; <button type="button" class="homes-all" onclick="openHomes('picker', false)">See all homes instead</button></p>
                     </div>
                 </div>
 
@@ -1722,7 +1720,8 @@
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
                 <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
-                <button class="activation-cta" id="homesBtn" onclick="openHomes('area')">See Homes For Sale Now</button>
+                <button class="activation-cta" id="homesBtn" onclick="openHomes('area', true)">See Homes in My Style</button>
+                <button class="activation-link" onclick="openHomes('area', false)">Or see all homes for sale</button>
                 <button class="welcome-cta share-cta-secondary activation-share" onclick="shareResults()">Share My StyleDNA</button>
                 <button class="activation-link" onclick="finalAction()">Back to My Results</button>
             </div>
@@ -2190,7 +2189,6 @@
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
             document.getElementById('homesNote').textContent = `${selectedPriceLabel}, on joshwaters.com`;
             if (userData && KNOWN_AREAS.has(userData.neighborhood)) document.getElementById('homesArea').value = userData.neighborhood;
-            syncHomesButton();
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
@@ -2238,8 +2236,20 @@
             'Las Colinas': ['75038','75039','75063']
         };
         const KNOWN_AREAS = new Set([...document.querySelectorAll('#neighborhoodInput option')].map(o => o.value).filter(v => v && v !== '__other__'));
-        function homesUrl(area, budgetIdx) {
+        // Each archetype maps to the MLS "Style" values your joshwaters.com search can filter on.
+        // The site's Style list: Colonial, Contemporary/Modern, Craftsman, English, French, Mediterranean,
+        // Mid-Century Modern, Modern Farmhouse, Prairie, Ranch, Spanish, Traditional, Tudor, Victorian, and a few more.
+        const ARCH_MLS_STYLES = {
+            curator: ['French', 'English', 'Contemporary/Modern', 'Mediterranean'],
+            visionary: ['Contemporary/Modern', 'Mid-Century Modern', 'Loft'],
+            architect: ['Mediterranean', 'Modern Farmhouse', 'Spanish', 'Contemporary/Modern'],
+            sanctuary: ['Contemporary/Modern', 'Craftsman', 'Modern Farmhouse', 'Prairie'],
+            custodian: ['Tudor', 'Craftsman', 'Colonial', 'Mid-Century Modern'],
+            authenticist: ['Ranch', 'Barndominium', 'Modern Farmhouse', 'Southwestern']
+        };
+        function homesUrl(area, budgetIdx, styled) {
             const cond = { purchasetype: ['For Sale'] };
+            if (styled && ARCH_MLS_STYLES[userArchetype]) cond.style = ARCH_MLS_STYLES[userArchetype];
             if (area && AREA_ZIPS[area]) cond.location = { zipCode: AREA_ZIPS[area] };
             else if (area && KNOWN_AREAS.has(area)) cond.location = { city: [area + ', TX'] };
             if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
@@ -2256,15 +2266,11 @@
                 target.appendChild(copy);
             });
         })();
-        function syncHomesButton() {
-            const v = document.getElementById('homesArea').value;
-            document.getElementById('browseRangeLink').textContent = v ? 'See Homes' : 'See All Homes';
-        }
-        function openHomes(where) {
+        function openHomes(where, styled) {
             const area = where === 'picker' ? (document.getElementById('homesArea').value || null)
                 : (where === 'area' && userData ? userData.neighborhood : null);
-            track('homes_clicked', { where, archetype: userArchetype, budget: selectedPriceLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
-            window.open(homesUrl(area, selectedPrice), '_blank', 'noopener');
+            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
+            window.open(homesUrl(area, selectedPrice, styled), '_blank', 'noopener');
         }
 
         function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
@@ -2309,7 +2315,7 @@
             showFormError('');
 
             userData = { name, email, phone, neighborhood };
-            if (KNOWN_AREAS.has(neighborhood)) { document.getElementById('homesArea').value = neighborhood; syncHomesButton(); }
+            if (KNOWN_AREAS.has(neighborhood)) document.getElementById('homesArea').value = neighborhood;
             const payload = {
                 name, email, phone,
                 area: neighborhood,
@@ -2352,7 +2358,7 @@
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
                 : 'Share your result and see how your taste compares with your friends.';
             const area2 = userData && userData.neighborhood;
-            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See Homes For Sale in ${area2}` : 'See Homes For Sale Now';
+            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See My Style in ${area2}` : 'See Homes in My Style';
             showScreen('activationScreen', true);
         }
         function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
