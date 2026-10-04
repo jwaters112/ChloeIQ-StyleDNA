@@ -1,0 +1,5 @@
+# Keep internal tools and the photo-test page off the public site.
+# The daily StyleDNA run uses them from the quick-fixes preview link instead.
+tools/
+tag-test.html
+api/tag-photo.js
