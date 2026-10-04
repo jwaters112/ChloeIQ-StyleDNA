@@ -129,7 +129,7 @@
     if (!listing && !c) { if (dock) { dock.remove(); dock = null; } return; }
     if (dock) dock.remove();
     dock = document.createElement('div');
-    dock.className = 'sdna-dock';
+    dock.className = 'sdna-dock' + (sheet ? ' hide' : '');
     var url = listingUrl();
     var isSaved = !!saved[url];
     var html = '';
