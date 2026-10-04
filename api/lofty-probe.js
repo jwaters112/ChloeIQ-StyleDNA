@@ -4,6 +4,7 @@ module.exports = async (req, res) => {
   if (process.env.VERCEL_ENV !== 'preview') return res.status(404).json({ error: 'not_found' });
   const key = process.env.LOFTY_API_KEY;
   const q = req.query || {};
+  if (q.token) return res.status(200).json({ id: q.token, t: require('./_lib/lofty').leadToken(q.token) });
   let url;
   if (q.mls) url = 'https://api.lofty.com/v1.0/listing?limit=5&mlsListingIds=' + encodeURIComponent(q.mls);
   else if (q.lead) url = 'https://api.lofty.com/v1.0/leads/' + encodeURIComponent(q.lead) + '/activities';

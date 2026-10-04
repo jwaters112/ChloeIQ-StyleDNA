@@ -81,8 +81,8 @@ function compare(h, L, lookupOk, now) {
   return change;
 }
 
-async function checkListings(report) {
-  const ids = await store.listIds();
+async function checkListings(report, only) {
+  const ids = only ? [only] : await store.listIds();
   const boards = [];
   for (const id of ids) { const cur = await store.read(id); if (cur) boards.push(cur.doc); }
   const all = [];
@@ -146,10 +146,10 @@ function summarize(browse, events, since) {
   return lines;
 }
 
-async function writeNotes(report) {
+async function writeNotes(report, only, onlyVisitor) {
   const now = Date.now();
   const date = new Date(now).toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric' });
-  for (const id of await store.listIds()) {
+  for (const id of (only ? [only] : (onlyVisitor ? [] : await store.listIds()))) {
     const cur = await store.read(id);
     if (!cur) continue;
     const b = cur.doc;
@@ -164,7 +164,7 @@ async function writeNotes(report) {
     }
     if (done.length) await store.update(id, (doc) => { (doc.members || []).forEach((m) => { if (done.includes(m.pid)) m.notedAt = now; }); });
   }
-  for (const vid of await store.listSpace('visitors')) {
+  for (const vid of (onlyVisitor ? [onlyVisitor] : (only ? [] : await store.listSpace('visitors')))) {
     const cur = await store.readIn('visitors', vid);
     if (!cur || !cur.doc.leadId) continue;
     const since = Math.max(cur.doc.notedAt || 0, now - 3 * DAY);
@@ -183,11 +183,15 @@ module.exports = async (req, res) => {
   } else if (process.env.VERCEL_ENV !== 'preview' && !process.env.BOARD_STORE_DIR) {
     return res.status(404).json({ ok: false });
   }
-  const part = (req.query && req.query.part) || 'all';
+  const q = req.query || {};
+  const part = q.part || 'all';
+  // Test runs on the test site can be limited to one board or one visitor.
+  const only = process.env.VERCEL_ENV === 'production' ? null : (q.board || null);
+  const onlyVisitor = process.env.VERCEL_ENV === 'production' ? null : (q.visitor || null);
   const report = { part, changes: [], notes: 0 };
   try {
-    if (part === 'all' || part === 'listings') await checkListings(report);
-    if (part === 'all' || part === 'notes') await writeNotes(report);
+    if (part === 'all' || part === 'listings') await checkListings(report, only);
+    if (part === 'all' || part === 'notes') await writeNotes(report, only, onlyVisitor);
   } catch (e) {
     console.error('daily job failed', e && e.message);
     report.error = String(e && e.message);

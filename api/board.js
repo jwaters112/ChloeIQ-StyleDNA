@@ -292,7 +292,7 @@ async function handle(req, res) {
     if (lidM) {
       const L = await lofty.listingById(lidM[1]);
       if (L) {
-        info.address = info.address || L.address; info.mls = info.mls || L.mls; info.price = info.price || L.price;
+        info.address = d ? (info.address || L.address) : (L.address || info.address); info.mls = info.mls || L.mls; info.price = info.price || L.price;
         info.beds = info.beds || L.beds; info.baths = info.baths || L.baths; info.sqft = info.sqft || L.sqft;
         info.photo = L.photo; info.status = L.status; info.city = L.city; info.openHouse = L.openHouse;
       }
