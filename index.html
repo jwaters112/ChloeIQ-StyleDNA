@@ -1121,7 +1121,7 @@
         .swipe-card-style { font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
         .swipe-card-title { font-size: 22px; font-style: normal; margin-bottom: 4px; }
         .swipe-card-description { font-size: 14px; color: rgba(245, 245, 243, 0.78); }
-        .swipe-footer { gap: 40px; padding: 18px 20px 30px; }
+        .swipe-footer { gap: 28px; padding: 18px 20px 30px; }
         .swipe-button { width: 60px; height: 60px; font-size: 22px; border: 1px solid var(--line-strong); background: none; }
         .swipe-button-yes { border-color: rgba(224, 178, 77, 0.6); }
         .swipe-button:hover { transform: none; border-color: var(--gold); box-shadow: none; }
@@ -1263,6 +1263,15 @@
         .compare-read { font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
         .compare-overlap { font-size: 14px; line-height: 1.5; color: var(--silver); margin-bottom: 6px; }
         .compare-send { margin-top: 14px; }
+        .swipe-back { background: none; border: 0; color: var(--silver); font-size: 30px; line-height: 1; width: 36px; height: 36px; margin-left: -10px; cursor: pointer; flex-shrink: 0; }
+        .swipe-back:hover { color: var(--soft-white); }
+        .swipe-undo { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--silver); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity .2s ease, color .15s ease; }
+        .swipe-undo svg { width: 18px; height: 18px; }
+        .swipe-undo:disabled { opacity: 0.25; cursor: default; }
+        .swipe-undo:not(:disabled):hover { color: var(--soft-white); border-color: var(--line-strong); }
+        .results-screen { position: relative; }
+        .redo-links { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+        .redo-links .text-link { font-size: 14px; text-decoration: none; margin: 0; }
 
         .invite-block { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
         .invite-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
@@ -1310,6 +1319,7 @@
                 <p class="partner-invite" id="partnerInvite" hidden></p>
                 <button class="welcome-cta" id="startBtn" onclick="startQuiz()">Find my StyleDNA</button>
                 <button class="text-link" id="compareSavedBtn" hidden onclick="compareSaved()">Compare my saved result instead</button>
+                <button class="text-link" id="lastResultBtn" hidden onclick="compareSaved()">See my last result</button>
                 <p class="welcome-meta">About 60 seconds &middot; Powered by ChloeIQ</p>
             </div>
             <footer class="welcome-footer">
@@ -1479,6 +1489,7 @@
         <!-- SWIPE SCREEN -->
         <div class="screen swipe-screen" id="swipeScreen">
             <div class="swipe-header">
+                <button class="swipe-back" type="button" onclick="swipeBack()" aria-label="Go back">&#8249;</button>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -1494,6 +1505,7 @@
 
             <div class="swipe-footer">
                 <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me" aria-label="Not for me">&#10005;</button>
+                <button class="swipe-undo" id="undoBtn" onclick="undoLastSwipe()" title="Undo" aria-label="Undo last swipe" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
                 <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it" aria-label="Love it">&#9829;&#xFE0E;</button>
             </div>
         </div>
@@ -1512,6 +1524,7 @@
 
         <!-- RESULTS SCREEN -->
         <div class="screen results-screen" id="resultsScreen">
+            <button class="back-btn" type="button" onclick="goBack()" aria-label="Change my answers" id="resultsBack">&#8249;</button>
             <div class="results-sticky-header">
                 <div class="results-archetype">
                     <div class="archetype-kicker">Your StyleDNA</div>
@@ -1573,6 +1586,10 @@
                         <p class="invite-title">House hunting with someone?</p>
                         <p class="invite-text">Send them the quiz. When they finish, you'll both see where your styles overlap.</p>
                         <button class="btn-outline" onclick="invitePartner()">Compare with a partner</button>
+                    </div>
+                    <div class="redo-links">
+                        <button class="text-link" onclick="editSearch()">Change budget, home type or area</button>
+                        <button class="text-link" onclick="restartQuiz()">Retake the quiz</button>
                     </div>
                 </div>
 
@@ -1876,23 +1893,41 @@
         let screenHistory = [];
         const AUTO_ADVANCE_MS = 220;
 
+        // Every step is a browser history entry, so the on-screen back arrow and the phone's own back
+        // gesture both go one step back instead of leaving the quiz.
         function showScreen(screenId, recordHistory) {
             const current = document.querySelector('.screen.active');
             if (recordHistory && current && current.id !== screenId) {
                 screenHistory.push(current.id);
+                try { history.pushState({ sdna: 1, i: screenHistory.length }, ''); } catch (e) {}
             }
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             const target = document.getElementById(screenId);
             if (target) target.classList.add('active');
+            window.scrollTo(0, 0);
+            if (screenId === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
         }
 
         function goBack() {
             if (screenHistory.length === 0) return;
-            const prev = screenHistory.pop();
-            const target = document.getElementById(prev) || document.getElementById('welcomeScreen');
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            target.classList.add('active');
+            history.back();
         }
+        function backTo(depth) {
+            let prev = null;
+            while (screenHistory.length > depth) prev = screenHistory.pop();
+            if (!prev) return;
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            (document.getElementById(prev) || document.getElementById('welcomeScreen')).classList.add('active');
+            window.scrollTo(0, 0);
+            // Back from the first question lands on the last card, with that answer undone.
+            if (prev === 'swipeScreen' && currentSwipeIndex >= currentHomes.length) undoLastSwipe();
+            if (prev === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
+        }
+        window.addEventListener('popstate', (e) => {
+            const depth = (e.state && e.state.sdna) ? e.state.i : 0;
+            if (depth < screenHistory.length) backTo(depth);
+        });
+        try { history.replaceState({ sdna: 1, i: 0 }, ''); } catch (e) {}
 
         function setActiveOption(screenId, btn) {
             document.querySelectorAll('#'+screenId+' .pref-option').forEach(b=>b.classList.remove('active'));
@@ -1907,13 +1942,12 @@
             document.querySelectorAll('.pref-option.active, .chip.active').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#typeChips .chip').forEach(b => { if (b.textContent === 'Open to any') b.classList.add('active'); });
             selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any';
-            screenHistory = [];
-            showScreen('swipeScreen', false);
+            showScreen('swipeScreen', true);
             currentHomes = buildDeck();
             initializeSwipe();
         }
         // After the last swipe: the four questions. History starts fresh so Back never returns to the empty deck.
-        function goToQuestions() { screenHistory = []; showScreen('floorPlanScreen', false); window.scrollTo(0, 0); }
+        function goToQuestions() { showScreen('floorPlanScreen', true); }
         function goToSearch() { if (userPreferences.entertaining === null) return; showScreen('priceScreen', true); }
 
         function setActiveChip(groupId, btn) {
@@ -2195,6 +2229,20 @@
         }
 
         let swipeLocked = false;
+        function updateUndo() { const u = document.getElementById('undoBtn'); if (u) u.disabled = currentSwipeIndex === 0; }
+        function undoLastSwipe() {
+            if (swipeLocked || currentSwipeIndex === 0) return;
+            currentSwipeIndex--;
+            const h = currentHomes[currentSwipeIndex];
+            const li = loves.lastIndexOf(h), pi = passes.lastIndexOf(h);
+            if (li >= 0) loves.splice(li, 1); else if (pi >= 0) passes.splice(pi, 1);
+            renderCardStack();
+            updateProgress();
+            setupSwipeListeners();
+            track('swipe_undo', { at: currentSwipeIndex });
+        }
+        // Header arrow: undo the last card, or leave the deck from the first card.
+        function swipeBack() { if (currentSwipeIndex > 0) undoLastSwipe(); else goBack(); }
         function lockSwipe(card) { swipeLocked = true; card.classList.remove('active'); card.classList.add('leaving'); }
         function passCard() {
             if (swipeLocked) return;
@@ -2222,11 +2270,13 @@
             const progress = (currentSwipeIndex/currentHomes.length)*100;
             document.getElementById('progressFill').style.width = progress+'%';
             document.getElementById('progressText').textContent = `${currentSwipeIndex}/${currentHomes.length}`;
+            updateUndo();
         }
 
         function goToLoading() {
-            showScreen('loadingScreen', false);
+            showScreen('loadingScreen', true);
             setTimeout(()=>{
+                if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
                 userArchetype = computeArchetype();
                 showResults();
             }, 2500);
@@ -2428,7 +2478,25 @@
             document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See my style in ${area2}` : 'See homes in my style';
             showScreen('activationScreen', true);
         }
-        function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
+        function finalAction() {
+            const at = screenHistory.lastIndexOf('resultsScreen');
+            if (at >= 0) history.go(-(screenHistory.length - at));
+            else showScreen('resultsScreen', false);
+        }
+        // From the results: jump back to the last step with every answer kept.
+        function editSearch() {
+            const at = screenHistory.lastIndexOf('priceScreen');
+            if (at >= 0) history.go(-(screenHistory.length - at));
+            else showScreen('priceScreen', true);
+        }
+        function restartQuiz() {
+            track('quiz_restarted', { archetype: userArchetype });
+            screenHistory = [];
+            try { history.replaceState({ sdna: 1, i: 0 }, ''); } catch (e) {}
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById('welcomeScreen').classList.add('active');
+            startQuiz();
+        }
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
@@ -2554,6 +2622,13 @@
         function sendBack() {
             shareLink('My StyleDNA', `I took it. I'm ${archetypes[userArchetype].name}. Open this to see how we compare:`, encodeResult(), 'send_back');
         }
+        (function offerLastResult() {
+            const m = loadMyResult();
+            if (!m || new URLSearchParams(window.location.search).get('pa')) return;
+            const btn = document.getElementById('lastResultBtn');
+            btn.textContent = `See my last result: ${archetypes[m.a].name}`;
+            btn.hidden = false;
+        })();
         (function readPartnerLink() {
             try {
                 const q = new URLSearchParams(window.location.search);
