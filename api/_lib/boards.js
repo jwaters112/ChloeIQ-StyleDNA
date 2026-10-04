@@ -136,4 +136,15 @@ async function listIds() {
   return ids;
 }
 
-module.exports = { read, update, create, listIds, newId, validId };
+async function remove(id) {
+  if (!validId(id)) return false;
+  if (LOCAL_DIR) {
+    const f = path.join(LOCAL_DIR, id + '.json');
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+    return true;
+  }
+  await blobLib().del(keyFor(id));
+  return true;
+}
+
+module.exports = { read, update, create, remove, listIds, newId, validId };

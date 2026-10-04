@@ -74,6 +74,8 @@ function view(b) {
 function money(v) { const n = String(v || '').replace(/[^\d.]/g, ''); return n ? Math.round(Number(n)) : 0; }
 
 // Best effort: read address, price, beds, baths from the listing page's own preview tags.
+// joshwaters.com answers servers with a bot check, so for its links we usually keep just the
+// address from the link itself; the View link opens the full listing.
 async function describeLink(url) {
   const out = { url, address: '', price: 0, beds: '', baths: '', sqft: '' };
   let u;
@@ -160,12 +162,10 @@ async function handle(req, res) {
     return res.status(200).json({ ok: true, id: saved.id, pid: member.pid, key: member.key, board: view(saved) });
   }
 
-  if (action === 'admin-debug-link') {
-    if (process.env.VERCEL_ENV !== 'preview') return res.status(404).json({ ok: false });
-    const r = await fetch(clip(body.url, 500), { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36' }, signal: AbortSignal.timeout(6000) });
-    const html = await r.text();
-    const i = html.search(/<meta[^>]+description/i);
-    return res.status(200).json({ ok: true, status: r.status, len: html.length, title: (html.match(/<title>([^<]*)/i) || [])[1] || '', meta: i >= 0 ? html.slice(i, i + 400) : '', head: html.slice(0, 300) });
+  if (action === 'admin-delete') {
+    if (process.env.VERCEL_ENV !== 'preview' && !process.env.BOARD_STORE_DIR) return res.status(404).json({ ok: false });
+    const ok = await store.remove(body.id);
+    return res.status(200).json({ ok });
   }
   if (action === 'admin-list') {
     if (process.env.VERCEL_ENV !== 'preview' && !process.env.BOARD_STORE_DIR) return res.status(404).json({ ok: false });
