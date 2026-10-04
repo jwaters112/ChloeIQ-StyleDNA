@@ -53,6 +53,8 @@ def arch_key(v):
 def in_area(t, area):
     if not area:
         return True
+    if isinstance(area, (list, tuple)):
+        return any(in_area(t, a) for a in area if a) or not any(area)
     if area in AREA_ZIPS:
         return str(t.get('zip') or '') in AREA_ZIPS[area]
     return str(t.get('city') or '').strip().lower() == area.strip().lower()
@@ -111,7 +113,8 @@ def note(lead, picks):
     first = (lead.get('name') or '').split(' ')[0] or 'This buyer'
     head = f"StyleDNA matches for {first} ({label}"
     if lead.get('area'):
-        head += f", {lead['area']}"
+        a = lead['area']
+        head += ', ' + (', '.join(a) if isinstance(a, (list, tuple)) else a)
     head += ')'
     if not picks:
         return head + '\nNo tagged active listings fit yet. The quiz link still shows homes in their price band and area.'

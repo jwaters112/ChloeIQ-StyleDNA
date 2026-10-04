@@ -139,7 +139,8 @@ Report the count in the wrap-up: "3 boards got new listings, 4 alerts sent".
   live until Josh approves it): skip this step and say "no quiz leads yet".
 - For each lead, `search_lead_activities` for its notes. Skip the lead if a note already starts
   with "StyleDNA matches for".
-- Build the lead record: archetype from the tag `StyleDNA: <name>`, area from `Area: <name>`,
+- Build the lead record: archetype from the tag `StyleDNA: <name>`, area from the `Area: <name>` tags
+  (a lead can have several; pass them as a list, e.g. `"area": ["Frisco", "Southlake"]`),
   price from the lead's inquiry `priceMin` / `priceMax` (or the `Budget:` tag).
 - Tags only cover single-family homes for now. If the lead has a `Home type:` tag of Townhome,
   Condo or Land, skip the matches and add a one-line note instead: "StyleDNA: wants <type>, no

@@ -154,6 +154,7 @@ async function handle(req, res) {
       criteria: {
         archetype: prof.archetype, budget: Number.isInteger(c.budget) ? c.budget : null, budgetLabel: clip(c.budgetLabel, 30),
         homeType: clip(c.homeType, 30), homeTypeLabel: clip(c.homeTypeLabel, 30), area: clip(c.area, 60),
+        areas: (Array.isArray(c.areas) ? c.areas : (c.area ? [c.area] : [])).slice(0, 6).map((a) => clip(a, 60)).filter(Boolean),
       },
       members: [member], homes: [], events: [], subs: [],
     };

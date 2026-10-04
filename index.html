@@ -1247,6 +1247,11 @@
         .chip:hover { border-color: var(--silver); }
         .chip.active { border-color: var(--gold); color: var(--gold); }
         #searchArea { margin-bottom: 32px; }
+        .chip-hint { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--silver); opacity: 0.75; margin-left: 6px; }
+        .area-chips { margin-bottom: 10px; }
+        .area-chips:empty { display: none; }
+        .chip.area { border-color: var(--gold); color: var(--gold); display: inline-flex; align-items: center; gap: 8px; }
+        .chip.area b { font-weight: 500; font-size: 16px; line-height: 1; opacity: 0.8; }
         #searchError { margin: -16px 0 16px; }
 
         /* Links that look like buttons */
@@ -1371,8 +1376,9 @@
                     <button type="button" class="chip active" onclick="selectHomeType('', 'Open to any', this)">Open to any</button>
                 </div>
 
-                <p class="chip-label"><label for="searchArea">Area</label></p>
-                <select class="form-select" id="searchArea" aria-label="Area">
+                <p class="chip-label"><label for="searchArea">Areas</label> <span class="chip-hint">Pick as many as you like</span></p>
+                <div class="chips area-chips" id="areaChips"></div>
+                <select class="form-select" id="searchArea" aria-label="Add an area" onchange="addArea(this.value)">
                     <option value="">Anywhere in DFW</option>
                 </select>
 
@@ -1913,7 +1919,7 @@
         };
 
         let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = 'curator', selectedPrice = null, selectedPriceLabel = '';
-        let selectedHomeType = '', selectedHomeTypeLabel = 'Open to any', selectedArea = '', partner = null;
+        let selectedHomeType = '', selectedHomeTypeLabel = 'Open to any', selectedAreas = [], partner = null;
         let userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
         let userData = null, isDragging = false, startX = 0, currentX = 0, startY = 0, currentY = 0, currentHomes = [];
         let screenHistory = [];
@@ -1967,7 +1973,7 @@
             userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
             document.querySelectorAll('.pref-option.active, .chip.active').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#typeChips .chip').forEach(b => { if (b.textContent === 'Open to any') b.classList.add('active'); });
-            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any';
+            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any'; selectedAreas = []; renderAreaChips();
             showScreen('swipeScreen', true);
             currentHomes = buildDeck();
             initializeSwipe();
@@ -1991,18 +1997,36 @@
             selectedHomeTypeLabel = label;
             setActiveChip('typeChips', btn);
         }
+        // Areas: as many as they like (up to 6), shown as removable chips above the picker.
+        const MAX_AREAS = 6;
+        function renderAreaChips() {
+            const box = document.getElementById('areaChips');
+            box.replaceChildren(...selectedAreas.map(a => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.className = 'chip area'; b.setAttribute('aria-label', 'Remove ' + a);
+                b.append(a, Object.assign(document.createElement('b'), { textContent: '\u00d7' }));
+                b.onclick = () => { selectedAreas = selectedAreas.filter(x => x !== a); renderAreaChips(); };
+                return b;
+            }));
+            const sel = document.getElementById('searchArea');
+            sel.options[0].textContent = selectedAreas.length ? (selectedAreas.length >= MAX_AREAS ? 'That\u2019s the most areas' : 'Add another area') : 'Anywhere in DFW';
+            sel.disabled = selectedAreas.length >= MAX_AREAS;
+        }
+        function addArea(v) {
+            const sel = document.getElementById('searchArea');
+            if (v && !selectedAreas.includes(v) && selectedAreas.length < MAX_AREAS) selectedAreas.push(v);
+            sel.value = '';
+            renderAreaChips();
+        }
         function finishSearch() {
             if (selectedPrice === null) {
                 const err = document.getElementById('searchError');
                 err.textContent = 'Pick a budget to continue.'; err.classList.add('show');
                 return;
             }
-            selectedArea = document.getElementById('searchArea').value || '';
-            if (selectedArea && KNOWN_AREAS.has(selectedArea)) {
-                document.getElementById('homesArea').value = selectedArea;
-                document.getElementById('neighborhoodInput').value = selectedArea;
-            }
-            track('search_set', { budget: selectedPriceLabel, type: selectedHomeTypeLabel, area: selectedArea || 'all' });
+            const first = selectedAreas.find(a => KNOWN_AREAS.has(a));
+            if (first) document.getElementById('neighborhoodInput').value = first;
+            track('search_set', { budget: selectedPriceLabel, type: selectedHomeTypeLabel, areas: selectedAreas.length ? selectedAreas.join('|') : 'all' });
             goToLoading();
         }
 
@@ -2318,8 +2342,7 @@
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
             document.getElementById('homesNote').textContent = `${selectedPriceLabel}${selectedHomeType ? ' \u00b7 ' + selectedHomeTypeLabel : ''}, on joshwaters.com`;
-            const prefArea = (userData && userData.neighborhood) || selectedArea;
-            if (prefArea && KNOWN_AREAS.has(prefArea)) document.getElementById('homesArea').value = prefArea;
+            setMyAreasOption();
             document.getElementById('examplesNote').hidden = loves.length === 0;
             saveMyResult();
             renderCompare();
@@ -2382,13 +2405,41 @@
             custodian: ['Tudor', 'Craftsman', 'Colonial', 'Mid-Century Modern'],
             authenticist: ['Ranch', 'Barndominium', 'Modern Farmhouse', 'Southwestern']
         };
+        // joshwaters.com takes a list of cities or a list of ZIPs, but not both at once. Neighborhoods
+        // are ZIPs, so a mix of neighborhoods and cities searches the neighborhoods' cities instead.
+        const PARENT_CITY = { 'Las Colinas': 'Irving' };
+        ['TCU/West Cliff', 'Tanglewood', 'Rivercrest', 'Cultural District', 'Near Southside', 'Mistletoe Heights', 'Downtown Fort Worth'].forEach(a => PARENT_CITY[a] = 'Fort Worth');
+        function locationFor(areas) {
+            const known = areas.filter(a => KNOWN_AREAS.has(a));
+            if (!known.length) return null;
+            if (known.every(a => AREA_ZIPS[a])) return { zipCode: [...new Set(known.flatMap(a => AREA_ZIPS[a]))] };
+            const cities = known.map(a => AREA_ZIPS[a] ? (PARENT_CITY[a] || 'Dallas') : a);
+            return { city: [...new Set(cities)].map(c => c + ', TX') };
+        }
+        function myAreas() {
+            const list = selectedAreas.slice();
+            if (userData && userData.neighborhood && !list.includes(userData.neighborhood)) list.unshift(userData.neighborhood);
+            return list;
+        }
+        function setMyAreasOption() {
+            const sel = document.getElementById('homesArea');
+            const old = sel.querySelector('option[value="__mine__"]'); if (old) old.remove();
+            const mine = myAreas().filter(a => KNOWN_AREAS.has(a));
+            if (mine.length > 1) {
+                const o = document.createElement('option');
+                o.value = '__mine__'; o.textContent = 'My areas (' + mine.join(', ') + ')';
+                sel.options[0].after(o);
+                sel.value = '__mine__';
+            } else if (mine.length === 1) sel.value = mine[0];
+            else sel.value = '';
+        }
         function homesUrl(area, budgetIdx, styled) {
             const cond = { purchasetype: ['For Sale'] };
             if (selectedHomeType) cond.propertytype = [selectedHomeType];
             // Land has no architectural style, so the style filter would hide every lot.
             if (styled && selectedHomeType !== 'Vacant Land' && ARCH_MLS_STYLES[userArchetype]) cond.style = ARCH_MLS_STYLES[userArchetype];
-            if (area && AREA_ZIPS[area]) cond.location = { zipCode: AREA_ZIPS[area] };
-            else if (area && KNOWN_AREAS.has(area)) cond.location = { city: [area + ', TX'] };
+            const loc = locationFor(Array.isArray(area) ? area : (area ? [area] : []));
+            if (loc) cond.location = loc;
             if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
             const q = [['listingSource', 'all listings'], ['condition', JSON.stringify(cond)], ['page', '1'],
                 ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
@@ -2407,9 +2458,9 @@
         })();
         // The buttons are real links (in-app browsers often block pop-ups); this fills in the address as it's tapped.
         function openHomes(el, where, styled) {
-            const area = where === 'picker' ? (document.getElementById('homesArea').value || null)
-                : ((userData && userData.neighborhood) || selectedArea || null);
-            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, type: selectedHomeTypeLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
+            const pick = where === 'picker' ? document.getElementById('homesArea').value : '__mine__';
+            const area = pick === '__mine__' ? myAreas() : (pick || null);
+            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, type: selectedHomeTypeLabel, areas: Array.isArray(area) ? (area.join('|') || 'all') : (area || 'all') });
             el.href = homesUrl(area, selectedPrice, styled);
             return true;
         }
@@ -2460,6 +2511,7 @@
             const payload = {
                 name, email, phone,
                 area: neighborhood,
+                areas: [...new Set([neighborhood, ...selectedAreas])].filter(Boolean).slice(0, 6),
                 consent: document.getElementById('consentInput').checked,
                 website: document.getElementById('sdnaTrap').value,
                 homeType: selectedHomeType ? selectedHomeTypeLabel : '',
@@ -2503,7 +2555,8 @@
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
                 : 'Share your result and see how your taste compares with your friends.';
             const area2 = userData && userData.neighborhood;
-            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See my style in ${area2}` : 'See homes in my style';
+            const allMine = myAreas().filter(a => KNOWN_AREAS.has(a));
+            document.getElementById('homesBtn').textContent = allMine.length > 1 ? 'See my style in my areas' : (allMine.length === 1 ? `See my style in ${allMine[0]}` : 'See homes in my style');
             showScreen('activationScreen', true);
         }
         function finalAction() {
@@ -2595,7 +2648,7 @@
             try {
                 localStorage.setItem('sdna_me', JSON.stringify({
                     a: userArchetype, l: loves.map(h => h.style), p: selectedPrice, pl: selectedPriceLabel,
-                    t: selectedHomeType, tl: selectedHomeTypeLabel, ar: selectedArea, prefs: userPreferences, n: firstName(), at: Date.now()
+                    t: selectedHomeType, tl: selectedHomeTypeLabel, ar: selectedAreas[0] || '', areas: selectedAreas, prefs: userPreferences, n: firstName(), at: Date.now()
                 }));
             } catch (e) {}
         }
@@ -2607,7 +2660,7 @@
             if (!m) return startQuiz();
             userArchetype = m.a; loves = (m.l || []).map(cardFor).filter(Boolean); passes = [];
             selectedPrice = m.p; selectedPriceLabel = m.pl || ''; selectedHomeType = m.t || ''; selectedHomeTypeLabel = m.tl || 'Open to any';
-            selectedArea = m.ar || ''; userPreferences = m.prefs || userPreferences;
+            selectedAreas = Array.isArray(m.areas) ? m.areas : (m.ar ? [m.ar] : []); renderAreaChips(); userPreferences = m.prefs || userPreferences;
             track('compare_saved', { archetype: userArchetype });
             showResults();
             showScreen('resultsScreen', false);
@@ -2674,7 +2727,7 @@
                 const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
                     action: 'create', name,
                     profile: { archetype: userArchetype, loves: loves.map(h => h.style) },
-                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: (userData && userData.neighborhood) || selectedArea }
+                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: myAreas()[0] || '', areas: myAreas() }
                 }) });
                 const j = await r.json();
                 if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
