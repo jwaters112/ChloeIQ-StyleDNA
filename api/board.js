@@ -55,8 +55,11 @@ async function emailAlert(board, exceptPid, opts) {
     if (sent.length) await store.update(board.id, (b) => { (b.emails || []).forEach((e) => { if (sent.includes(e.pid)) e.lastSent = Date.now(); }); });
   } catch (e) { console.warn('email alert failed', e && e.message); }
 }
-const homeLine = (h) => ({ address: h.address || 'Home', price: h.price ? '$' + Number(h.price).toLocaleString('en-US') : '',
-  why: [h.beds ? h.beds + ' bd' : '', h.baths ? h.baths + ' ba' : '', h.sqft ? Number(h.sqft).toLocaleString('en-US') + ' sqft' : ''].filter(Boolean).join(', ') + (h.note ? (h.beds ? '. ' : '') + h.note : '') });
+const commas = (n) => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const homeLine = (h) => {
+  const facts = [h.beds ? h.beds + ' bd' : '', h.baths ? h.baths + ' ba' : '', h.sqft ? commas(h.sqft) + ' sqft' : ''].filter(Boolean).join(', ');
+  return { address: h.address || 'Home', price: h.price ? '$' + commas(h.price) : '', why: [facts, h.note].filter(Boolean).join('. ') };
+};
 
 async function dropDead(id, dead) {
   if (!dead.length) return;
