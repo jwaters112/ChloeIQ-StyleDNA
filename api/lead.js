@@ -5,6 +5,18 @@
 const LOFTY_URL = 'https://api.lofty.com/v1.0/leads';
 const lofty = require('./_lib/lofty');
 const store = require('./_lib/boards');
+
+async function linkMember(mem, leadId) {
+  mem = mem || {};
+  if (!leadId || !store.validId(mem.id) || typeof mem.key !== 'string') return;
+  try {
+    await store.update(mem.id, (b) => {
+      const m = (b.members || []).find((x) => x.key === mem.key);
+      if (!m || m.leadId === leadId) return false;
+      m.leadId = leadId;
+    });
+  } catch (e) { console.warn('link lead to board failed', e && e.message); }
+}
 // Josh's Lofty user id (the owner on every existing lead). Lofty refuses PERSONAL leads without it.
 const LOFTY_OWNER_ID = Number(process.env.LOFTY_OWNER_ID || 844773861742615);
 
@@ -180,6 +192,16 @@ async function handle(req, res) {
     }
   }
 
+  // Already in Lofty (retake, second device, partner using the same email): add the new result as a
+  // note on the existing lead instead of creating a duplicate.
+  const existing = await lofty.leadIdByEmail(email);
+  if (existing) {
+    await lofty.addNote(existing, ['StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
+    recentEmails.set(email, now);
+    await linkMember(body.member, existing);
+    return res.status(200).json({ ok: true, leadId: existing, existing: true, leadToken: lofty.leadToken(existing) });
+  }
+
   try {
     const r = await fetch(LOFTY_URL, {
       method: 'POST',
@@ -198,16 +220,7 @@ async function handle(req, res) {
     try { leadId = JSON.parse(text).leadId || null; } catch (e) {}
     if (!leadId) leadId = await lofty.leadIdByEmail(email);
     // Already on a board in this browser: tie that board member to this Lofty lead.
-    const mem = body.member || {};
-    if (leadId && store.validId(mem.id) && typeof mem.key === 'string') {
-      try {
-        await store.update(mem.id, (b) => {
-          const m = (b.members || []).find((x) => x.key === mem.key);
-          if (!m || m.leadId === leadId) return false;
-          m.leadId = leadId;
-        });
-      } catch (e) { console.warn('link lead to board failed', e && e.message); }
-    }
+    await linkMember(body.member, leadId);
     return res.status(200).json({ ok: true, leadId, leadToken: leadId ? lofty.leadToken(leadId) : '' });
   } catch (err) {
     console.error('Lofty request error', err && err.message);

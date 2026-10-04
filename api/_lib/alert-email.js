@@ -17,6 +17,7 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason, subje
         <div style="font-size:16px;font-weight:600">${h.link ? `<a href="${esc(h.link)}" style="color:#030C0D;text-decoration:underline">${esc(h.address)}</a>` : `<span style="color:#030C0D">${esc(h.address)}</span>`}</div>
         ${h.price ? `<div style="font-size:14px;color:#5A5F5E;margin-top:2px">${esc(h.price)}</div>` : ''}
         ${h.why ? `<div style="font-size:14px;color:#5A5F5E;margin-top:6px">${esc(h.why)}</div>` : ''}
+        ${h.office ? `<div style="font-size:12px;color:#7A7F7E;margin-top:6px">Listing courtesy of ${esc(h.office)}</div>` : ''}
         ${h.link ? `<div style="font-size:14px;margin-top:8px"><a href="${esc(h.link)}" style="color:#B8892B;font-weight:600;text-decoration:none">See photos and details</a></div>` : ''}
       </td></tr>`).join('');
   const html = `<!doctype html><html><body style="margin:0;background:#F5F5F3;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
@@ -37,14 +38,16 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason, subje
     <div style="max-width:520px;font-size:12px;line-height:1.5;color:#7A7F7E;padding:16px 8px 0">
       You're getting this because you turned on email alerts for ${esc(boardName)}.
       <a href="${esc(unsubUrl)}" style="color:#7A7F7E">Turn off email alerts</a>.<br>
-      StyleDNA, ${ADDRESS}
+      StyleDNA, ${ADDRESS}<br>
+      Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Real Broker, LLC.
     </div>
   </td></tr></table></body></html>`;
   const text = [hi, '', lead, '',
-    ...(homes || []).slice(0, 5).map(h => `- ${h.change ? h.change.toUpperCase() + ': ' : ''}${h.address}${h.price ? ' (' + h.price + ')' : ''}${h.why ? ': ' + h.why : ''}${h.link ? '\n  See photos and details: ' + h.link : ''}`),
+    ...(homes || []).slice(0, 5).map(h => `- ${h.change ? h.change.toUpperCase() + ': ' : ''}${h.address}${h.price ? ' (' + h.price + ')' : ''}${h.why ? ': ' + h.why : ''}${h.office ? '\n  Listing courtesy of ' + h.office : ''}${h.link ? '\n  See photos and details: ' + h.link : ''}`),
     '', `Open ${boardName}: ${boardUrl}`, '',
     `You're getting this because you turned on email alerts for ${boardName}.`,
-    `Turn off email alerts: ${unsubUrl}`, `StyleDNA, ${ADDRESS}`].join('\n');
+    `Turn off email alerts: ${unsubUrl}`, `StyleDNA, ${ADDRESS}`,
+    'Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Real Broker, LLC.'].join('\n');
   const headers = { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' };
   return { subject, html, text, headers };
 }

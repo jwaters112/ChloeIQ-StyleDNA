@@ -6,6 +6,7 @@
 const store = require('./_lib/boards');
 const mailer = require('./_lib/mailer');
 const lofty = require('./_lib/lofty');
+const hot = require('./_lib/hot');
 const leadFrom = (body) => { const l = body.lead || {}; return lofty.leadTokenOk(l.id, l.t) ? Number(l.id) : null; };
 
 const MAX_MEMBERS = 8, MAX_HOMES = 150, MAX_COMMENTS = 60, MAX_EVENTS = 150;
@@ -60,7 +61,7 @@ async function emailAlert(board, exceptPid, opts) {
 const commas = (n) => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const homeLine = (h) => {
   const facts = [h.beds ? h.beds + ' bd' : '', h.baths ? h.baths + ' ba' : '', h.sqft ? commas(h.sqft) + ' sqft' : ''].filter(Boolean).join(', ');
-  return { url: h.url || '', address: h.address || 'Home', price: h.price ? '$' + commas(h.price) : '', why: [facts, h.note].filter(Boolean).join('. ') };
+  return { url: h.url || '', office: h.office || '', address: h.address || 'Home', price: h.price ? '$' + commas(h.price) : '', why: [facts, h.note].filter(Boolean).join('. ') };
 };
 
 async function dropDead(id, dead) {
@@ -251,7 +252,7 @@ async function handle(req, res) {
         const h = {
           id: store.newId(8), source: 'josh', mls, url: clip(p.url, 500), address: clip(p.address, 90), city: clip(p.city, 40),
           price: money(p.price), beds: clip(p.beds, 4), baths: clip(p.baths, 5), sqft: clip(p.sqft, 7), style: clip(p.style, 30),
-          note: clip(p.note, 200), isNew: !!p.isNew, photo: /^https:\/\//.test(p.photo || '') ? clip(p.photo, 600) : '', status: clip(p.status, 30) || 'Active', listPrice: money(p.price),
+          note: clip(p.note, 200), isNew: !!p.isNew, photo: /^https:\/\//.test(p.photo || '') ? clip(p.photo, 600) : '', office: clip(p.office, 80), status: clip(p.status, 30) || 'Active', listPrice: money(p.price),
           addedBy: 'josh', addedAt: Date.now(), reactions: {}, comments: [],
         };
         b.homes.unshift(h); added.push(h); have.add(mls);
@@ -294,7 +295,7 @@ async function handle(req, res) {
       if (L) {
         info.address = d ? (info.address || L.address) : (L.address || info.address); info.mls = info.mls || L.mls; info.price = info.price || L.price;
         info.beds = info.beds || L.beds; info.baths = info.baths || L.baths; info.sqft = info.sqft || L.sqft;
-        info.photo = L.photo; info.status = L.status; info.city = L.city; info.openHouse = L.openHouse;
+        info.photo = L.photo; info.status = L.status; info.office = L.office; info.city = L.city; info.openHouse = L.openHouse;
       }
     }
     if (!info.address) info.address = typed || 'Home';
@@ -307,7 +308,7 @@ async function handle(req, res) {
       const same = info.url && b.homes.find((h) => h.url === info.url || (info.mls && h.mls === info.mls));
       if (same) { dupId = same.id; return 'dupe'; }
       home = { id: store.newId(8), source: 'member', mls: info.mls || '', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
-        city: info.city || '', photo: info.photo || '', status: info.status || '', listPrice: info.price || 0, openHouse: info.openHouse || null,
+        city: info.city || '', office: info.office || '', photo: info.photo || '', status: info.status || '', listPrice: info.price || 0, openHouse: info.openHouse || null,
         addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
       if (via) home.via = via;
       const note = clip(body.note, 300);
@@ -351,6 +352,11 @@ async function handle(req, res) {
       const dead = await notify(out.doc, null, 'Group match', `Everyone loves ${shortAddr(matched)}. Time to see it in person?`);
       await dropDead(id, dead);
       await emailAlert(out.doc, null, { kind: 'match', homes: [homeLine(matched)], reason: 'Everyone on the board loves this one. Time to see it in person?' });
+      const lead = (out.doc.members || []).find((m) => m.leadId);
+      const names = (out.doc.members || []).filter((m) => m.role !== 'agent').map((m) => m.name).join(' and ');
+      await hot.alert({ kind: 'match', who: names, leadId: lead ? lead.leadId : null, headline: `Group match: ${names} all love ${shortAddr(matched)}`,
+        details: [`Board: ${out.doc.name}`, matched.price ? 'Price: $' + Number(matched.price).toLocaleString('en-US') : ''].filter(Boolean),
+        link: matched.url || `https://homestyledna.com/board.html?id=${id}` });
     }
     return res.status(200).json({ ok: true, board: view(out.doc) });
   }
@@ -403,6 +409,36 @@ async function handle(req, res) {
     });
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'ask') {
+    const text = clip(body.text, 500);
+    if (!text) return res.status(400).json({ ok: false, error: 'empty' });
+    let home = null, contact = '';
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      home = body.homeId ? b.homes.find((x) => x.id === body.homeId) : null;
+      if (body.homeId && !home) return 'missing';
+      const e = (b.emails || []).find((x) => x.pid === actor.pid);
+      contact = e ? e.email : '';
+      if (home) {
+        if (home.comments.length >= MAX_COMMENTS) home.comments.shift();
+        home.comments.push({ id: store.newId(6), by: actor.pid, text: 'Asked Josh: ' + text, at: Date.now() });
+      }
+      event(b, 'ask', actor.pid, home ? home.id : '', `${actor.name} asked Josh${home ? ' about ' + shortAddr(home) : ''}: ${text}`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (out.result === 'missing') return res.status(404).json({ ok: false, error: 'no_home' });
+    let L = null;
+    if (actor.leadId) L = await lofty.lead(actor.leadId);
+    const reach = [contact || (L && L.email), L && L.phone].filter(Boolean).join(', ');
+    await hot.alert({ kind: 'ask', who: actor.name, leadId: actor.leadId || null,
+      headline: `${actor.name} asked you${home ? ' about ' + shortAddr(home) : ''}`,
+      details: [`"${text}"`, reach ? 'Reach them: ' + reach : 'No email or phone on file yet. Reply on their board.', `Board: ${out.doc.name}`],
+      link: (home && home.url) || `https://homestyledna.com/board.html?id=${id}` });
     return res.status(200).json({ ok: true, board: view(out.doc) });
   }
 
