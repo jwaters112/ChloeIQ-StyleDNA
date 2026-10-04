@@ -4,6 +4,7 @@
 // POST ?a=unsub...                     one-click unsubscribe from the mail app's button
 const store = require('./_lib/boards');
 const { boardLink } = require('./_lib/mailer');
+const lofty = require('./_lib/lofty');
 
 function page(res, title, body, link) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -30,6 +31,12 @@ module.exports = async (req, res) => {
         e.confirmed = true; e.confirmedAt = Date.now();
       });
       if (!out || out.result === 'missing') return page(res, 'That link has expired', 'Open your board and turn email alerts on again.', '');
+      // A confirmed email also tells us which Lofty lead this member is, if we didn't know yet.
+      if (member && !member.leadId) {
+        const e = (out.doc.emails || []).find((x) => x.token === token);
+        const lid = e && await lofty.leadIdByEmail(e.email);
+        if (lid) { try { await store.update(id, (b) => { const m = (b.members || []).find((x) => x.pid === member.pid); if (!m || m.leadId) return false; m.leadId = lid; }); } catch (err) {} }
+      }
       res.setHeader('Location', boardLink(out.doc, member) + '&email=on');
       return res.status(302).end();
     }

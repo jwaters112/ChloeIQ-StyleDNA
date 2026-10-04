@@ -55,10 +55,10 @@ async function sendConfirm(b, entry, member) {
 
 // Send an alert to every confirmed member except the one who did the thing.
 // Returns the pids that were emailed so the caller can record when.
-async function alertBoard(b, exceptPid, { kind, homes, reason }) {
+async function alertBoard(b, exceptPid, { kind, homes, reason, subject }) {
   const now = Date.now();
   const list = (b.emails || []).filter((e) => e.confirmed && e.pid !== exceptPid
-    && (kind === 'picks' || !e.lastSent || now - e.lastSent > THROTTLE_MS));
+    && (kind === 'picks' || kind === 'update' || !e.lastSent || now - e.lastSent > THROTTLE_MS));
   const sent = [];
   await Promise.all(list.map(async (e) => {
     const m = (b.members || []).find((x) => x.pid === e.pid);
@@ -67,7 +67,7 @@ async function alertBoard(b, exceptPid, { kind, homes, reason }) {
     const frag = '#sdna=' + b.id + '.' + m.pid + '.' + m.key + '.' + encodeURIComponent(b.name || '');
     const mine = (homes || []).map((h) => Object.assign({}, h, {
       link: /^https:\/\/(www\.)?joshwaters\.com\/listing-detail\//.test(h.url || '') ? h.url.split('#')[0] + frag : board }));
-    const msg = renderAlert({ name: m.name, boardName: b.name, boardUrl: board, homes: mine, unsubUrl: unsubLink(b, e), reason });
+    const msg = renderAlert({ name: m.name, boardName: b.name, boardUrl: board, homes: mine, unsubUrl: unsubLink(b, e), reason, subject });
     const r = await send({ to: [e.email], subject: msg.subject, html: msg.html, text: msg.text, headers: msg.headers });
     if (r.ok) sent.push(e.pid);
   }));

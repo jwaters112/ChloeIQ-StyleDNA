@@ -3,6 +3,8 @@
 // Set LOFTY_API_KEY in Vercel: Project > Settings > Environment Variables.
 
 const LOFTY_URL = 'https://api.lofty.com/v1.0/leads';
+const lofty = require('./_lib/lofty');
+const store = require('./_lib/boards');
 // Josh's Lofty user id (the owner on every existing lead). Lofty refuses PERSONAL leads without it.
 const LOFTY_OWNER_ID = Number(process.env.LOFTY_OWNER_ID || 844773861742615);
 
@@ -194,7 +196,19 @@ async function handle(req, res) {
     if (recentEmails.size > 5000) recentEmails.clear();
     let leadId = null;
     try { leadId = JSON.parse(text).leadId || null; } catch (e) {}
-    return res.status(200).json({ ok: true, leadId });
+    if (!leadId) leadId = await lofty.leadIdByEmail(email);
+    // Already on a board in this browser: tie that board member to this Lofty lead.
+    const mem = body.member || {};
+    if (leadId && store.validId(mem.id) && typeof mem.key === 'string') {
+      try {
+        await store.update(mem.id, (b) => {
+          const m = (b.members || []).find((x) => x.key === mem.key);
+          if (!m || m.leadId === leadId) return false;
+          m.leadId = leadId;
+        });
+      } catch (e) { console.warn('link lead to board failed', e && e.message); }
+    }
+    return res.status(200).json({ ok: true, leadId, leadToken: leadId ? lofty.leadToken(leadId) : '' });
   } catch (err) {
     console.error('Lofty request error', err && err.message);
     return res.status(502).json({ ok: false, error: 'crm_unreachable' });

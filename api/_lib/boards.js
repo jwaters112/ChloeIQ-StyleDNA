@@ -14,7 +14,8 @@ function blobLib() {
   return blob;
 }
 
-const keyFor = (id) => `boards/${id}.json`;
+const keyFor = (id, space) => `${space || 'boards'}/${id}.json`;
+const localFile = (id, space) => path.join(space && space !== 'boards' ? path.join(LOCAL_DIR, space) : LOCAL_DIR, id + '.json');
 const validId = (id) => typeof id === 'string' && /^[A-Za-z0-9]{8,24}$/.test(id);
 
 function newId(len = 12) {
@@ -40,10 +41,10 @@ async function streamToString(stream) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-async function read(id) {
+async function read(id, space) {
   if (!validId(id)) return null;
   if (LOCAL_DIR) {
-    const f = path.join(LOCAL_DIR, id + '.json');
+    const f = localFile(id, space);
     if (!fs.existsSync(f)) return null;
     const text = fs.readFileSync(f, 'utf8');
     return { doc: JSON.parse(text), etag: crypto.createHash('md5').update(text).digest('hex') };
@@ -52,34 +53,34 @@ async function read(id) {
   // before the content is read. If the board changes in between, the write is refused and retried.
   let etag = '';
   try {
-    const h = await blobLib().head(keyFor(id));
+    const h = await blobLib().head(keyFor(id, space));
     etag = h && h.etag;
   } catch (err) {
     if (err && (err.name === 'BlobNotFoundError' || /does not exist|not found/i.test(err.message || ''))) return null;
     throw err;
   }
-  const r = await blobLib().get(keyFor(id), { access: 'private', useCache: false });
+  const r = await blobLib().get(keyFor(id, space), { access: 'private', useCache: false });
   if (!r) return null;
   const text = await streamToString(r.stream);
   return { doc: JSON.parse(text), etag };
 }
 
-async function write(id, doc, etag) {
+async function write(id, doc, etag, space) {
   const text = JSON.stringify(doc);
   if (LOCAL_DIR) {
-    const f = path.join(LOCAL_DIR, id + '.json');
+    const f = localFile(id, space);
     if (etag && fs.existsSync(f)) {
       const now = crypto.createHash('md5').update(fs.readFileSync(f, 'utf8')).digest('hex');
       if (now !== etag) { const e = new Error('precondition'); e.precondition = true; throw e; }
     }
-    fs.mkdirSync(LOCAL_DIR, { recursive: true });
+    fs.mkdirSync(path.dirname(f), { recursive: true });
     fs.writeFileSync(f, text);
     return;
   }
   const opts = { access: 'private', addRandomSuffix: false, allowOverwrite: true, contentType: 'application/json', cacheControlMaxAge: 60 };
   if (etag) opts.ifMatch = etag;
   try {
-    await blobLib().put(keyFor(id), text, opts);
+    await blobLib().put(keyFor(id, space), text, opts);
   } catch (err) {
     if (err && (err.name === 'BlobPreconditionFailedError' || /precondition/i.test(err.message || ''))) {
       console.warn('board write conflict, retrying', id);
@@ -147,4 +148,38 @@ async function remove(id) {
   return true;
 }
 
-module.exports = { read, update, create, remove, listIds, newId, validId };
+// Same load-change-save for other document kinds (e.g. visitors/<leadId>.json), creating the
+// document from init() the first time.
+async function upsert(space, id, change, init) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const cur = (await read(id, space)) || { doc: Object.assign({ id, createdAt: Date.now() }, init ? init() : {}), etag: null, fresh: true };
+    const result = await change(cur.doc);
+    if (result === false || typeof result === 'string') return { doc: cur.doc, result, unchanged: true };
+    cur.doc.updatedAt = Date.now();
+    try {
+      await write(id, cur.doc, cur.etag, space);
+      return { doc: cur.doc, result };
+    } catch (err) {
+      if (!err.precondition) throw err;
+      await new Promise((r) => setTimeout(r, 80 + Math.random() * 200));
+    }
+  }
+  throw new Error('busy');
+}
+async function listSpace(space) {
+  if (LOCAL_DIR) {
+    const d = path.join(LOCAL_DIR, space);
+    return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)) : [];
+  }
+  const ids = [];
+  let cursor;
+  do {
+    const r = await blobLib().list({ prefix: space + '/', cursor, limit: 1000 });
+    r.blobs.forEach((b) => { const m = b.pathname.match(/\/([A-Za-z0-9]+)\.json$/); if (m) ids.push(m[1]); });
+    cursor = r.hasMore ? r.cursor : undefined;
+  } while (cursor);
+  return ids;
+}
+const readIn = (space, id) => read(id, space);
+
+module.exports = { read, update, create, remove, listIds, newId, validId, upsert, listSpace, readIn };

@@ -5,6 +5,8 @@
 
 const store = require('./_lib/boards');
 const mailer = require('./_lib/mailer');
+const lofty = require('./_lib/lofty');
+const leadFrom = (body) => { const l = body.lead || {}; return lofty.leadTokenOk(l.id, l.t) ? Number(l.id) : null; };
 
 const MAX_MEMBERS = 8, MAX_HOMES = 150, MAX_COMMENTS = 60, MAX_EVENTS = 150;
 const ARCHES = ['curator', 'sanctuary', 'architect', 'custodian', 'visionary', 'authenticist'];
@@ -176,6 +178,7 @@ async function handle(req, res) {
     const prof = profileFrom(body);
     const c = body.criteria || {};
     const member = { pid: store.newId(8), key: store.newId(20), name, ...prof, joinedAt: Date.now() };
+    const lid0 = leadFrom(body); if (lid0) member.leadId = lid0;
     const doc = {
       name: clip(body.boardName, 40) || `${name}'s home board`,
       createdAt: Date.now(),
@@ -223,6 +226,7 @@ async function handle(req, res) {
     const out = await store.update(id, (b) => {
       if ((b.members || []).length >= MAX_MEMBERS) return 'full';
       member = { pid: store.newId(8), key: store.newId(20), name, ...prof, joinedAt: Date.now() };
+      const lid1 = leadFrom(body); if (lid1) member.leadId = lid1;
       b.members.push(member);
       event(b, 'join', member.pid, '', `${name} joined`);
     });
@@ -247,7 +251,8 @@ async function handle(req, res) {
         const h = {
           id: store.newId(8), source: 'josh', mls, url: clip(p.url, 500), address: clip(p.address, 90), city: clip(p.city, 40),
           price: money(p.price), beds: clip(p.beds, 4), baths: clip(p.baths, 5), sqft: clip(p.sqft, 7), style: clip(p.style, 30),
-          note: clip(p.note, 200), isNew: !!p.isNew, addedBy: 'josh', addedAt: Date.now(), reactions: {}, comments: [],
+          note: clip(p.note, 200), isNew: !!p.isNew, photo: /^https:\/\//.test(p.photo || '') ? clip(p.photo, 600) : '', status: clip(p.status, 30) || 'Active', listPrice: money(p.price),
+          addedBy: 'josh', addedAt: Date.now(), reactions: {}, comments: [],
         };
         b.homes.unshift(h); added.push(h); have.add(mls);
       });
@@ -282,7 +287,18 @@ async function handle(req, res) {
       info = link ? await describeLink(link) : { url: '', address: typed };
     }
     if (!info) return res.status(400).json({ ok: false, error: 'bad_link' });
+    // joshwaters.com links carry Lofty's listing id: fill in status, photo and any missing facts from Lofty.
+    const lidM = (info.url || '').match(/joshwaters\.com\/listing-detail\/(\d+)/);
+    if (lidM) {
+      const L = await lofty.listingById(lidM[1]);
+      if (L) {
+        info.address = info.address || L.address; info.mls = info.mls || L.mls; info.price = info.price || L.price;
+        info.beds = info.beds || L.beds; info.baths = info.baths || L.baths; info.sqft = info.sqft || L.sqft;
+        info.photo = L.photo; info.status = L.status; info.city = L.city; info.openHouse = L.openHouse;
+      }
+    }
     if (!info.address) info.address = typed || 'Home';
+    const via = body.via === 'heart' ? 'heart' : (body.via === 'save' ? 'save' : '');
     let home = null, dupId = '';
     const out = await store.update(id, (b) => {
       actor = memberByKey(b, key);
@@ -291,11 +307,13 @@ async function handle(req, res) {
       const same = info.url && b.homes.find((h) => h.url === info.url || (info.mls && h.mls === info.mls));
       if (same) { dupId = same.id; return 'dupe'; }
       home = { id: store.newId(8), source: 'member', mls: info.mls || '', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
+        city: info.city || '', photo: info.photo || '', status: info.status || '', listPrice: info.price || 0, openHouse: info.openHouse || null,
         addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
+      if (via) home.via = via;
       const note = clip(body.note, 300);
       if (note) home.comments.push({ id: store.newId(6), by: actor.pid, text: note, at: Date.now() });
       b.homes.unshift(home);
-      event(b, 'add', actor.pid, home.id, `${actor.name} added ${shortAddr(home)}`);
+      event(b, 'add', actor.pid, home.id, via === 'heart' ? `${actor.name} loved ${shortAddr(home)} on joshwaters.com` : `${actor.name} added ${shortAddr(home)}`);
     });
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
@@ -386,6 +404,20 @@ async function handle(req, res) {
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
     return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'link-lead') {
+    const lid = leadFrom(body);
+    if (!lid) return res.status(400).json({ ok: false, error: 'bad_lead' });
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      if (actor.leadId === lid) return false;
+      actor.leadId = lid;
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    return res.status(200).json({ ok: true });
   }
 
   if (action === 'email-on' || action === 'email-off') {

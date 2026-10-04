@@ -886,6 +886,7 @@
             margin-left: 6px;
         }
         .form-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+        .form-note { font-size: 12px; line-height: 1.5; color: var(--silver, #A3A7A6); margin: 10px 0 0; } .form-note a { color: inherit; text-decoration: underline; }
         .consent-row {
             display: flex;
             gap: 12px;
@@ -1344,7 +1345,7 @@
             <footer class="welcome-footer">
                 <div class="legal">
                     <p>Josh Waters, REALTOR&reg;, TX License 0833485<br>Dallas Collective Group<br>Brokered by Real Broker, LLC, License 9003138</p>
-                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a></p>
+                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
                     <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </footer>
@@ -1634,7 +1635,7 @@
 
                 <div class="legal">
                     <p>Josh Waters, REALTOR&reg;, TX License 0833485<br>Dallas Collective Group<br>Brokered by Real Broker, LLC, License 9003138</p>
-                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a></p>
+                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
                     <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </div>
@@ -1773,6 +1774,7 @@
                         <span>Yes, Josh Waters with Dallas Collective Group, brokered by REAL Broker, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
                     </label>
 
+                    <p class="form-note">We save the homes you view on joshwaters.com so Josh can send better matches. <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a></p>
                     <p class="form-error" id="formError" role="alert"></p>
 
                     <div class="form-buttons">
@@ -2447,11 +2449,24 @@
         }
         // Carries their home board connection to joshwaters.com so the Save button there works in one tap.
         function boardFragment() {
+            const parts = [];
             try {
                 const id = localStorage.getItem('sdna_last_board');
                 const m = id ? JSON.parse(localStorage.getItem('sdna_board_' + id) || 'null') : null;
-                return m && m.pid && m.key ? '#sdna=' + id + '.' + m.pid + '.' + m.key : '';
-            } catch (e) { return ''; }
+                if (m && m.pid && m.key) parts.push('sdna=' + id + '.' + m.pid + '.' + m.key);
+                const l = myLead();
+                if (l) parts.push('sdnl=' + l.id + '.' + l.t);
+            } catch (e) {}
+            return parts.length ? '#' + parts.join('&') : '';
+        }
+        // The signed Lofty lead link from the lead form, so browsing on joshwaters.com counts for this lead.
+        function myLead() { try { const l = JSON.parse(localStorage.getItem('sdna_lead') || 'null'); return l && l.id && l.t ? l : null; } catch (e) { return null; } }
+        function myBoardMember() {
+            try {
+                const id = localStorage.getItem('sdna_last_board');
+                const m = id ? JSON.parse(localStorage.getItem('sdna_board_' + id) || 'null') : null;
+                return m && m.key ? { id, pid: m.pid, key: m.key } : null;
+            } catch (e) { return null; }
         }
         // Area picker on the results screen: same areas as the lead form, minus "Other".
         (function fillHomesArea() {
@@ -2526,6 +2541,7 @@
                 dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
                 partner: partner ? { name: partner.n || '', archetype: archetypes[partner.a].name } : null,
                 board: boardParam || lastBoardId(),
+                member: myBoardMember(),
                 archetype: archetypes[userArchetype].name,
                 budget: selectedPrice,
                 preferences: userPreferences,
@@ -2546,6 +2562,7 @@
                 });
                 const data = await r.json().catch(() => ({}));
                 if (!r.ok || !data.ok) throw new Error(data.error || ('status ' + r.status));
+                if (data.leadId && data.leadToken) { try { localStorage.setItem('sdna_lead', JSON.stringify({ id: String(data.leadId), t: data.leadToken })); } catch (e) {} }
                 track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: select.value === '__other__' ? 'other' : neighborhood, phone: phone ? 'yes' : 'no' });
                 showActivation(true);
             } catch (err) {
@@ -2733,7 +2750,7 @@
             btn.disabled = true; btn.textContent = 'Starting...';
             try {
                 const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    action: 'create', name,
+                    action: 'create', name, lead: myLead(),
                     profile: { archetype: userArchetype, loves: loves.map(h => h.style) },
                     criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: myAreas()[0] || '', areas: myAreas() }
                 }) });

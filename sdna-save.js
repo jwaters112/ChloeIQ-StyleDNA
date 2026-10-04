@@ -16,11 +16,26 @@
   }
   function saveConn(c) { try { localStorage.setItem(STORE, JSON.stringify(c)); } catch (e) {} }
   // Links from the quiz and the board end in #sdna=<board>.<member>.<key>[.<board name>]
+  // Quiz takers without a board carry #sdnl=<Lofty lead id>.<signature> so their browsing still counts.
+  var LEAD = 'sdna_lead';
+  function readLead() { try { var l = JSON.parse(localStorage.getItem(LEAD) || 'null'); return l && l.id && l.t ? l : null; } catch (e) { return null; } }
   function takeConnFromHash() {
-    var m = (location.hash || '').match(/sdna=([A-Za-z0-9]{8,24})\.([A-Za-z0-9]{4,16})\.([A-Za-z0-9]{12,40})(?:\.([^&]*))?/);
-    if (!m) return;
-    saveConn({ id: m[1], pid: m[2], key: m[3], name: m[4] ? decodeURIComponent(m[4]).slice(0, 40) : '' });
+    var h = location.hash || '';
+    var m = h.match(/sdna=([A-Za-z0-9]{8,24})\.([A-Za-z0-9]{4,16})\.([A-Za-z0-9]{12,40})(?:\.([^&]*))?/);
+    var l = h.match(/sdnl=(\d{6,20})\.([A-Za-z0-9_-]{16})/);
+    if (!m && !l) return;
+    if (m) saveConn({ id: m[1], pid: m[2], key: m[3], name: m[4] ? decodeURIComponent(m[4]).slice(0, 40) : '' });
+    if (l) { try { localStorage.setItem(LEAD, JSON.stringify({ id: l[1], t: l[2] })); } catch (e) {} }
     try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+    linkLead();
+  }
+  // Both known in this browser: tell the board which Lofty lead this member is (once).
+  function linkLead() {
+    var c = readConn(), l = readLead();
+    if (!c || !l) return;
+    var flag = 'sdna_linked_' + c.id + '_' + l.id;
+    try { if (localStorage.getItem(flag)) return; } catch (e) {}
+    post({ action: 'link-lead', id: c.id, key: c.key, lead: l }).then(function (j) { if (j.ok) { try { localStorage.setItem(flag, '1'); } catch (e) {} } }, function () {});
   }
 
   // ---------- listing details from the page ----------
@@ -175,7 +190,7 @@
     var url = listingUrl(), d = details();
     var metaLine = [money(d.price), d.beds && d.beds + ' bd', d.baths && d.baths + ' ba', d.sqft && Number(d.sqft).toLocaleString('en-US') + ' sq ft'].filter(Boolean).join(' \u00b7 ');
     var s = openSheet('<p class="sdna-kicker">StyleDNA \u00b7 Home board</p><p class="sdna-title">Saving\u2026</p><p class="sdna-sub">' + esc(c.name || 'Your home board') + '</p>');
-    post({ action: 'add-home', id: c.id, key: c.key, url: url, details: d }).then(function (j) {
+    post({ action: 'add-home', id: c.id, key: c.key, url: url, details: d, via: 'save' }).then(function (j) {
       if (!sheet || sheet !== s) return;
       if (j.status === 403 || j.error === 'not_member' || j.error === 'not_found') {
         try { localStorage.removeItem(STORE); } catch (e) {}
@@ -208,6 +223,7 @@
         }, function () { inp.disabled = false; note.textContent = "Couldn't post that. Try again."; });
       };
       track('sdna_save', { already: already ? 'yes' : 'no' });
+      if (!already) send([{ k: 'save', lid: lidFrom(location.pathname), mls: d.mls, a: d.address, p: d.price }]);
       render();
     }, function () {
       if (sheet === s) { s.querySelector('.sdna-title').textContent = "Couldn't save that"; s.querySelector('.sdna-sub').textContent = 'Check your connection and try again.'; }
@@ -223,13 +239,115 @@
       '<a class="sdna-link" href="' + APP + '/?utm_source=joshwaters&utm_medium=save_button">Take the 60-second StyleDNA quiz</a>');
   }
 
+  // ---------- browsing log (only for people who came in through StyleDNA) ----------
+  var TRACK = APP + '/api/track';
+  function who() {
+    var c = readConn(); if (c) return { board: { id: c.id, key: c.key } };
+    var l = readLead(); if (l) return { lead: l };
+    return null;
+  }
+  function send(events, beacon) {
+    var w = who(); if (!w) return;
+    w.events = events;
+    var body = JSON.stringify(w);
+    try {
+      if (beacon && navigator.sendBeacon) { navigator.sendBeacon(TRACK, new Blob([body], { type: 'text/plain' })); return; }
+      fetch(TRACK, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: body, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+  function lidFrom(path) { return ((path || '').match(/listing-detail\/(\d+)/) || [])[1] || ''; }
+  function slugAddr(path) { var s = ((path || '').match(/listing-detail\/\d+\/([^/?#]+)/) || [])[1]; return s ? decodeURIComponent(s).replace(/-/g, ' ') : ''; }
+  function searchSummary() {
+    var q = new URLSearchParams(location.search), raw = q.get('condition'), bits = [];
+    if (raw) {
+      try {
+        var c = JSON.parse(raw), loc = c.location || {};
+        if (loc.city) bits.push([].concat(loc.city).join(', '));
+        if (loc.zipCode) bits.push('ZIP ' + [].concat(loc.zipCode).join(', '));
+        if (c.price) bits.push('$' + String(c.price).replace(',', ' to $'));
+        if (c.beds || c.bedroom) bits.push((c.beds || c.bedroom) + '+ bd');
+        if (c.propertytype) bits.push([].concat(c.propertytype).join(', '));
+        if (c.style) bits.push('style ' + [].concat(c.style).slice(0, 2).join(', '));
+        if (c.keyword) bits.push('"' + c.keyword + '"');
+      } catch (e) { bits.push(raw.slice(0, 80)); }
+    }
+    return bits.join(' | ') || location.pathname;
+  }
+  var view = null;
+  function endView() {
+    if (!view) return;
+    var secs = Math.round((Date.now() - view.at) / 1000);
+    if (secs >= 3) send([{ k: 'time', v: view.v, s: secs }], true);
+    view = null;
+  }
+  function pageSeen() {
+    endView();
+    if (!who()) return;
+    if (isListing()) {
+      var v = Math.random().toString(36).slice(2, 10);
+      view = { v: v, at: Date.now() };
+      // Lofty swaps pages without reloading, so give the new listing's details a moment to land.
+      setTimeout(function () {
+        if (!view || view.v !== v) return;
+        var d = details();
+        send([{ k: 'view', v: v, lid: lidFrom(location.pathname), mls: d.mls, a: d.address, p: d.price }]);
+      }, 1500);
+    } else if (/condition=|\/listing(\?|$|\/)|\/search/i.test(location.pathname + location.search)) {
+      send([{ k: 'search', q: searchSummary() }]);
+    }
+  }
+  function miniToast(text) {
+    if (!root) return;
+    var t = document.createElement('div');
+    t.setAttribute('style', 'position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#030C0D;color:#F5F5F3;border:1px solid rgba(224,178,77,.55);border-radius:999px;padding:10px 16px;font:600 14px SdnaM,-apple-system,sans-serif;z-index:2147483003;box-shadow:0 10px 30px rgba(0,0,0,.35)');
+    t.textContent = text; root.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+  // Lofty's own heart: log it and put the same home on their StyleDNA board.
+  function heartClicked(url) {
+    var c = readConn(), lid = lidFrom(url), onPage = lid && lid === lidFrom(location.pathname);
+    var d = onPage ? details() : { address: slugAddr(url) };
+    send([{ k: 'heart', lid: lid, mls: d.mls, a: d.address, p: d.price }]);
+    if (!c || !lid) return;
+    var clean = url.split('#')[0].split('?')[0];
+    if (saved[clean]) return;
+    post({ action: 'add-home', id: c.id, key: c.key, url: clean, via: 'heart', details: onPage ? d : undefined }).then(function (j) {
+      if (j.ok || j.error === 'already_added') { saved[clean] = j.homeId || true; miniToast('Also saved to ' + ((j.board && j.board.name) || j.boardName || c.name || 'your home board')); render(); }
+    }, function () {});
+  }
+  function watchClicks() {
+    document.addEventListener('click', function (e) {
+      var t = e.target; if (!t || !t.closest || t.closest('#sdna-host')) return;
+      if (!who()) return;
+      var main = t.closest('.save-share-container .item.save');
+      if (main && isListing()) { heartClicked(location.href); return; }
+      var heart = t.closest('.icon-heart-fill, [class*="favorite" i]');
+      if (heart) {
+        var card = heart, link = null;
+        for (var i = 0; i < 8 && card && !link; i++) { card = card.parentElement; link = card && card.querySelector && card.querySelector('a[href*="listing-detail"]'); }
+        if (link) { heartClicked(link.href); return; }
+      }
+      var btn = t.closest('button, a');
+      if (btn) {
+        var label = (btn.innerText || '').trim();
+        if (btn.classList.contains('gotour') || /schedule a (free )?tour|request (a )?showing|book a tour/i.test(label)) send([{ k: 'tour', lid: lidFrom(location.pathname), a: isListing() ? details().address : '' }]);
+        else if (/^(contact|ask a question|message|request info)/i.test(label)) send([{ k: 'contact', lid: lidFrom(location.pathname), a: isListing() ? details().address : '' }]);
+      }
+    }, true);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') endView(); else if (!view && isListing()) pageSeen(); });
+    window.addEventListener('pagehide', endView);
+  }
+
   // ---------- start, and follow Lofty's page changes (it doesn't reload between pages) ----------
   function boot() {
     takeConnFromHash();
     render();
+    linkLead();
+    watchClicks();
+    pageSeen();
     var last = location.href;
     setInterval(function () {
-      if (location.href !== last) { last = location.href; takeConnFromHash(); closeSheet(); render(); }
+      if (location.href !== last) { last = location.href; takeConnFromHash(); closeSheet(); render(); pageSeen(); }
     }, 600);
     window.addEventListener('resize', placeDock);
     setTimeout(placeDock, 1500); setTimeout(placeDock, 4000);
