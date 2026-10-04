@@ -264,6 +264,13 @@
     const withFrag = (u) => /^https:\/\/(www\.)?joshwaters\.com\//.test(u || '') ? u.split('#')[0] + frag() : u;
     const myResult = () => { try { return JSON.parse(localStorage.getItem('sdna_me') || 'null'); } catch (e) { return null; } };
 
+    // "2026-10-04 16:00:00" in Central time -> a timestamp.
+    function ctTime(str) {
+        if (!str) return 0;
+        const m = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', timeZoneName: 'shortOffset' }).match(/GMT([+-]\d+)/);
+        const h = m ? Number(m[1]) : -6;
+        return Date.parse(String(str).replace(' ', 'T') + (h < 0 ? '-' : '+') + String(Math.abs(h)).padStart(2, '0') + ':00') || 0;
+    }
     function myLead() { try { const l = JSON.parse(localStorage.getItem('sdna_lead') || 'null'); return l && l.id && l.t ? l : null; } catch (e) { return null; } }
     // A quiz taker who gave their email on this phone: tell the board which Lofty lead they are (once).
     function linkLeadOnce() {
@@ -372,8 +379,8 @@
         const recent = h.lastChange && Date.now() - h.lastChange.t < 14 * 86400000 ? h.lastChange : null;
         const statusBadge = /under contract|sold|off market|coming soon/i.test(st) ? el('span', { class: 'badge alert' }, st) : null;
         const changeBadge = recent && (recent.kind === 'drop' || recent.kind === 'back' || recent.kind === 'open') ? el('span', { class: 'badge drop' }, recent.label) : null;
-        const ohDay = h.openHouse && h.openHouse.start ? String(h.openHouse.start).slice(0, 10) : '';
-        const oh = ohDay && ohDay >= new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' }) ? el('p', { class: 'oh' }, 'Open house: ' + (h.openHouse.text || h.openHouse.start)) : null;
+        const ohEnd = h.openHouse ? ctTime(h.openHouse.end || h.openHouse.start) : 0;
+        const oh = ohEnd && ohEnd > Date.now() ? el('p', { class: 'oh' }, 'Open house: ' + (h.openHouse.text || h.openHouse.start)) : null;
         const pic = h.photo ? (h.url ? el('a', { href: withFrag(h.url), target: '_blank', rel: 'noopener' }, el('img', { class: 'photo', src: h.photo, alt: '', loading: 'lazy' })) : el('img', { class: 'photo', src: h.photo, alt: '', loading: 'lazy' })) : null;
         return el('article', { class: 'home' },
             pic,

@@ -12,7 +12,8 @@ const short = (a) => String(a || 'a home').split(',')[0];
 const DAY = 86400000;
 const OFF = (s) => /off market|sold/i.test(s || '');
 const todayCT = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
-const upcoming = (start) => String(start || '').slice(0, 10) >= todayCT();
+const ctTime = (str) => { const m = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', timeZoneName: 'shortOffset' }).match(/GMT([+-]\d+)/); const h = m ? Number(m[1]) : -6; return Date.parse(String(str || '').replace(' ', 'T') + (h < 0 ? '-' : '+') + String(Math.abs(h)).padStart(2, '0') + ':00') || 0; };
+const upcoming = (start) => ctTime(start) > Date.now();
 
 let webpush = null;
 function push() {
@@ -178,7 +179,7 @@ function scoreOf({ browse, events, lofty: la, alertsOn, emailOn, together, value
   if (valueAsk) why.push('asked what their home is worth');
   if (together) why.push('shopping with someone');
   const prices = views.map((v) => v.p).filter(Boolean).sort((a, b) => a - b);
-  const range = prices.length >= 2 ? `${money(prices[0])} to ${money(prices[prices.length - 1])}` : prices.length ? money(prices[0]) : '';
+  const range = !prices.length ? '' : prices[0] === prices[prices.length - 1] ? money(prices[0]) : `${money(prices[0])} to ${money(prices[prices.length - 1])}`;
   return { score, tier: score >= 40 ? 'Hot' : score >= 15 ? 'Warm' : 'Watch', why, range, lastActive: last };
 }
 
