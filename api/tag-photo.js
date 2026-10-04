@@ -57,6 +57,8 @@ module.exports = async function handler(req, res) {
     }
   }
   await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+  // Compact summary in the Vercel logs so a test run can be scored even if the browser tab is lost.
+  console.log('tag-results ' + results.map((r) => r.mls + ':' + (r.ext ? r.ext + ':' + r.int : 'ERR:' + r.error)).join(','));
   return res.status(200).json({ ok: true, results });
 };
 
