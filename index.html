@@ -2481,25 +2481,11 @@
 
         function shareToFacebook() {
             track('shared', { channel: 'facebook', archetype: userArchetype });
-            // On mobile, native share sheet is far more reliable than sharer.php
-            // (the FB mobile app intercepts sharer.php URLs and frequently fails to load them).
-            if (isMobile() && navigator.share) {
-                const arch = archetypes[userArchetype];
-                navigator.share({
-                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
-                    text: buildShareText('facebook', false),
-                    url: buildShareUrl('facebook')
-                }).catch(err => {
-                    if (err && err.name !== 'AbortError') console.warn('FB share failed:', err);
-                });
-                return;
-            }
-            // Desktop: open the public sharer in a popup
-            const url = buildShareUrl('facebook');
-            const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            window.open(fb, '_blank', 'noopener,width=600,height=500');
+            // Straight to Facebook's own share page (the Facebook app picks it up on phones).
+            const fb = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(buildShareUrl('facebook'));
+            const w = window.open(fb, '_blank', isMobile() ? 'noopener' : 'noopener,width=600,height=560');
+            if (!w) window.location.href = fb;
         }
-
         function shareToTwitter() {
             track('shared', { channel: 'x', archetype: userArchetype });
             const arch = archetypes[userArchetype];
@@ -2510,26 +2496,79 @@
             window.open(tw, '_blank', 'noopener,width=600,height=500');
         }
 
-        function shareToInstagram() {
-            track('shared', { channel: 'instagram', archetype: userArchetype });
-            // Instagram has no public web share URL — they intentionally don't support it.
-            // The only path that works is the OS native share sheet on mobile, which includes Instagram.
-            if (isMobile() && navigator.share) {
-                const arch = archetypes[userArchetype];
-                navigator.share({
-                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
-                    text: buildShareText('instagram', false),
-                    url: buildShareUrl('instagram')
-                }).catch(err => {
-                    if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
-                });
-                return;
-            }
-            // Desktop fallback: copy link with a note
-            copyShareLink();
-            alert("Instagram doesn't allow direct web sharing. We've copied the link. You can paste it into your Instagram bio or a DM.");
+        function flashShareLabel(msg) {
+            const el = document.getElementById('copyLinkBtn');
+            if (!el) return;
+            const original = el.dataset.label || el.textContent;
+            el.dataset.label = original;
+            el.textContent = msg;
+            clearTimeout(el._t);
+            el._t = setTimeout(() => { el.textContent = original; }, 4000);
         }
 
+        // A 1080x1920 story image of their result, branded, for Instagram.
+        async function buildStoryImage() {
+            const arch = archetypes[userArchetype];
+            try { await Promise.all([document.fonts.load("italic 600 96px Montserrat"), document.fonts.load("600 40px Montserrat"), document.fonts.load("500 40px Montserrat")]); } catch (e) {}
+            const logo = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = '/brand/dcg-lockup.webp'; });
+            const W = 1080, H = 1920, c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const x = c.getContext('2d');
+            x.fillStyle = '#030C0D'; x.fillRect(0, 0, W, H);
+            const g = x.createRadialGradient(0, 0, 0, 0, 0, 1300);
+            g.addColorStop(0, '#213D37'); g.addColorStop(0.35, '#0E2926'); g.addColorStop(0.75, '#030C0D');
+            x.fillStyle = g; x.fillRect(0, 0, W, H);
+            x.textAlign = 'center';
+            x.fillStyle = '#A3A7A6'; x.font = '600 34px Montserrat'; x.letterSpacing = '8px';
+            x.fillText('MY HOME STYLEDNA', W / 2, 560);
+            x.letterSpacing = '0px';
+            x.fillStyle = '#E0B24D'; x.font = 'italic 600 112px Montserrat';
+            const name = arch.name || '';
+            if (x.measureText(name).width > W - 140) {
+                const words = name.split(' '); const mid = Math.ceil(words.length / 2);
+                x.fillText(words.slice(0, mid).join(' '), W / 2, 720);
+                x.fillText(words.slice(mid).join(' '), W / 2, 850);
+            } else {
+                x.fillText(name, W / 2, 760);
+            }
+            x.fillStyle = '#F5F5F3'; x.font = '500 46px Montserrat';
+            wrapText(x, arch.desc || '', W / 2, 1000, W - 220, 66);
+            x.fillStyle = '#A3A7A6'; x.font = '500 38px Montserrat';
+            x.fillText((arch.aesthetic || []).join('  \u00b7  '), W / 2, 1200);
+            x.fillStyle = '#E0B24D'; x.fillRect(W / 2 - 60, 1290, 120, 3);
+            x.fillStyle = '#F5F5F3'; x.font = '600 40px Montserrat';
+            x.fillText("What's yours?", W / 2, 1390);
+            x.fillStyle = '#A3A7A6'; x.font = '500 34px Montserrat';
+            x.fillText('homestyledna.vercel.app', W / 2, 1450);
+            if (logo) { const lw = 300, lh = lw * logo.height / logo.width; x.drawImage(logo, (W - lw) / 2, 1560, lw, lh); }
+            return new Promise(res => c.toBlob(res, 'image/png'));
+        }
+
+        async function shareToInstagram() {
+            track('shared', { channel: 'instagram', archetype: userArchetype });
+            // Instagram has no web link for posting. What does work: hand the phone a result image,
+            // and the share sheet's Instagram option opens it straight into a Story, post or DM.
+            let blob = null;
+            try { blob = await buildStoryImage(); } catch (e) {}
+            const file = blob ? new File([blob], 'my-styledna.png', { type: 'image/png' }) : null;
+            if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try { await navigator.clipboard.writeText(buildShareUrl('instagram')); } catch (e) {}
+                navigator.share({ files: [file] }).catch(err => {
+                    if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
+                });
+                flashShareLabel('Pick Instagram. The quiz link is copied for a link sticker.');
+                return;
+            }
+            // Computers: save the image and copy the link so they can post from their phone.
+            if (blob) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob); a.download = 'my-styledna.png';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+            }
+            try { await navigator.clipboard.writeText(buildShareUrl('instagram')); } catch (e) {}
+            flashShareLabel('Image saved and link copied. Post it from Instagram.');
+        }
         function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
             const words = (text || '').split(' ');
             let line = '';
