@@ -1251,6 +1251,7 @@
             width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong); background: none;
             color: var(--soft-white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
         }
+        .share-icon[hidden] { display: none; }
         .share-icon:hover { border-color: var(--gold); color: var(--gold); }
         .share-icon svg { width: 18px; height: 18px; display: block; }
         .share-label { margin-top: 6px; font-size: 13px; color: var(--silver); }
@@ -1592,8 +1593,8 @@
                     <div class="share-row">
                         <button class="share-icon" onclick="shareToFacebook()" aria-label="Share to Facebook" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button>
                         <button class="share-icon" onclick="shareToTwitter()" aria-label="Share to X" title="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
-                        <button class="share-icon" onclick="shareToInstagram()" aria-label="Share to Instagram" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg></button>
-                        <button class="share-icon" onclick="shareResults()" aria-label="More share options" title="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+                        <button class="share-icon" id="igShareBtn" hidden onclick="shareToInstagram()" aria-label="Share to Instagram" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg></button>
+                        <button class="share-icon" id="moreShareBtn" onclick="shareResults()" aria-label="More share options" title="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
                         <button class="share-icon" onclick="copyShareLink()" aria-label="Copy link" title="Copy link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 5.43"/><path d="M14 10a5 5 0 0 0-7.07 0L4.1 12.83a5 5 0 0 0 7.07 7.07l1.33-1.33"/></svg></button>
                     </div>
                     <p class="share-label" id="copyLinkBtn">Share your StyleDNA</p>
@@ -2224,6 +2225,8 @@
             document.getElementById('archetypeName').textContent = arch.name;
                         document.getElementById('archetypeDescription').textContent = arch.desc;
             document.getElementById('aestheticTags').innerHTML = arch.aesthetic.map(t=>`<div class="tag">${t}</div>`).join('');
+            prepareStoryImage();
+            const more = document.getElementById('moreShareBtn'); if (more) more.hidden = !navigator.share;
             document.getElementById('lifestyleText').textContent = arch.lifestyle.split(/\s*[\u2022\u00b7]\s*/).join(', ');
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
@@ -2406,13 +2409,10 @@
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
+        // Each result has its own link-preview page (s/<archetype>.html) so Facebook, texts and X
+        // show the person's result card automatically. It forwards visitors to the quiz.
         function buildShareUrl(medium) {
-            const url = new URL(STYLEDNA_BASE_URL);
-            url.searchParams.set('utm_source', 'share');
-            url.searchParams.set('utm_medium', medium || 'unknown');
-            url.searchParams.set('utm_campaign', 'styledna_quiz');
-            url.searchParams.set('utm_content', userArchetype);
-            return url.toString();
+            return `${STYLEDNA_BASE_URL}/s/${encodeURIComponent(userArchetype)}.html?m=${encodeURIComponent(medium || 'link')}`;
         }
 
         function archLabel() { return (archetypes[userArchetype].name || '').replace(/^The\s+/i, ''); }
@@ -2496,16 +2496,6 @@
             window.open(tw, '_blank', 'noopener,width=600,height=500');
         }
 
-        function flashShareLabel(msg) {
-            const el = document.getElementById('copyLinkBtn');
-            if (!el) return;
-            const original = el.dataset.label || el.textContent;
-            el.dataset.label = original;
-            el.textContent = msg;
-            clearTimeout(el._t);
-            el._t = setTimeout(() => { el.textContent = original; }, 4000);
-        }
-
         // A 1080x1920 story image of their result, branded, for Instagram.
         async function buildStoryImage() {
             const arch = archetypes[userArchetype];
@@ -2544,30 +2534,26 @@
             return new Promise(res => c.toBlob(res, 'image/png'));
         }
 
-        async function shareToInstagram() {
+        let storyFile = null;
+        async function prepareStoryImage() {
+            storyFile = null;
+            try {
+                const blob = await buildStoryImage();
+                if (blob) storyFile = new File([blob], 'my-styledna.png', { type: 'image/png' });
+            } catch (e) {}
+            const ig = document.getElementById('igShareBtn');
+            const ok = !!(storyFile && navigator.canShare && navigator.canShare({ files: [storyFile] }));
+            if (ig) ig.hidden = !ok;
+        }
+
+        function shareToInstagram() {
             track('shared', { channel: 'instagram', archetype: userArchetype });
-            // Instagram has no web link for posting. What does work: hand the phone a result image,
-            // and the share sheet's Instagram option opens it straight into a Story, post or DM.
-            let blob = null;
-            try { blob = await buildStoryImage(); } catch (e) {}
-            const file = blob ? new File([blob], 'my-styledna.png', { type: 'image/png' }) : null;
-            if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-                try { await navigator.clipboard.writeText(buildShareUrl('instagram')); } catch (e) {}
-                navigator.share({ files: [file] }).catch(err => {
-                    if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
-                });
-                flashShareLabel('Pick Instagram. The quiz link is copied for a link sticker.');
-                return;
-            }
-            // Computers: save the image and copy the link so they can post from their phone.
-            if (blob) {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob); a.download = 'my-styledna.png';
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-            }
-            try { await navigator.clipboard.writeText(buildShareUrl('instagram')); } catch (e) {}
-            flashShareLabel('Image saved and link copied. Post it from Instagram.');
+            // Instagram has no web link for posting. The phone's share sheet takes an image, and its
+            // Instagram option opens it straight into a Story, post or DM.
+            if (!storyFile) return;
+            navigator.share({ files: [storyFile] }).catch(err => {
+                if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
+            });
         }
         function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
             const words = (text || '').split(' ');
