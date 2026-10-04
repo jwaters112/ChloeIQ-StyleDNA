@@ -313,8 +313,9 @@
             return;
         }
         $('findBtn').href = findUrl();
-        $('alertBtn').classList.toggle('on', board.alerts.includes(me.pid));
-        $('alertLabel').textContent = board.alerts.includes(me.pid) ? 'Alerts on' : 'Get alerts';
+        const anyOn = board.alerts.includes(me.pid) || (board.emailOn || []).includes(me.pid);
+        $('alertBtn').classList.toggle('on', anyOn);
+        $('alertLabel').textContent = anyOn ? 'Alerts on' : 'Get alerts';
         $('homeCount').textContent = board.homes.length ? board.homes.length : '';
         renderHomes(); renderEvents();
     }
@@ -387,7 +388,7 @@
             store.set({ pid: j.pid, key: j.key, name });
             track('board_joined', { withResult: r ? 'yes' : 'no' });
             render();
-            setTimeout(() => offerAlerts(true), 600);
+            setTimeout(() => alertsSheet(true), 600);
         } catch (e) {
             $('joinErr').textContent = e.code === 'full' ? 'This board is full.' : "Couldn't join just now. Try again.";
         } finally { $('joinBtn').disabled = false; }
@@ -468,20 +469,50 @@
             toast("Alerts on. We'll keep you posted.");
         } catch (e) { console.warn(e); toast("Couldn't turn on alerts. Try again."); }
     }
-    $('alertBtn').addEventListener('click', async () => {
-        if (board.alerts.includes(me.pid)) {
-            try {
-                const reg = await navigator.serviceWorker.getRegistration();
-                const sub = reg && await reg.pushManager.getSubscription();
-                await api({ action: 'unsubscribe', subscription: sub ? sub.toJSON() : {} });
-                if (sub) await sub.unsubscribe();
-                toast('Alerts off');
-            } catch (e) { toast("Couldn't change alerts."); }
-            return;
-        }
-        if (isIOS && !standalone) return offerAlerts(false);
-        enableAlerts();
-    });
+    async function pushOff() {
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            const sub = reg && await reg.pushManager.getSubscription();
+            await api({ action: 'unsubscribe', subscription: sub ? sub.toJSON() : {} });
+            if (sub) await sub.unsubscribe();
+            toast('Phone alerts off');
+        } catch (e) { toast("Couldn't change alerts."); }
+    }
+    // One sheet for both kinds of alerts. Email is the easy route on iPhone (no Home Screen step).
+    function alertsSheet(afterJoin) {
+        if (!me) return;
+        const pushOn = board.alerts.includes(me.pid);
+        const emailOn = (board.emailOn || []).includes(me.pid);
+        const emailPending = (board.emailPending || []).includes(me.pid);
+        if (afterJoin && (pushOn || emailOn)) return;
+        sheet('Alerts for this board', el('p', { style: 'margin-bottom:16px' }, "Know when a new listing fits your StyleDNA, someone adds a home or you all love the same one."), (bg) => {
+            const input = el('input', { class: 'field', type: 'email', placeholder: 'Your email', autocomplete: 'email', inputmode: 'email', maxlength: '120', style: 'margin-bottom:12px' });
+            const emailPart = emailOn
+                ? el('div', {}, el('p', { style: 'margin-bottom:10px' }, el('b', {}, 'Email alerts are on.')),
+                    el('button', { class: 'btn btn-ghost', onclick: async () => { bg.remove(); try { await api({ action: 'email-off' }); track('board_email_off'); toast('Email alerts off'); } catch (e) { toast("Couldn't change alerts."); } } }, 'Turn off email alerts'))
+                : el('div', {},
+                    emailPending ? el('p', { style: 'margin-bottom:10px' }, 'Check your inbox and tap the confirm link. Wrong address? Enter it again below.') : '',
+                    input,
+                    el('button', { class: 'btn', onclick: async () => {
+                        const v = input.value.trim();
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { toast('Enter a valid email'); input.focus(); return; }
+                        bg.remove();
+                        try { await api({ action: 'email-on', email: v }); track('board_email_requested'); toast('Check your inbox to confirm'); }
+                        catch (e) { toast(e.code === 'bad_email' ? 'Enter a valid email' : "Couldn't send the email. Try again."); }
+                    } }, 'Email me alerts'),
+                    el('p', { style: 'font-size:12px;margin-top:8px;text-align:center' }, 'One short email when something happens. Unsubscribe anytime.'));
+            const phonePart = el('div', { style: 'margin-top:18px;padding-top:16px;border-top:1px solid var(--line-strong)' },
+                pushOn
+                    ? el('button', { class: 'btn btn-ghost', onclick: () => { bg.remove(); pushOff(); } }, 'Turn off phone alerts')
+                    : el('button', { class: 'btn btn-ghost', onclick: () => { bg.remove(); if (isIOS && !standalone) offerAlerts(false); else enableAlerts(); } }, 'Phone alerts instead'));
+            return el('div', {}, emailPart, phonePart, el('button', { class: 'link', style: 'display:block;margin:10px auto 0', onclick: () => bg.remove() }, 'Not now'));
+        });
+    }
+    $('alertBtn').addEventListener('click', () => alertsSheet(false));
+    if (new URLSearchParams(location.search).get('email') === 'on') {
+        setTimeout(() => toast('Email alerts are on'), 800);
+        try { const u = new URL(location.href); u.searchParams.delete('email'); history.replaceState(null, '', u); } catch (e) {}
+    }
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});

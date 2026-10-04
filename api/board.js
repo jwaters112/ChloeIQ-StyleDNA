@@ -4,6 +4,7 @@
 // lets them act as themselves. Push alerts go to members who turned them on.
 
 const store = require('./_lib/boards');
+const mailer = require('./_lib/mailer');
 
 const MAX_MEMBERS = 8, MAX_HOMES = 150, MAX_COMMENTS = 60, MAX_EVENTS = 150;
 const ARCHES = ['curator', 'sanctuary', 'architect', 'custodian', 'visionary', 'authenticist'];
@@ -47,6 +48,16 @@ async function notify(board, exceptPid, title, body) {
   }));
   return dead;
 }
+// Email alerts for confirmed members; records when each was sent so add-home emails stay throttled.
+async function emailAlert(board, exceptPid, opts) {
+  try {
+    const sent = await mailer.alertBoard(board, exceptPid, opts);
+    if (sent.length) await store.update(board.id, (b) => { (b.emails || []).forEach((e) => { if (sent.includes(e.pid)) e.lastSent = Date.now(); }); });
+  } catch (e) { console.warn('email alert failed', e && e.message); }
+}
+const homeLine = (h) => ({ address: h.address || 'Home', price: h.price ? '$' + Number(h.price).toLocaleString('en-US') : '',
+  why: [h.beds ? h.beds + ' bd' : '', h.baths ? h.baths + ' ba' : '', h.sqft ? Number(h.sqft).toLocaleString('en-US') + ' sqft' : ''].filter(Boolean).join(', ') + (h.note ? (h.beds ? '. ' : '') + h.note : '') });
+
 async function dropDead(id, dead) {
   if (!dead.length) return;
   await store.update(id, (b) => { b.subs = (b.subs || []).filter((s) => !dead.includes(s.sub.endpoint)); });
@@ -68,6 +79,8 @@ function view(b) {
     members: (b.members || []).map((m) => ({ pid: m.pid, name: m.name, archetype: m.archetype || '', loves: m.loves || [], role: m.role || '' })),
     homes: b.homes || [], events: (b.events || []).slice(0, 60),
     alerts: (b.subs || []).map((s) => s.pid),
+    emailOn: (b.emails || []).filter((e) => e.confirmed).map((e) => e.pid),
+    emailPending: (b.emails || []).filter((e) => !e.confirmed).map((e) => e.pid),
   };
 }
 
@@ -244,6 +257,7 @@ async function handle(req, res) {
       const bits = [first.city, first.price ? '$' + first.price.toLocaleString('en-US') : '', first.beds ? first.beds + ' bd' : ''].filter(Boolean).join(', ');
       const dead = await notify(out.doc, 'josh', added.length === 1 ? 'New listing fits your StyleDNA' : `${added.length} new listings fit your StyleDNA`, `${shortAddr(first)}${bits ? ' (' + bits + ')' : ''}. Tap to see it on your board.`);
       await dropDead(id, dead);
+      await emailAlert(out.doc, 'josh', { kind: 'picks', homes: added.map(homeLine) });
     }
     return res.status(200).json({ ok: true, added: added.length });
   }
@@ -286,6 +300,7 @@ async function handle(req, res) {
     if (out.result === 'full') return res.status(409).json({ ok: false, error: 'full' });
     const dead = await notify(out.doc, actor.pid, out.doc.name, `${actor.name} added ${shortAddr(home)}`);
     await dropDead(id, dead);
+    await emailAlert(out.doc, actor.pid, { kind: 'add', homes: [homeLine(home)], reason: `${actor.name} added a home to the board.` });
     return res.status(200).json({ ok: true, homeId: home.id, board: view(out.doc) });
   }
 
@@ -314,6 +329,7 @@ async function handle(req, res) {
     if (matched) {
       const dead = await notify(out.doc, null, 'Group match', `Everyone loves ${shortAddr(matched)}. Time to see it in person?`);
       await dropDead(id, dead);
+      await emailAlert(out.doc, null, { kind: 'match', homes: [homeLine(matched)], reason: 'Everyone on the board loves this one. Time to see it in person?' });
     }
     return res.status(200).json({ ok: true, board: view(out.doc) });
   }
@@ -367,6 +383,31 @@ async function handle(req, res) {
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
     return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'email-on' || action === 'email-off') {
+    const email = action === 'email-on' ? mailer.cleanEmail(body.email) : '';
+    if (action === 'email-on' && !email) return res.status(400).json({ ok: false, error: 'bad_email' });
+    let entry = null, resend = false;
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      b.emails = b.emails || [];
+      const mine = b.emails.find((e) => e.pid === actor.pid);
+      if (action === 'email-off') { b.emails = b.emails.filter((e) => e.pid !== actor.pid); return; }
+      if (mine && mine.email === email && (mine.confirmed || Date.now() - (mine.sentAt || 0) < 10 * 60 * 1000)) { entry = mine; return false; }
+      b.emails = b.emails.filter((e) => e.pid !== actor.pid);
+      entry = { pid: actor.pid, email, token: store.newId(20), confirmed: false, at: Date.now(), sentAt: Date.now() };
+      b.emails.push(entry); resend = true;
+      if (b.emails.length > 40) b.emails = b.emails.slice(-40);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (resend) {
+      const r = await mailer.sendConfirm(out.doc, entry, actor);
+      if (!r.ok) return res.status(502).json({ ok: false, error: 'send_failed', board: view(out.doc) });
+    }
+    return res.status(200).json({ ok: true, state: action === 'email-off' ? 'off' : (entry && entry.confirmed ? 'on' : 'pending'), board: view(out.doc) });
   }
 
   return res.status(400).json({ ok: false, error: 'unknown_action' });
