@@ -504,7 +504,7 @@
             const phonePart = el('div', { style: 'margin-top:18px;padding-top:16px;border-top:1px solid var(--line-strong)' },
                 pushOn
                     ? el('button', { class: 'btn btn-ghost', onclick: () => { bg.remove(); pushOff(); } }, 'Turn off phone alerts')
-                    : el('button', { class: 'btn btn-ghost', onclick: () => { bg.remove(); if (isIOS && !standalone) offerAlerts(false); else enableAlerts(); } }, 'Phone alerts instead'));
+                    : el('button', { class: 'btn btn-ghost', onclick: () => { bg.remove(); if (isIOS && !standalone) offerAlerts(false); else enableAlerts(); } }, emailOn ? 'Add phone alerts too' : 'Phone alerts instead'));
             return el('div', {}, emailPart, phonePart, el('button', { class: 'link', style: 'display:block;margin:10px auto 0', onclick: () => bg.remove() }, 'Not now'));
         });
     }
