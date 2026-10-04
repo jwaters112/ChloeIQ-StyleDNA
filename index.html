@@ -70,8 +70,7 @@
         .activation-cta,
         .btn-primary,
         .btn-secondary,
-        .back-btn,
-        .share-channel-btn {
+        .back-btn {
             -webkit-user-select: none;
             user-select: none;
         }
@@ -1043,216 +1042,208 @@
         #otherNeighborhoodInput { display: none; margin-top: 12px; }
         #otherNeighborhoodInput.show { display: block; }
 
-        /* ===== SHARE BUTTON STACK ===== */
-        .share-button-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 360px;
-            margin: 0 auto;
+        /* ===================== DCG MINIMAL ===================== */
+        :root {
+            --line: rgba(163, 167, 166, 0.16);
+            --line-strong: rgba(163, 167, 166, 0.32);
+            --glow: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33, 61, 55, 0.55) 0%, rgba(14, 41, 38, 0.35) 35%, rgba(3, 12, 13, 0) 75%), var(--obsidian);
         }
-        /* ===== CHANNEL BUTTON ROW (FB / X / Instagram) ===== */
-        .share-channel-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-        .share-channel-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 14px 6px;
-            border-radius: 10px;
-            border: none;
-            color: #fff;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            cursor: pointer;
-            transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
-            min-height: 72px;
-        }
-        .share-channel-btn svg { display: block; }
-        .share-channel-btn span { line-height: 1; }
-        .share-channel-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
-        .share-channel-btn:active { transform: translateY(0); filter: brightness(0.96); }
-        .share-channel-fb { background: #1877F2; box-shadow: 0 4px 14px rgba(24,119,242,0.35); }
-        .share-channel-x  { background: #000;     box-shadow: 0 4px 14px rgba(0,0,0,0.5); border: 1px solid #2A2A2A; }
-        .share-channel-ig { background: linear-gradient(45deg, #feda75, #fa7e1e, #d92e7f, #9b36b7, #515bd4); box-shadow: 0 4px 14px rgba(217,46,127,0.35); }
-        .share-cta-primary {
-            background: var(--accent-gold) !important;
-            color: var(--primary-black) !important;
-            border: none !important;
-        }
-        .share-cta-secondary {
-            background: transparent !important;
-            border: 2px solid var(--accent-gold) !important;
-            color: var(--accent-gold) !important;
-        }
-        .share-cta-tertiary {
-            background: transparent !important;
-            border: 1px solid var(--muted-taupe) !important;
-            color: var(--muted-taupe) !important;
-            font-size: 14px !important;
-            transition: all 0.25s ease;
-        }
-        .share-cta-tertiary:hover {
-            color: var(--primary-white) !important;
-            border-color: var(--primary-white) !important;
-        }
-
-        /* ===================== DCG HOUSE STYLE ===================== */
         html, body { background: var(--obsidian); -webkit-font-smoothing: antialiased; }
         button, input, select, textarea { font-family: inherit; }
-        h1, h2, .archetype-name { letter-spacing: -0.2px; }
+        h1, h2, .archetype-name { letter-spacing: -0.3px; }
+        .screen.active { animation-duration: 0.3s; }
+        .welcome-content, .preference-content { animation: fadeUp 0.5s ease-out; }
+
+        /* One button style. Sentence case, no shadow, no lift. */
+        .welcome-cta, .pref-continue, .btn-primary, .activation-cta {
+            background: var(--gold); color: var(--obsidian); border: 0; border-radius: 999px;
+            font-size: 16px; font-weight: 600; letter-spacing: 0.2px; text-transform: none;
+            padding: 16px 24px; width: 100%; box-shadow: none; transform: none; transition: background 0.2s ease;
+        }
+        .welcome-cta:hover, .pref-continue:hover, .btn-primary:hover, .activation-cta:hover { background: var(--gold-highlight); transform: none; box-shadow: none; }
+        .btn-secondary, .activation-link, .text-link {
+            background: none; border: 0; color: var(--silver); font-size: 15px; font-weight: 500;
+            letter-spacing: 0; text-transform: none; padding: 12px; cursor: pointer;
+        }
+        .btn-secondary:hover, .activation-link:hover, .text-link:hover { color: var(--soft-white); border: 0; }
 
         /* Welcome */
-        .welcome-screen { justify-content: space-between; padding: 48px 24px 28px; }
-        .welcome-content { margin: auto 0; display: flex; flex-direction: column; align-items: center; max-width: 440px; width: 100%; }
-        .welcome-lockup { width: 230px; height: auto; margin-bottom: 36px; }
-        .welcome-kicker { display: flex; align-items: center; gap: 14px; width: 100%; max-width: 260px; margin-bottom: 18px; }
-        .welcome-kicker i { flex: 1; height: 1px; background: var(--hairline); }
+        .welcome-screen { background: var(--glow); justify-content: space-between; padding: 56px 24px 28px; }
+        .welcome-content { margin: auto 0; display: flex; flex-direction: column; align-items: center; max-width: 380px; width: 100%; }
+        .welcome-lockup { width: 200px; height: auto; margin-bottom: 44px; }
+        .welcome-kicker { margin-bottom: 14px; }
+        .welcome-kicker i { display: none; }
         .welcome-kicker span { font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
-        .welcome-headline { font-size: 36px; font-weight: 600; line-height: 1.15; margin-bottom: 16px; }
-        .welcome-subheading { font-size: 16px; line-height: 1.65; margin-bottom: 36px; max-width: 340px; }
-        .welcome-meta { margin-top: 16px; font-size: 12px; letter-spacing: 1px; color: var(--silver); }
-        .welcome-footer { width: 100%; max-width: 440px; margin: 40px auto 0; }
+        .welcome-headline { font-size: 34px; line-height: 1.15; margin-bottom: 14px; }
+        .welcome-subheading { font-size: 16px; line-height: 1.6; margin-bottom: 36px; color: var(--silver); max-width: 320px; }
+        .welcome-meta { margin-top: 16px; font-size: 13px; letter-spacing: 0; color: var(--silver); opacity: 0.8; }
+        .welcome-footer { width: 100%; max-width: 380px; margin: 48px auto 0; }
 
-        /* Buttons */
-        .welcome-cta, .pref-continue, .btn-primary, .activation-cta {
-            background: var(--gold); color: var(--obsidian); font-weight: 600; letter-spacing: 1.5px;
-            text-transform: uppercase; font-size: 14px; border-radius: 3px; padding: 17px 28px;
-        }
-        .welcome-cta:hover, .pref-continue:hover, .btn-primary:hover, .activation-cta:hover { background: var(--gold-highlight); }
-
-        /* Header row: wordmark, hairline, section */
-        .brand-bar {
-            position: absolute; top: 0; left: 0; right: 0; height: 64px; padding: 0 20px 0 76px;
-            display: flex; align-items: center; gap: 12px; pointer-events: none;
-            font-size: 10px; letter-spacing: 2.2px; text-transform: uppercase;
-        }
-        .brand-bar span { color: var(--silver); white-space: nowrap; }
-        .brand-bar i { flex: 1; height: 1px; background: var(--hairline); }
-        .brand-bar b { color: var(--gold); font-weight: 600; }
-        .preference-screen, .data-capture-screen { position: relative; padding-top: 92px; }
+        /* Question screens */
+        .brand-bar { display: none; }
+        .preference-screen, .data-capture-screen { position: relative; background: var(--glow); padding: 84px 24px 48px; }
         .back-btn {
-            position: absolute; top: 10px; left: 16px; width: 44px; height: 44px;
-            background: transparent; border: 1px solid var(--hairline); color: var(--gold);
-            box-shadow: none; backdrop-filter: none; font-size: 24px;
+            position: absolute; top: 14px; left: 10px; width: 44px; height: 44px; padding: 0;
+            background: none; border: 0; box-shadow: none; backdrop-filter: none;
+            color: var(--silver); font-size: 30px; line-height: 1; border-radius: 50%;
         }
-        .back-btn:hover { background: rgba(224, 178, 77, 0.12); color: var(--gold); }
-
-        /* Preference screens */
-        .preference-headline { font-size: 30px; font-weight: 600; margin-bottom: 12px; }
-        .preference-subheading { font-size: 15px; margin-bottom: 28px; }
-        .progress-indicator { font-size: 11px; letter-spacing: 2.5px; margin-bottom: 24px; }
-        .pref-options { gap: 12px; margin-bottom: 28px; }
+        .back-btn:hover { background: none; color: var(--soft-white); transform: none; }
+        .preference-content { max-width: 440px; display: flex; flex-direction: column; }
+        .progress-indicator { order: -1; text-align: left; margin-bottom: 14px; font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--gold); }
+        .preference-headline { text-align: left; font-size: 28px; line-height: 1.2; margin-bottom: 8px; }
+        .preference-subheading { text-align: left; font-size: 15px; color: var(--silver); margin-bottom: 28px; }
+        .pref-options { gap: 0; margin-bottom: 32px; border-top: 1px solid var(--line); }
         .pref-option {
-            background: rgba(6, 25, 26, 0.72); border: 1px solid rgba(163, 167, 166, 0.28);
-            border-radius: 4px; padding: 18px 20px; font-weight: 500;
+            background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+            padding: 18px 2px; gap: 16px; font-size: 16px; text-align: left; color: var(--soft-white);
+            transition: color 0.15s ease; box-shadow: none;
         }
-        .pref-option:hover { border-color: var(--gold); background: rgba(14, 41, 38, 0.8); transform: none; }
-        .pref-option.active { background: var(--gold); color: var(--obsidian); border-color: var(--gold); }
-        .pref-checkbox { border-radius: 50%; border-width: 1.5px; opacity: 0.8; }
-        .pref-continue { margin-top: 4px; }
+        .pref-option:hover { background: none; border-color: var(--line); transform: none; }
+        .pref-option.active { background: none; color: var(--gold); border-color: var(--line); box-shadow: none; }
+        .pref-option span { display: flex; flex-direction: column; gap: 3px; }
+        .pref-option small { font-size: 14px; color: var(--silver); font-weight: 500; }
+        .pref-checkbox { order: 2; margin-left: auto; width: 20px; height: 20px; border: 1px solid var(--line-strong); border-radius: 50%; opacity: 1; }
+        .pref-option.active .pref-checkbox { border-color: var(--gold); background: var(--gold); box-shadow: inset 0 0 0 4px var(--obsidian); }
+        .pref-option.active .pref-checkbox::after { content: none; }
+        .pref-continue { margin-top: 0; }
 
         /* Swipe */
-        .swipe-screen { background: var(--glow); }
+        .swipe-screen { background: var(--obsidian); }
         .swipe-header, .swipe-footer { background: transparent; }
-        .swipe-card { border-radius: 6px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); border: 1px solid rgba(224, 178, 77, 0.18); }
-        .swipe-card-overlay { border-radius: 6px; }
-        .swipe-card-info { padding: 24px 22px; background: linear-gradient(180deg, rgba(3,12,13,0) 0%, rgba(3,12,13,0.88) 100%); }
-        .swipe-card-style { letter-spacing: 2px; font-size: 11px; }
-        .swipe-card-title { font-style: italic; font-weight: 600; font-size: 24px; }
-        .swipe-button { border: 1px solid rgba(163, 167, 166, 0.5); background: rgba(3, 12, 13, 0.5); font-size: 26px; }
-        .swipe-button-yes { border-color: var(--gold); }
-        .swipe-button:hover { transform: scale(1.06); }
-        .progress-bar { background: rgba(163, 167, 166, 0.18); height: 2px; }
+        .swipe-header { padding: 18px 24px 6px; }
+        .progress-bar { background: var(--line); height: 2px; }
+        .progress-fill { background: var(--gold); }
+        .progress-text { font-size: 12px; color: var(--silver); }
+        .swipe-card { border-radius: 16px; border: 0; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+        .swipe-card-img { border-radius: 16px !important; }
+        .swipe-card-overlay { border-radius: 16px; background: none; }
+        .swipe-card-info { padding: 28px 22px 22px; background: linear-gradient(180deg, rgba(3,12,13,0) 0%, rgba(3,12,13,0.82) 70%); }
+        .swipe-card-style { font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
+        .swipe-card-title { font-size: 22px; font-style: normal; margin-bottom: 4px; }
+        .swipe-card-description { font-size: 14px; color: rgba(245, 245, 243, 0.78); }
+        .swipe-footer { gap: 40px; padding: 18px 20px 30px; }
+        .swipe-button { width: 60px; height: 60px; font-size: 22px; border: 1px solid var(--line-strong); background: none; }
+        .swipe-button-yes { border-color: rgba(224, 178, 77, 0.6); }
+        .swipe-button:hover { transform: none; border-color: var(--gold); box-shadow: none; }
 
         /* Loading */
-        .loading-headline { font-weight: 600; }
-        .loading-ring { border-right-color: var(--emerald-lift); }
+        .loading-screen { background: var(--obsidian); }
+        .loading-animation { width: 44px; height: 44px; margin-bottom: 28px; }
+        .loading-ring { border-width: 1.5px; border-right-color: transparent; }
+        .loading-ring:nth-child(2) { display: none; }
+        .loading-headline { font-size: 22px; }
+        .loading-text { color: var(--silver); }
 
         /* Results */
         .results-screen { background: var(--glow); background-attachment: fixed; }
-        .results-sticky-header { background: rgba(3, 12, 13, 0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--hairline); padding: 18px 20px 16px; }
-        .archetype-kicker { color: var(--silver); letter-spacing: 3px; font-size: 11px; }
-        .archetype-name { font-weight: 600; color: var(--gold); font-size: 30px; margin-bottom: 0; }
-        .results-content { max-width: 560px; margin: 0 auto; padding: 28px 20px 40px; }
-        .results-section { margin-bottom: 44px; }
-        .results-budget-note { background: rgba(14, 41, 38, 0.55); border-left: 2px solid var(--gold); color: var(--silver); font-size: 13px; }
-        .results-description { font-size: 18px; line-height: 1.6; }
-        .results-section-title { letter-spacing: 2.5px; font-size: 11px; display: flex; align-items: center; gap: 12px; }
-        .results-section-title::after { content: ''; flex: 1; height: 1px; background: var(--hairline); }
-        .tag { border-color: rgba(224, 178, 77, 0.55); border-radius: 2px; }
-        .home-match-card { background: rgba(6, 25, 26, 0.8); border: 1px solid rgba(163, 167, 166, 0.16); border-radius: 4px; }
-        .home-match-card:hover { transform: none; border-color: var(--hairline); box-shadow: none; }
-        .home-match-image { height: 210px; }
-        .home-match-info { padding: 16px 18px; }
-        .home-match-name { font-size: 15px; font-style: italic; font-weight: 600; }
+        .results-sticky-header { position: static; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 56px 24px 0; }
+        .results-archetype { max-width: 440px; margin: 0 auto; text-align: left; }
+        .archetype-kicker { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--silver); margin-bottom: 10px; }
+        .archetype-name { font-size: 40px; line-height: 1.1; color: var(--gold); margin: 0; }
+        .results-content { max-width: 440px; margin: 0 auto; padding: 16px 24px 40px; }
+        .results-section { margin-bottom: 0; padding: 32px 0; border-top: 1px solid var(--line); }
+        .results-section:first-child { border-top: 0; padding-top: 0; }
+        .results-description { font-size: 20px; line-height: 1.5; margin-bottom: 8px; }
+        .results-budget-note { background: none; border: 0; padding: 0; margin: 0 0 28px; font-size: 14px; color: var(--silver); order: 2; }
+        .results-section:first-child { display: flex; flex-direction: column; }
+        .results-section:first-child .results-description { order: 1; }
+        .results-section:first-child .welcome-cta { order: 3; }
+        .results-section:first-child .homes-picker { order: 4; }
+        .results-section-title { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--silver); margin-bottom: 16px; }
+        .results-section-title::after { content: none; }
 
-        /* Share buttons: brand-neutral, no platform colors */
-        .share-channel-btn {
-            background: rgba(6, 25, 26, 0.85) !important; border: 1px solid rgba(163, 167, 166, 0.3) !important;
-            box-shadow: none !important; color: var(--soft-white); border-radius: 4px; min-height: 68px;
+        .homes-picker { margin-top: 28px; text-align: left; }
+        .homes-picker .form-label { margin-bottom: 4px; }
+        .homes-picker .form-select { padding-left: 0; }
+        .homes-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+        .homes-go { background: none; border: 0; padding: 6px 0; color: var(--gold); font-size: 15px; font-weight: 600; cursor: pointer; }
+        .homes-go:hover { color: var(--gold-highlight); }
+        .homes-all { background: none; border: 0; padding: 6px 0; font-size: 14px; color: var(--silver); cursor: pointer; text-decoration: none; }
+        .homes-all:hover { color: var(--soft-white); }
+        .homes-note { margin: 6px 0 0; font-size: 13px; color: var(--silver); opacity: 0.8; }
+
+        .profile-list { margin: 0; }
+        .profile-row { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 12px 0; }
+        .profile-row + .profile-row { border-top: 1px solid var(--line); }
+        .profile-row dt { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--silver); padding-top: 3px; }
+        .profile-row dd { margin: 0; font-size: 16px; line-height: 1.5; color: var(--soft-white); }
+        .aesthetic-tags { display: block; margin: 0; }
+        .aesthetic-tags .tag { display: inline; padding: 0; border: 0; border-radius: 0; background: none; font-size: 16px; color: var(--soft-white); }
+        .aesthetic-tags .tag + .tag::before { content: ', '; }
+        .lifestyle-text { font-size: 16px; color: var(--soft-white); line-height: 1.5; }
+
+        #matchedHomes { display: grid; gap: 28px; }
+        .home-match-card { background: none; border: 0; border-radius: 0; margin: 0; }
+        .home-match-card:hover { transform: none; box-shadow: none; border: 0; }
+        .home-match-image { height: 220px; border-radius: 12px; background: var(--surface); }
+        .home-match-info { padding: 12px 2px 0; }
+        .home-match-name { font-size: 16px; font-style: normal; font-weight: 600; margin-bottom: 2px; }
+        .home-match-location { font-size: 14px; line-height: 1.5; color: var(--silver); margin: 0; }
+        .results-empty { font-size: 16px; }
+
+        .results-cta { text-align: center; }
+        .share-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px;
+            padding: 12px 20px; background: none; border: 0; color: var(--soft-white); font-size: 15px; font-weight: 500; cursor: pointer;
         }
-        .share-channel-btn:hover { border-color: var(--gold) !important; color: var(--gold); filter: none; }
-        .share-cta-secondary { color: var(--gold) !important; border: 1px solid var(--gold) !important; background: transparent !important; }
-        .share-cta-tertiary { border-color: rgba(163, 167, 166, 0.4) !important; }
+        .share-btn svg { width: 18px; height: 18px; }
+        .share-btn:hover { color: var(--gold); }
 
         /* Contact block: logo and text share one centered axis */
-        .contact-block { text-align: center; padding: 40px 0 8px; border-top: 1px solid var(--hairline); margin-top: 8px; }
-        .contact-lockup { width: 170px; height: auto; margin: 0 auto 24px; display: block; }
-        .contact-lead { font-size: 15px; color: var(--silver); margin-bottom: 18px; line-height: 1.6; }
-        .contact-name { font-size: 22px; font-weight: 600; font-style: italic; color: var(--soft-white); margin-bottom: 4px; }
-        .contact-role { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+        .contact-block { text-align: center; padding: 48px 0 8px; border-top: 1px solid var(--line); }
+        .contact-lockup { width: 150px; height: auto; margin: 0 auto 28px; display: block; }
+        .contact-lead { font-size: 15px; color: var(--silver); margin-bottom: 20px; line-height: 1.6; }
+        .contact-name { font-size: 20px; font-weight: 600; color: var(--soft-white); margin-bottom: 2px; }
+        .contact-role { font-size: 13px; color: var(--silver); margin-bottom: 14px; }
         .contact-lines { font-size: 15px; line-height: 1.9; }
-        .contact-lines a { color: var(--soft-white); text-decoration: none; border-bottom: 1px solid var(--hairline); }
+        .contact-lines a { color: var(--soft-white); text-decoration: none; }
         .contact-lines a:hover { color: var(--gold); }
 
-        .text-link { display: block; margin: 14px auto 0; background: none; border: none; color: var(--silver); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--hairline); cursor: pointer; padding: 6px; }
-        .text-link:hover { color: var(--gold); }
-        .homes-picker { margin: 22px 0 0; text-align: left; }
-        .btn-secondary.homes-style-btn { display: block; width: 100%; margin-top: 8px; color: var(--gold); border-color: var(--hairline); }
-        .homes-note { margin: 10px 0 0; font-size: 12px; color: var(--silver); }
-        .homes-all { background: none; border: 0; padding: 0; font: inherit; color: var(--silver); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-        .homes-all:hover { color: var(--gold); }
-        .activation-share { margin-top: 12px; }
-
         /* Legal footer (TREC: IABS and Consumer Protection Notice links) */
-        .legal { text-align: center; font-size: 13px; line-height: 1.7; color: var(--silver); padding-top: 28px; }
+        .legal { text-align: center; font-size: 12px; line-height: 1.7; color: var(--silver); padding-top: 32px; opacity: 0.85; }
         .legal p { margin-bottom: 8px; }
-        .legal-links { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .legal a { color: var(--silver); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(163,167,166,0.5); }
-        .legal a:hover { color: var(--gold); }
-        .legal-marks { width: 120px; height: auto; margin-top: 10px; opacity: 0.9; }
+        .legal-links { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .legal a { color: var(--silver); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(163,167,166,0.4); }
+        .legal a:hover { color: var(--soft-white); }
+        .legal-marks { width: 110px; height: auto; margin-top: 10px; opacity: 0.85; }
 
         /* Form */
-        .form-heading { font-weight: 600; font-size: 28px; }
-        .form-input, .form-select { background: rgba(6, 25, 26, 0.8); border: 1px solid rgba(163, 167, 166, 0.32); border-radius: 3px; padding: 15px 16px; font-size: 16px; }
-        .form-input:focus, .form-select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(224, 178, 77, 0.12); }
-        .form-label { font-size: 11px; letter-spacing: 2px; }
-        .btn-secondary { color: var(--silver); }
+        .form-container { max-width: 440px; }
+        .form-heading { text-align: left; font-size: 28px; margin-bottom: 8px; }
+        .form-subheading { text-align: left; font-size: 15px; color: var(--silver); margin-bottom: 28px; }
+        .form-group { margin-bottom: 22px; }
+        .form-label { font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--silver); margin-bottom: 2px; }
+        .form-optional { margin-left: 6px; opacity: 0.7; }
+        .form-input, .form-select {
+            background: none; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0;
+            padding: 10px 0; font-size: 17px; color: var(--soft-white); box-shadow: none;
+        }
+        .form-select { appearance: none; -webkit-appearance: none; padding-right: 24px; cursor: pointer;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23A3A7A6' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 4px center; }
+        .form-select option, .form-select optgroup { background: var(--deep-ink); color: var(--soft-white); }
+        .form-input::placeholder { color: rgba(163, 167, 166, 0.55); }
+        .form-input:focus, .form-select:focus { border-color: var(--gold); box-shadow: none; }
+        #otherNeighborhoodInput { margin-top: 8px; }
+        .consent-row { font-size: 12px; line-height: 1.6; margin: 8px 0; }
+        .consent-row input { width: 16px; height: 16px; }
+        .form-buttons { gap: 4px; margin-top: 28px; }
+        .form-buttons .btn-secondary { padding: 12px; }
 
         /* Activation */
-        .activation-screen { justify-content: center; }
-        .success-icon { width: 72px; height: 72px; margin: 0 auto 28px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .success-icon span { color: var(--gold); font-size: 30px; line-height: 1; }
-        .activation-headline { font-weight: 600; font-size: 32px; }
+        .activation-screen { background: var(--glow); justify-content: center; }
+        .activation-content { max-width: 380px; }
+        .success-icon { width: 56px; height: 56px; margin: 0 auto 24px; border: 1px solid rgba(224, 178, 77, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .success-icon span { color: var(--gold); font-size: 22px; line-height: 1; }
+        .activation-headline { font-size: 30px; }
+        .activation-text { font-size: 16px; color: var(--silver); margin-bottom: 32px; }
+        .activation-link { display: block; width: 100%; margin-top: 6px; }
+        .activation-link-quiet { font-size: 14px; opacity: 0.8; }
 
         @media (min-width: 700px) {
-            .welcome-headline { font-size: 44px; }
-            .welcome-lockup { width: 260px; }
-            .preference-headline { font-size: 36px; }
-            .brand-bar { padding-left: 84px; padding-right: 32px; }
-        }
-        @media (max-width: 380px) {
-            .brand-bar span { display: none; }
+            .welcome-headline { font-size: 42px; }
+            .welcome-lockup { width: 230px; }
+            .preference-headline, .form-heading { font-size: 32px; }
+            .archetype-name { font-size: 46px; }
         }
     </style>
 
@@ -1284,7 +1275,7 @@
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
                 <p class="welcome-subheading">Every home has a personality. So do you. Swipe through twelve rooms and find out yours.</p>
-                <button class="welcome-cta" onclick="goToPrice()">Find My StyleDNA</button>
+                <button class="welcome-cta" onclick="goToPrice()">Find my StyleDNA</button>
                 <p class="welcome-meta">About 60 seconds &middot; Powered by ChloeIQ</p>
             </div>
             <footer class="welcome-footer">
@@ -1303,7 +1294,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">What's Your Budget?</h2>
                 <p class="preference-subheading">So we can show you homes in the right range</p>
-                <div class="progress-indicator">STEP 1 OF 5</div>
+                <div class="progress-indicator">Step 1 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectPrice(0, 'Under $300K', this)">
@@ -1328,7 +1319,7 @@
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToFloorPlan()">CONTINUE</button>
+                <button class="pref-continue" onclick="goToFloorPlan()">Continue</button>
             </div>
         </div>
 
@@ -1339,24 +1330,24 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Preferred Floor Plan</h2>
                 <p class="preference-subheading">How do you like your spaces organized?</p>
-                <div class="progress-indicator">STEP 2 OF 5</div>
+                <div class="progress-indicator">Step 2 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectFloorPlan('open', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Open Concept - Flowing, connected spaces</span>
+                        <span>Open concept<small>Flowing, connected spaces</small></span>
                     </button>
                     <button class="pref-option" onclick="selectFloorPlan('defined', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Defined Spaces - Separate rooms, formal</span>
+                        <span>Defined spaces<small>Separate rooms, more formal</small></span>
                     </button>
                     <button class="pref-option" onclick="selectFloorPlan('balanced', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Balanced Mix - Some open, some intimate</span>
+                        <span>Balanced mix<small>Some open, some intimate</small></span>
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToBackyard()">CONTINUE</button>
+                <button class="pref-continue" onclick="goToBackyard()">Continue</button>
             </div>
         </div>
 
@@ -1367,28 +1358,28 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Outdoor Space</h2>
                 <p class="preference-subheading">What matters to you outside?</p>
-                <div class="progress-indicator">STEP 3 OF 5</div>
+                <div class="progress-indicator">Step 3 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectBackyard('large', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Large Backyard - Entertaining, pool-ready</span>
+                        <span>Large backyard<small>Room to entertain, pool-ready</small></span>
                     </button>
                     <button class="pref-option" onclick="selectBackyard('patio', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Patio/Courtyard - Intimate outdoor</span>
+                        <span>Patio or courtyard<small>Intimate outdoor space</small></span>
                     </button>
                     <button class="pref-option" onclick="selectBackyard('minimal', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Minimal Outdoor - Urban, low maintenance</span>
+                        <span>Minimal outdoor<small>Urban, low maintenance</small></span>
                     </button>
                     <button class="pref-option" onclick="selectBackyard('na', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Not Important</span>
+                        <span>Not important</span>
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToKitchen()">CONTINUE</button>
+                <button class="pref-continue" onclick="goToKitchen()">Continue</button>
             </div>
         </div>
 
@@ -1399,28 +1390,28 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Kitchen Style</h2>
                 <p class="preference-subheading">What's your kitchen personality?</p>
-                <div class="progress-indicator">STEP 4 OF 5</div>
+                <div class="progress-indicator">Step 4 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectKitchen('statement', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Statement Kitchen - Chef's kitchen, center of home</span>
+                        <span>Statement kitchen<small>Chef's kitchen, center of the home</small></span>
                     </button>
                     <button class="pref-option" onclick="selectKitchen('modern', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Modern Efficient - Clean, functional</span>
+                        <span>Modern and efficient<small>Clean, functional</small></span>
                     </button>
                     <button class="pref-option" onclick="selectKitchen('cozy', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Cozy Kitchen - Intimate gathering space</span>
+                        <span>Cozy kitchen<small>Intimate gathering space</small></span>
                     </button>
                     <button class="pref-option" onclick="selectKitchen('na', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Not Important</span>
+                        <span>Not important</span>
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToEntertaining()">CONTINUE</button>
+                <button class="pref-continue" onclick="goToEntertaining()">Continue</button>
             </div>
         </div>
 
@@ -1431,24 +1422,24 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Entertaining Preference</h2>
                 <p class="preference-subheading">How do you like to gather?</p>
-                <div class="progress-indicator">STEP 5 OF 5</div>
+                <div class="progress-indicator">Step 5 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectEntertaining('frequent', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Large Gathering Spaces - Host frequently</span>
+                        <span>Large gathering spaces<small>I host often</small></span>
                     </button>
                     <button class="pref-option" onclick="selectEntertaining('intimate', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Intimate Entertaining - Small groups</span>
+                        <span>Intimate entertaining<small>Small groups</small></span>
                     </button>
                     <button class="pref-option" onclick="selectEntertaining('na', this)">
                         <div class="pref-checkbox"></div>
-                        <span>Not a Priority</span>
+                        <span>Not a priority</span>
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToSwipe()">START SWIPING</button>
+                <button class="pref-continue" onclick="goToSwipe()">Start swiping</button>
             </div>
         </div>
 
@@ -1504,31 +1495,25 @@
                     <p class="results-description" id="archetypeDescription">
                         A design-driven perfectionist who believes every home is a curated expression of taste.
                     </p>
-                    <button class="welcome-cta" onclick="captureEmail()">Get Homes That Fit My Style</button>
+                    <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
                     <div class="homes-picker">
-                        <label class="form-label" for="homesArea">Browse homes for sale</label>
+                        <label class="form-label" for="homesArea">Browse homes for sale in</label>
                         <select class="form-select" id="homesArea" aria-label="Area">
                             <option value="">Anywhere in DFW</option>
                         </select>
-                        <button type="button" class="btn-secondary homes-style-btn" id="browseRangeLink" onclick="openHomes('picker', true)">See Homes in My Style</button>
-                        <p class="homes-note"><span id="homesNote">In your price range, on joshwaters.com</span> &middot; <button type="button" class="homes-all" onclick="openHomes('picker', false)">See all homes instead</button></p>
+                        <div class="homes-actions">
+                            <button type="button" class="homes-go" id="browseRangeLink" onclick="openHomes('picker', true)">See homes in my style &rarr;</button>
+                            <button type="button" class="homes-all" onclick="openHomes('picker', false)">All homes</button>
+                        </div>
+                        <p class="homes-note"><span id="homesNote">In your price range, on joshwaters.com</span></p>
                     </div>
                 </div>
 
                 <div class="results-section">
-                    <h3 class="results-section-title">Your Aesthetic</h3>
-                    <div class="aesthetic-tags" id="aestheticTags">
-                        <div class="tag">Modern</div>
-                        <div class="tag">Contemporary</div>
-                        <div class="tag">Curated</div>
-                    </div>
-                </div>
-
-                <div class="results-section">
-                    <h3 class="results-section-title">Your Lifestyle</h3>
-                    <p class="lifestyle-text" id="lifestyleText">
-                        Entertainer &bull; Collector &bull; Design-Forward
-                    </p>
+                    <dl class="profile-list">
+                        <div class="profile-row"><dt>Aesthetic</dt><dd class="aesthetic-tags" id="aestheticTags"></dd></div>
+                        <div class="profile-row"><dt>Lifestyle</dt><dd class="lifestyle-text" id="lifestyleText"></dd></div>
+                    </dl>
                 </div>
 
                 <div class="results-section">
@@ -1536,26 +1521,9 @@
                     <div id="matchedHomes"></div>
                 </div>
 
-                <div class="results-section" style="text-align: center;">
-                    <button class="welcome-cta" onclick="captureEmail()" style="margin-bottom: 12px;">Get Homes That Fit My Style</button>
-                    <div class="share-button-stack">
-                        <div class="share-channel-row">
-                            <button class="share-channel-btn share-channel-fb" onclick="shareToFacebook()" aria-label="Share to Facebook">
-                                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                <span>Facebook</span>
-                            </button>
-                            <button class="share-channel-btn share-channel-x" onclick="shareToTwitter()" aria-label="Share to X">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                <span>X</span>
-                            </button>
-                            <button class="share-channel-btn share-channel-ig" onclick="shareToInstagram()" aria-label="Share to Instagram">
-                                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg>
-                                <span>Instagram</span>
-                            </button>
-                        </div>
-                        <button class="welcome-cta share-cta-secondary" onclick="shareResults()">More Share Options</button>
-                        <button class="welcome-cta share-cta-tertiary" id="copyLinkBtn" onclick="copyShareLink()">Copy Link</button>
-                    </div>
+                <div class="results-section results-cta">
+                    <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
+                    <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
                 </div>
 
                 <div class="contact-block">
@@ -1584,12 +1552,12 @@
 
                 <form onsubmit="submitData(event)" novalidate>
                     <div class="form-group">
-                        <label class="form-label" for="nameInput">Your Name</label>
+                        <label class="form-label" for="nameInput">Name</label>
                         <input type="text" class="form-input" id="nameInput" placeholder="First and last name" autocomplete="name" maxlength="60" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="emailInput">Your Email</label>
+                        <label class="form-label" for="emailInput">Email</label>
                         <input type="email" class="form-input" id="emailInput" placeholder="your@email.com" autocomplete="email" maxlength="120" required>
                     </div>
 
@@ -1604,7 +1572,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="neighborhoodInput">Area You're Interested In</label>
+                        <label class="form-label" for="neighborhoodInput">Area you're interested in</label>
                         <select class="form-select" id="neighborhoodInput" required onchange="handleNeighborhoodChange(this.value)">
                             <option value="">Select an area...</option>
                             <optgroup label="Dallas Neighborhoods">
@@ -1706,8 +1674,8 @@
                     <p class="form-error" id="formError" role="alert"></p>
 
                     <div class="form-buttons">
-                        <button type="submit" class="btn-primary" id="submitBtn">Save My StyleDNA</button>
-                        <button type="button" class="btn-secondary" onclick="skipDataCapture()">Not Now</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Save my StyleDNA</button>
+                        <button type="button" class="btn-secondary" onclick="skipDataCapture()">Not now</button>
                     </div>
                 </form>
             </div>
@@ -1720,10 +1688,10 @@
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
                 <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
-                <button class="activation-cta" id="homesBtn" onclick="openHomes('area', true)">See Homes in My Style</button>
-                <button class="activation-link" onclick="openHomes('area', false)">Or see all homes for sale</button>
-                <button class="welcome-cta share-cta-secondary activation-share" onclick="shareResults()">Share My StyleDNA</button>
-                <button class="activation-link" onclick="finalAction()">Back to My Results</button>
+                <button class="activation-cta" id="homesBtn" onclick="openHomes('area', true)">See homes in my style</button>
+                <button class="activation-link" onclick="openHomes('area', false)">See all homes for sale</button>
+                <button class="activation-link share-btn" onclick="shareResults()"><span>Share my StyleDNA</span></button>
+                <button class="activation-link activation-link-quiet" onclick="finalAction()">Back to my results</button>
             </div>
         </div>
     </div>
@@ -2183,7 +2151,7 @@
             document.getElementById('archetypeName').textContent = arch.name;
                         document.getElementById('archetypeDescription').textContent = arch.desc;
             document.getElementById('aestheticTags').innerHTML = arch.aesthetic.map(t=>`<div class="tag">${t}</div>`).join('');
-            document.getElementById('lifestyleText').textContent = arch.lifestyle;
+            document.getElementById('lifestyleText').textContent = arch.lifestyle.split(/\s*[\u2022\u00b7]\s*/).join(', ');
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
@@ -2358,153 +2326,55 @@
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
                 : 'Share your result and see how your taste compares with your friends.';
             const area2 = userData && userData.neighborhood;
-            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See My Style in ${area2}` : 'See Homes in My Style';
+            document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See my style in ${area2}` : 'See homes in my style';
             showScreen('activationScreen', true);
         }
         function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
+        // Each result has its own link-preview page (s/<archetype>.html) so Facebook, texts and X
+        // show the person's result card automatically. It forwards visitors to the quiz.
         function buildShareUrl(medium) {
-            const url = new URL(STYLEDNA_BASE_URL);
-            url.searchParams.set('utm_source', 'share');
-            url.searchParams.set('utm_medium', medium || 'unknown');
-            url.searchParams.set('utm_campaign', 'styledna_quiz');
-            url.searchParams.set('utm_content', userArchetype);
-            return url.toString();
+            return `${STYLEDNA_BASE_URL}/s/${encodeURIComponent(userArchetype)}.html?m=${encodeURIComponent(medium || 'link')}`;
         }
 
         function archLabel() { return (archetypes[userArchetype].name || '').replace(/^The\s+/i, ''); }
         function withArticle(w) { return (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w; }
-        function buildShareText(medium, includeUrl) {
-            const arch = archetypes[userArchetype];
-            const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const base = `I'm ${withArticle(cleanName)} on the StyleDNA quiz\n\n${arch.desc}`;
-            if (includeUrl === false) return base;
-            const url = buildShareUrl(medium);
-            return `${base}\n\nFind your home StyleDNA: ${url}`;
-        }
-
-        // Detect if we're on mobile — navigator.share is the right path there
-        function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
+        // One share button: the phone's own share menu, with their result card as the link preview.
         function shareResults() {
-            track('shared', { channel: 'native', archetype: userArchetype });
-            const text = buildShareText('native', false);
             const arch = archetypes[userArchetype];
+            const url = buildShareUrl('share');
+            const text = `I'm ${arch.name}. ${arch.desc} Find your home StyleDNA:`;
             if (navigator.share) {
-                navigator.share({
-                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
-                    text: text,
-                    url: buildShareUrl('native')
-                }).catch(err => {
+                track('shared', { channel: 'native', archetype: userArchetype });
+                navigator.share({ title: `I'm ${arch.name}. Find your home StyleDNA.`, text, url }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
-            } else {
-                copyShareLink();
+                return;
             }
+            copyShareLink(text + ' ' + url);
         }
 
-        function copyShareLink() {
+        function copyShareLink(text) {
             track('shared', { channel: 'copy', archetype: userArchetype });
-            const text = buildShareText('copy');
-            const tryCopy = navigator.clipboard && navigator.clipboard.writeText
-                ? navigator.clipboard.writeText(text)
-                : Promise.reject();
-            tryCopy.then(() => {
-                const btn = document.getElementById('copyLinkBtn');
-                if (btn) {
-                    const original = btn.textContent;
-                    btn.textContent = '\u2713 Copied!';
-                    setTimeout(() => { btn.textContent = original; }, 2000);
-                }
-            }).catch(() => {
+            const done = () => {
+                document.querySelectorAll('.share-btn span').forEach(el => {
+                    const original = el.dataset.label || el.textContent;
+                    el.dataset.label = original;
+                    el.textContent = 'Link copied';
+                    setTimeout(() => { el.textContent = original; }, 2000);
+                });
+            };
+            const fallback = () => {
                 const ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.position = 'fixed';
-                ta.style.opacity = '0';
-                document.body.appendChild(ta);
-                ta.select();
-                try { document.execCommand('copy'); } catch(e) {}
-                document.body.removeChild(ta);
-                const btn = document.getElementById('copyLinkBtn');
-                if (btn) {
-                    const original = btn.textContent;
-                    btn.textContent = '\u2713 Copied!';
-                    setTimeout(() => { btn.textContent = original; }, 2000);
-                }
-            });
-        }
-
-        function shareToFacebook() {
-            track('shared', { channel: 'facebook', archetype: userArchetype });
-            // On mobile, native share sheet is far more reliable than sharer.php
-            // (the FB mobile app intercepts sharer.php URLs and frequently fails to load them).
-            if (isMobile() && navigator.share) {
-                const arch = archetypes[userArchetype];
-                navigator.share({
-                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
-                    text: buildShareText('facebook', false),
-                    url: buildShareUrl('facebook')
-                }).catch(err => {
-                    if (err && err.name !== 'AbortError') console.warn('FB share failed:', err);
-                });
-                return;
-            }
-            // Desktop: open the public sharer in a popup
-            const url = buildShareUrl('facebook');
-            const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            window.open(fb, '_blank', 'noopener,width=600,height=500');
-        }
-
-        function shareToTwitter() {
-            track('shared', { channel: 'x', archetype: userArchetype });
-            const arch = archetypes[userArchetype];
-            const cleanName = (arch.name || '').replace(/^The\s+/i, '');
-            const text = `I'm ${withArticle(cleanName)} on the StyleDNA quiz. What's yours?`;
-            const url = buildShareUrl('twitter');
-            const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=StyleDNA,HomeDesign`;
-            window.open(tw, '_blank', 'noopener,width=600,height=500');
-        }
-
-        function shareToInstagram() {
-            track('shared', { channel: 'instagram', archetype: userArchetype });
-            // Instagram has no public web share URL — they intentionally don't support it.
-            // The only path that works is the OS native share sheet on mobile, which includes Instagram.
-            if (isMobile() && navigator.share) {
-                const arch = archetypes[userArchetype];
-                navigator.share({
-                    title: `I'm ${withArticle(archLabel())}: my StyleDNA`,
-                    text: buildShareText('instagram', false),
-                    url: buildShareUrl('instagram')
-                }).catch(err => {
-                    if (err && err.name !== 'AbortError') console.warn('IG share failed:', err);
-                });
-                return;
-            }
-            // Desktop fallback: copy link with a note
-            copyShareLink();
-            alert("Instagram doesn't allow direct web sharing. We've copied the link. You can paste it into your Instagram bio or a DM.");
-        }
-
-        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-            const words = (text || '').split(' ');
-            let line = '';
-            let curY = y;
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                    ctx.fillText(line.trim(), x, curY);
-                    line = words[n] + ' ';
-                    curY += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line.trim(), x, curY);
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta); done();
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+            else fallback();
         }
 
         (function captureUtm() {
