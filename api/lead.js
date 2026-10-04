@@ -3,6 +3,8 @@
 // Set LOFTY_API_KEY in Vercel: Project > Settings > Environment Variables.
 
 const LOFTY_URL = 'https://api.lofty.com/v1.0/leads';
+// Josh's Lofty user id (the owner on every existing lead). Lofty refuses PERSONAL leads without it.
+const LOFTY_OWNER_ID = Number(process.env.LOFTY_OWNER_ID || 844773861742615);
 
 const BUDGETS = {
   0: { label: 'Under $300K', priceMax: 300000 },
@@ -106,6 +108,8 @@ async function handle(req, res) {
   const lastName = rest.join(' ');
   const archetype = clip(body.archetype, 40);
   const area = clip(body.area, 60);
+  // Every area they picked (the form's area first), at most 6.
+  const areas = [...new Set([area, ...(Array.isArray(body.areas) ? body.areas : []).map((a) => clip(a, 60))].filter(Boolean))].slice(0, 6);
   const budgetKey = Number(body.budget);
   const budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
   const consent = body.consent === true;
@@ -122,7 +126,7 @@ async function handle(req, res) {
   const tags = ['StyleDNA Quiz'];
   if (archetype) tags.push(clip('StyleDNA: ' + archetype, 64));
   if (budget) tags.push(clip('Budget: ' + budget.label, 64));
-  if (area) tags.push(clip('Area: ' + area, 64));
+  areas.forEach((a) => tags.push(clip('Area: ' + a, 64)));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
   if (partnerArch) tags.push('Partner compare');
   if (clip(body.board, 24)) tags.push('Home board');
@@ -131,7 +135,7 @@ async function handle(req, res) {
     'StyleDNA quiz result',
     'Archetype: ' + (archetype || 'n/a'),
     'Budget: ' + (budget ? budget.label : 'n/a'),
-    'Area: ' + (area || 'n/a'),
+    (areas.length > 1 ? 'Areas: ' : 'Area: ') + (areas.join(', ') || 'n/a'),
     'Home type: ' + (homeType || 'open to any'),
     'Floor plan: ' + clip(prefs.floorPlan, 20) + ' | Outdoor: ' + clip(prefs.backyard, 20) +
       ' | Kitchen: ' + clip(prefs.kitchen, 20) + ' | Entertaining: ' + clip(prefs.entertaining, 20),
@@ -156,19 +160,21 @@ async function handle(req, res) {
     tags,
     content: noteLines.join('\n').slice(0, 2000),
     ownershipScope: 'PERSONAL',
+    ownershipId: LOFTY_OWNER_ID,
+    assignedUserId: LOFTY_OWNER_ID,
   };
   if (phoneDigits) {
     lead.phones = [clip(phoneDigits, 20)];
     if (!consent) { lead.cannotCall = true; lead.cannotText = true; }
   }
-  if (budget || area) {
+  if (budget || areas.length) {
     lead.inquiry = {};
     if (budget && budget.priceMin) lead.inquiry.priceMin = budget.priceMin;
     if (budget && budget.priceMax) lead.inquiry.priceMax = budget.priceMax;
-    if (area) {
-      lead.inquiry.locations = AREA_ZIPS[area]
-        ? AREA_ZIPS[area].map((z) => ({ zipCode: z, stateCode: 'TX', description: area }))
-        : [{ city: area, stateCode: 'TX', description: area }];
+    if (areas.length) {
+      lead.inquiry.locations = areas.flatMap((a) => (AREA_ZIPS[a]
+        ? AREA_ZIPS[a].map((z) => ({ zipCode: z, stateCode: 'TX', description: a }))
+        : [{ city: a, stateCode: 'TX', description: a }]));
     }
   }
 
