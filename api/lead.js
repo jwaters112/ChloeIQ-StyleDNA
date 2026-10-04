@@ -125,6 +125,7 @@ async function handle(req, res) {
   if (area) tags.push(clip('Area: ' + area, 64));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
   if (partnerArch) tags.push('Partner compare');
+  if (clip(body.board, 24)) tags.push('Home board');
 
   const noteLines = [
     'StyleDNA quiz result',
@@ -142,6 +143,8 @@ async function handle(req, res) {
     .filter((k) => utm[k]).map((k) => k.replace('utm_', '') + '=' + clip(utm[k], 60));
   if (dream) noteLines.splice(1, 0, 'In their words: "' + dream + '"');
   if (partnerArch) noteLines.push('Compared with: ' + (partnerName || 'a partner') + ' (' + partnerArch + ')');
+  const boardId = clip(body.board, 24).replace(/[^A-Za-z0-9]/g, '');
+  if (boardId) noteLines.push('Home board: https://homestyledna.vercel.app/board.html?id=' + boardId);
   if (utmBits.length) noteLines.push('Came from: ' + utmBits.join(', '));
 
   const lead = {

@@ -79,12 +79,18 @@ with `device_bash` into `~/Downloads/StyleDNA/exports/DATE/` named `price-1m-plu
 total was 14,468.
 
 ### 3. Rebuild the active list and find photos to read (cloud)
-Stage the six exports and `data/photo_styles.csv` into the session, then:
+Stage the six exports, `data/photo_styles.csv` and `data/active_mls.txt` into the session, then:
 ```
 python3 tools/styledna_daily.py merge-export WORK exports/*.csv --full
 cp photo_styles.csv WORK/
 python3 tools/styledna_daily.py todo-photos WORK --max 1500 > todo.txt
 ```
+`merge-export` also writes `WORK/new_today.txt`: listings that weren't active yesterday. It
+compares against `active_mls.txt` (yesterday's MLS numbers, small enough to keep on the Mac):
+stage `data/active_mls.txt` into `WORK` before merging, and copy the updated one back in step 5.
+With no previous list, nothing counts as new that day. `todo-photos` puts today's new
+listings first so their buyers can get alerts the same morning.
+
 `todo.txt` has one line per batch of 51 MLS numbers. Up to 1,500 a day while the backlog lasts
 (about 13,300 on 3 Oct 2026, so roughly nine mornings), then just the new listings.
 
@@ -111,9 +117,21 @@ If a batch shows `photo_` errors, those homes retry tomorrow automatically.
 ```
 python3 tools/styledna_daily.py tag WORK
 ```
-Copy `WORK/photo_styles.csv` and `WORK/tags.csv` back to `~/Downloads/StyleDNA/data/` with
+Copy `WORK/photo_styles.csv`, `WORK/active_mls.txt` and `WORK/tags.csv` back to `~/Downloads/StyleDNA/data/` with
 `device_commit_files` (files over about 25 MB fail to commit; tags.csv is about 25 MB, so if it
 fails, skip it: photo_styles.csv is the one that matters).
+
+### 5b. New listings to home boards (alerts)
+Home boards are private shared boards buyers start from their quiz result. Each morning, new
+listings that fit a board go onto it as "Josh's picks" and its members get one phone alert.
+1. In Chrome, open any page on the preview site (the tagging page is fine). Run `adminList()`
+   from `tools/matrix_snippets.js`, then `adminListChunk(0)`, `adminListChunk(900)` ... until empty.
+   Join the chunks and save as `WORK/boards.json`.
+2. `python3 tools/styledna_daily.py board-picks WORK WORK/boards.json WORK/picks.json`
+3. If `picks.json` isn't empty, run `postPicks(<contents of picks.json>)` on the preview page.
+   It returns `boardId:added` for each board. Never post picks to a board twice in one day.
+4. Boards for townhome, condo or land buyers are skipped for now (tags cover single family only).
+Report the count in the wrap-up: "3 boards got new listings, 4 alerts sent".
 
 ### 6. Matches for new quiz leads (Lofty connector, no Mac needed)
 - `search_leads` with `filters: {anyTags: ["StyleDNA Quiz"]}`, newest first, created in the last
@@ -127,6 +145,7 @@ fails, skip it: photo_styles.csv is the one that matters).
   Condo or Land, skip the matches and add a one-line note instead: "StyleDNA: wants <type>, no
   style-tagged <type> listings yet. Their joshwaters.com link is filtered to <type>."
 - If the note has an `In their words:` line, keep it in mind when checking the matches.
+- If the note has a `Home board:` link, the buyer also gets new listings on their board (step 5b).
 - `python3 tools/styledna_match.py WORK/tags.csv leads.json matches.json`
 - For each match line, swap the search link for the home's own page: WebFetch the search link and
   take the `https://joshwaters.com/listing-detail/...` link whose address matches. Keep the search

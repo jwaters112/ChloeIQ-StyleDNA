@@ -1,0 +1,341 @@
+// StyleDNA home boards: a private board a buyer shares with a partner or family by link.
+// Members add homes, heart or pass them and comment; Josh's daily picks land here too.
+// Each member has a public id (shown on reactions) and a private key (kept on their phone) that
+// lets them act as themselves. Push alerts go to members who turned them on.
+
+const store = require('./_lib/boards');
+
+const MAX_MEMBERS = 8, MAX_HOMES = 150, MAX_COMMENTS = 60, MAX_EVENTS = 150;
+const ARCHES = ['curator', 'sanctuary', 'architect', 'custodian', 'visionary', 'authenticist'];
+const FETCH_HOSTS = ['joshwaters.com', 'www.joshwaters.com', 'www.realtor.com', 'realtor.com', 'www.zillow.com', 'zillow.com'];
+
+const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).replace(/\s+/g, ' ').trim().slice(0, n) : '';
+const cleanName = (v) => clip(v, 24).replace(/[^A-Za-z0-9' .-]/g, '').trim();
+const hits = new Map();
+function limited(ip) {
+  const now = Date.now();
+  const list = (hits.get(ip) || []).filter((t) => now - t < 60000);
+  list.push(now);
+  hits.set(ip, list);
+  if (hits.size > 5000) hits.clear();
+  return list.length > 60;
+}
+
+let webpush = null;
+function push() {
+  if (webpush) return webpush;
+  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) return null;
+  webpush = require('web-push');
+  webpush.setVapidDetails('mailto:josh@dallascollectivegroup.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+  return webpush;
+}
+
+// Send to every member with alerts on, except the one who did the thing. Dead subscriptions are dropped.
+async function notify(board, exceptPid, title, body) {
+  const wp = push();
+  if (!wp || !board.subs || !board.subs.length) return [];
+  const url = `/board.html?id=${board.id}`;
+  const payload = JSON.stringify({ title, body, url, tag: 'board-' + board.id });
+  const dead = [];
+  await Promise.all(board.subs.filter((s) => s.pid !== exceptPid).map(async (s) => {
+    try {
+      await wp.sendNotification(s.sub, payload, { TTL: 86400 });
+    } catch (err) {
+      if (err && (err.statusCode === 404 || err.statusCode === 410)) dead.push(s.sub.endpoint);
+      else console.warn('push failed', err && err.statusCode);
+    }
+  }));
+  return dead;
+}
+async function dropDead(id, dead) {
+  if (!dead.length) return;
+  await store.update(id, (b) => { b.subs = (b.subs || []).filter((s) => !dead.includes(s.sub.endpoint)); });
+}
+
+function event(b, kind, by, homeId, text) {
+  b.events = b.events || [];
+  b.events.unshift({ t: Date.now(), kind, by: by || '', homeId: homeId || '', text: clip(text, 140) });
+  if (b.events.length > MAX_EVENTS) b.events.length = MAX_EVENTS;
+}
+const memberByKey = (b, key) => (b.members || []).find((m) => m.key && m.key === key);
+const nameOf = (b, pid) => { const m = (b.members || []).find((x) => x.pid === pid); return m ? m.name : (pid === 'josh' ? 'Josh' : 'Someone'); };
+const shortAddr = (h) => (h.address || 'a home').split(',')[0];
+
+// What the page sees: no member keys, no push subscriptions.
+function view(b) {
+  return {
+    id: b.id, name: b.name, createdAt: b.createdAt, criteria: b.criteria || {},
+    members: (b.members || []).map((m) => ({ pid: m.pid, name: m.name, archetype: m.archetype || '', loves: m.loves || [], role: m.role || '' })),
+    homes: b.homes || [], events: (b.events || []).slice(0, 60),
+    alerts: (b.subs || []).map((s) => s.pid),
+  };
+}
+
+function money(v) { const n = String(v || '').replace(/[^\d.]/g, ''); return n ? Math.round(Number(n)) : 0; }
+
+// Best effort: read address, price, beds, baths from the listing page's own preview tags.
+async function describeLink(url) {
+  const out = { url, address: '', price: 0, beds: '', baths: '', sqft: '' };
+  let u;
+  try { u = new URL(url); } catch (e) { return null; }
+  if (!/^https?:$/.test(u.protocol)) return null;
+  const slug = (u.pathname.match(/listing-detail\/\d+\/([^/?#]+)/) || [])[1];
+  if (slug) out.address = decodeURIComponent(slug).replace(/-/g, ' ').replace(/\s+TX$/i, ', TX');
+  if (!FETCH_HOSTS.includes(u.hostname)) return out;
+  try {
+    const r = await fetch(u.toString(), { headers: { 'User-Agent': 'Mozilla/5.0 StyleDNA board' }, signal: AbortSignal.timeout(4000), redirect: 'follow' });
+    if (!r.ok) return out;
+    const html = (await r.text()).slice(0, 400000);
+    const meta = (prop) => { const m = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]*content=["']([^"']*)`, 'i')) || html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${prop}["']`, 'i')); return m ? m[1] : ''; };
+    const title = meta('og:title') || (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+    const desc = meta('og:description') || meta('description') || '';
+    const text = (title + ' | ' + desc).replace(/&amp;/g, '&').replace(/&#39;/g, "'");
+    if (!out.address) out.address = clip(title.split('|')[0].split(' - ')[0], 90);
+    const price = text.match(/\$\s?([\d,]{5,})/); if (price) out.price = money(price[1]);
+    const beds = text.match(/(\d+)\s*(?:bd|beds?|bedrooms?)\b/i); if (beds) out.beds = beds[1];
+    const baths = text.match(/(\d+(?:\.\d)?)\s*(?:ba|baths?|bathrooms?)\b/i); if (baths) out.baths = baths[1];
+    const sqft = text.match(/([\d,]{3,})\s*(?:sq\.?\s?ft|sqft|square feet)/i); if (sqft) out.sqft = sqft[1].replace(/,/g, '');
+  } catch (e) { /* keep what the link itself told us */ }
+  out.address = clip(out.address, 90);
+  return out;
+}
+
+function profileFrom(body) {
+  const p = body.profile || {};
+  return {
+    archetype: ARCHES.includes(p.archetype) ? p.archetype : '',
+    loves: Array.isArray(p.loves) ? p.loves.slice(0, 12).map((x) => clip(x, 40)).filter(Boolean) : [],
+  };
+}
+
+module.exports = async function handler(req, res) {
+  try {
+    return await handle(req, res);
+  } catch (err) {
+    console.error('board error', err && err.message);
+    return res.status(err && err.message === 'busy' ? 503 : 400).json({ ok: false, error: err && err.message === 'busy' ? 'busy' : 'bad_request' });
+  }
+};
+
+async function handle(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  if (limited(ip)) return res.status(429).json({ ok: false, error: 'too_many' });
+
+  if (req.method === 'GET') {
+    if (req.query && req.query.vapid !== undefined) return res.status(200).json({ ok: true, key: process.env.VAPID_PUBLIC_KEY || '' });
+    const id = req.query && req.query.id;
+    const cur = await store.read(id);
+    if (!cur) return res.status(404).json({ ok: false, error: 'not_found' });
+    return res.status(200).json({ ok: true, board: view(cur.doc) });
+  }
+  if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return res.status(405).json({ ok: false }); }
+
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = null; } }
+  if (!body || typeof body !== 'object') return res.status(400).json({ ok: false, error: 'bad_request' });
+  const action = clip(body.action, 20);
+
+  // ---- create a board (the person creating it is its first member) ----
+  if (action === 'create') {
+    const name = cleanName(body.name);
+    if (!name) return res.status(400).json({ ok: false, error: 'name_required' });
+    const prof = profileFrom(body);
+    const c = body.criteria || {};
+    const member = { pid: store.newId(8), key: store.newId(20), name, ...prof, joinedAt: Date.now() };
+    const doc = {
+      name: clip(body.boardName, 40) || `${name}'s home board`,
+      createdAt: Date.now(),
+      criteria: {
+        archetype: prof.archetype, budget: Number.isInteger(c.budget) ? c.budget : null, budgetLabel: clip(c.budgetLabel, 30),
+        homeType: clip(c.homeType, 30), homeTypeLabel: clip(c.homeTypeLabel, 30), area: clip(c.area, 60),
+      },
+      members: [member], homes: [], events: [], subs: [],
+    };
+    event(doc, 'join', member.pid, '', `${name} started the board`);
+    const saved = await store.create(doc);
+    return res.status(200).json({ ok: true, id: saved.id, pid: member.pid, key: member.key, board: view(saved) });
+  }
+
+  if (action === 'admin-list') {
+    if (process.env.VERCEL_ENV !== 'preview' && !process.env.BOARD_STORE_DIR) return res.status(404).json({ ok: false });
+    const ids = await store.listIds();
+    const boards = [];
+    for (const bid of ids) {
+      const cur = await store.read(bid);
+      if (!cur) continue;
+      const b = cur.doc;
+      boards.push({ id: b.id, name: b.name, criteria: b.criteria, members: (b.members || []).map((m) => ({ name: m.name, archetype: m.archetype })),
+        mls: (b.homes || []).map((h) => h.mls).filter(Boolean), alerts: (b.subs || []).length, updatedAt: b.updatedAt || b.createdAt,
+        activity: (b.events || []).slice(0, 15).map((e) => ({ t: e.t, text: e.text })) });
+    }
+    return res.status(200).json({ ok: true, boards });
+  }
+
+  const id = body.id;
+  if (!store.validId(id)) return res.status(400).json({ ok: false, error: 'bad_board' });
+
+  // ---- join ----
+  if (action === 'join') {
+    const name = cleanName(body.name);
+    if (!name) return res.status(400).json({ ok: false, error: 'name_required' });
+    const prof = profileFrom(body);
+    let member = null;
+    const out = await store.update(id, (b) => {
+      if ((b.members || []).length >= MAX_MEMBERS) return 'full';
+      member = { pid: store.newId(8), key: store.newId(20), name, ...prof, joinedAt: Date.now() };
+      b.members.push(member);
+      event(b, 'join', member.pid, '', `${name} joined`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'full') return res.status(409).json({ ok: false, error: 'full' });
+    const dead = await notify(out.doc, member.pid, out.doc.name, `${name} joined your home board`);
+    await dropDead(id, dead);
+    return res.status(200).json({ ok: true, pid: member.pid, key: member.key, board: view(out.doc) });
+  }
+
+  // ---- admin: daily picks from the morning run. Preview site only (behind Josh's Vercel sign-in). ----
+  if (action === 'admin-picks') {
+    if (process.env.VERCEL_ENV !== 'preview' && !process.env.BOARD_STORE_DIR) return res.status(404).json({ ok: false });
+    const picks = (Array.isArray(body.homes) ? body.homes : []).slice(0, 10);
+    let added = [];
+    const out = await store.update(id, (b) => {
+      const have = new Set((b.homes || []).map((h) => h.mls).filter(Boolean));
+      added = [];
+      picks.forEach((p) => {
+        const mls = clip(p.mls, 12);
+        if (!mls || have.has(mls) || b.homes.length >= MAX_HOMES) return;
+        const h = {
+          id: store.newId(8), source: 'josh', mls, url: clip(p.url, 500), address: clip(p.address, 90), city: clip(p.city, 40),
+          price: money(p.price), beds: clip(p.beds, 4), baths: clip(p.baths, 5), sqft: clip(p.sqft, 7), style: clip(p.style, 30),
+          note: clip(p.note, 200), isNew: !!p.isNew, addedBy: 'josh', addedAt: Date.now(), reactions: {}, comments: [],
+        };
+        b.homes.unshift(h); added.push(h); have.add(mls);
+      });
+      if (!added.length) return false;
+      event(b, 'picks', 'josh', added[0].id, `Josh added ${added.length} new ${added.length === 1 ? 'home that fits' : 'homes that fit'} your StyleDNA`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (added.length) {
+      const first = added[0];
+      const bits = [first.city, first.price ? '$' + first.price.toLocaleString('en-US') : '', first.beds ? first.beds + ' bd' : ''].filter(Boolean).join(', ');
+      const dead = await notify(out.doc, 'josh', added.length === 1 ? 'New listing fits your StyleDNA' : `${added.length} new listings fit your StyleDNA`, `${shortAddr(first)}${bits ? ' (' + bits + ')' : ''}. Tap to see it on your board.`);
+      await dropDead(id, dead);
+    }
+    return res.status(200).json({ ok: true, added: added.length });
+  }
+  // ---- everything below acts as a member ----
+  const key = clip(body.key, 40);
+  let actor = null;
+
+  if (action === 'add-home') {
+    const link = clip(body.url, 500);
+    const typed = clip(body.address, 90);
+    if (!link && !typed) return res.status(400).json({ ok: false, error: 'missing' });
+    const info = link ? await describeLink(link) : { url: '', address: typed };
+    if (!info) return res.status(400).json({ ok: false, error: 'bad_link' });
+    if (!info.address) info.address = typed || 'Home';
+    let home = null;
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      if (b.homes.length >= MAX_HOMES) return 'full';
+      if (info.url && b.homes.some((h) => h.url === info.url)) return 'dupe';
+      home = { id: store.newId(8), source: 'member', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
+        addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
+      const note = clip(body.note, 300);
+      if (note) home.comments.push({ id: store.newId(6), by: actor.pid, text: note, at: Date.now() });
+      b.homes.unshift(home);
+      event(b, 'add', actor.pid, home.id, `${actor.name} added ${shortAddr(home)}`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (out.result === 'dupe') return res.status(409).json({ ok: false, error: 'already_added' });
+    if (out.result === 'full') return res.status(409).json({ ok: false, error: 'full' });
+    const dead = await notify(out.doc, actor.pid, out.doc.name, `${actor.name} added ${shortAddr(home)}`);
+    await dropDead(id, dead);
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'react') {
+    const value = ['love', 'pass', ''].includes(body.value) ? body.value : null;
+    if (value === null) return res.status(400).json({ ok: false });
+    let matched = null;
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      const h = b.homes.find((x) => x.id === body.homeId);
+      if (!h) return 'missing';
+      const before = h.reactions[actor.pid] || '';
+      if (before === value) return false;
+      if (value) h.reactions[actor.pid] = value; else delete h.reactions[actor.pid];
+      const people = b.members.filter((m) => m.role !== 'agent');
+      const allLove = people.length >= 2 && people.every((m) => h.reactions[m.pid] === 'love');
+      if (allLove && !h.match) { h.match = Date.now(); matched = h; event(b, 'match', actor.pid, h.id, `Group match: everyone loves ${shortAddr(h)}`); }
+      else if (!allLove && h.match) delete h.match;
+      if (value === 'love' && !matched) event(b, 'love', actor.pid, h.id, `${actor.name} loves ${shortAddr(h)}`);
+      if (value === 'pass') event(b, 'pass', actor.pid, h.id, `${actor.name} passed on ${shortAddr(h)}`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (out.result === 'missing') return res.status(404).json({ ok: false, error: 'no_home' });
+    if (matched) {
+      const dead = await notify(out.doc, null, 'Group match', `Everyone loves ${shortAddr(matched)}. Time to see it in person?`);
+      await dropDead(id, dead);
+    }
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'comment') {
+    const text = clip(body.text, 300);
+    if (!text) return res.status(400).json({ ok: false, error: 'empty' });
+    let home = null;
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      home = b.homes.find((x) => x.id === body.homeId);
+      if (!home) return 'missing';
+      if (home.comments.length >= MAX_COMMENTS) home.comments.shift();
+      home.comments.push({ id: store.newId(6), by: actor.pid, text, at: Date.now() });
+      event(b, 'comment', actor.pid, home.id, `${actor.name} on ${shortAddr(home)}: ${text}`);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (out.result === 'missing') return res.status(404).json({ ok: false, error: 'no_home' });
+    const dead = await notify(out.doc, actor.pid, `${actor.name} commented`, `${shortAddr(home)}: ${text.slice(0, 90)}`);
+    await dropDead(id, dead);
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'remove-home') {
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      const i = b.homes.findIndex((x) => x.id === body.homeId && x.addedBy === actor.pid);
+      if (i < 0) return 'missing';
+      b.homes.splice(i, 1);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    if (out.result === 'missing') return res.status(404).json({ ok: false, error: 'no_home' });
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  if (action === 'subscribe' || action === 'unsubscribe') {
+    const sub = body.subscription;
+    const endpoint = sub && typeof sub.endpoint === 'string' ? sub.endpoint : '';
+    if (action === 'subscribe' && (!/^https:\/\//.test(endpoint) || !sub.keys || !sub.keys.p256dh || !sub.keys.auth)) return res.status(400).json({ ok: false, error: 'bad_subscription' });
+    const out = await store.update(id, (b) => {
+      actor = memberByKey(b, key);
+      if (!actor) return 'forbidden';
+      b.subs = (b.subs || []).filter((s) => s.sub.endpoint !== endpoint && !(action === 'unsubscribe' && s.pid === actor.pid));
+      if (action === 'subscribe') b.subs.push({ pid: actor.pid, sub: { endpoint, keys: { p256dh: clip(sub.keys.p256dh, 200), auth: clip(sub.keys.auth, 60) } }, at: Date.now() });
+      if (b.subs.length > 40) b.subs = b.subs.slice(-40);
+    });
+    if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
+    if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
+    return res.status(200).json({ ok: true, board: view(out.doc) });
+  }
+
+  return res.status(400).json({ ok: false, error: 'unknown_action' });
+}

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Home Board | Dallas Collective Group</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#030C0D">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Home Board">
+    <meta property="og:title" content="You're invited to a home board">
+    <meta property="og:description" content="Save, react to and talk through homes together. From Josh Waters, Dallas Collective Group.">
+    <meta property="og:image" content="https://homestyledna.vercel.app/share-card.png?v=2">
+    <link rel="preload" href="/fonts/montserrat-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        @font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/montserrat-latin-500-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/montserrat-latin-600-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'Montserrat'; font-style: italic; font-weight: 600; font-display: swap; src: url('/fonts/montserrat-latin-600-italic.woff2') format('woff2'); }
+        :root {
+            --obsidian: #030C0D; --deep-ink: #06191A; --emerald: #0E2926; --emerald-lift: #213D37; --surface: #1E292B;
+            --gold: #E0B24D; --gold-highlight: #F6CE72; --soft-white: #F5F5F3; --silver: #A3A7A6;
+            --line: rgba(163, 167, 166, 0.16); --line-strong: rgba(163, 167, 166, 0.32);
+            --glow: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33, 61, 55, 0.55) 0%, rgba(14, 41, 38, 0.35) 35%, rgba(3, 12, 13, 0) 75%), var(--obsidian);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { background: var(--obsidian); color: var(--soft-white); font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; -webkit-font-smoothing: antialiased; }
+        body { background: var(--glow); background-attachment: fixed; min-height: 100vh; }
+        button, input, textarea { font-family: inherit; }
+        [hidden] { display: none !important; }
+        .wrap { max-width: 520px; margin: 0 auto; padding: calc(28px + env(safe-area-inset-top)) 20px 48px; }
+
+        .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+        .top a.back { color: var(--silver); text-decoration: none; font-size: 14px; }
+        .top img { width: 64px; height: auto; display: block; }
+        .kicker { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+        h1 { font-size: 30px; font-weight: 600; font-style: italic; line-height: 1.15; letter-spacing: -0.3px; margin-bottom: 14px; }
+        .members { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 18px; }
+        .member { font-size: 14px; color: var(--silver); }
+        .member b { color: var(--soft-white); font-weight: 600; }
+        .member i { color: var(--gold); font-style: italic; }
+        .actions { display: flex; gap: 10px; margin-bottom: 28px; }
+        .pill { flex: 1; background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 12px 14px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .pill svg { width: 16px; height: 16px; }
+        .pill:hover { border-color: var(--gold); color: var(--gold); }
+        .pill.on { border-color: rgba(224, 178, 77, 0.6); color: var(--gold); }
+        .btn { width: 100%; background: var(--gold); color: var(--obsidian); border: 0; border-radius: 999px; padding: 15px 20px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn:hover { background: var(--gold-highlight); }
+        .btn:disabled { opacity: 0.6; cursor: wait; }
+        .link { background: none; border: 0; color: var(--silver); font-size: 14px; cursor: pointer; padding: 10px; text-decoration: none; display: inline-block; }
+        .link:hover { color: var(--soft-white); }
+
+        .card { border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: rgba(6, 25, 26, 0.5); }
+        .join h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .join p { font-size: 15px; color: var(--silver); line-height: 1.55; margin-bottom: 18px; }
+        .field { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line-strong); color: var(--soft-white); font-size: 17px; padding: 10px 0; margin-bottom: 18px; }
+        .field:focus { outline: none; border-color: var(--gold); }
+        .field::placeholder { color: rgba(163, 167, 166, 0.55); }
+        .err { color: #E8A598; font-size: 13px; margin: -8px 0 12px; min-height: 1px; }
+
+        .tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+        .tab { background: none; border: 0; color: var(--silver); font-size: 15px; font-weight: 600; padding: 0 0 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab.active { color: var(--soft-white); border-color: var(--gold); }
+        .tab small { color: var(--gold); font-size: 12px; margin-left: 4px; }
+        .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .chip { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer; }
+        .chip.active { border-color: var(--gold); color: var(--gold); }
+
+        .add { display: flex; gap: 8px; margin-bottom: 22px; }
+        .add input { flex: 1; background: none; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--soft-white); padding: 12px 16px; font-size: 15px; min-width: 0; }
+        .add input:focus { outline: none; border-color: var(--gold); }
+        .add button { background: var(--gold); color: var(--obsidian); border: 0; border-radius: 999px; padding: 0 18px; font-weight: 600; font-size: 15px; cursor: pointer; }
+
+        .home { border-top: 1px solid var(--line); padding: 18px 0; }
+        .home:first-child { border-top: 0; padding-top: 4px; }
+        .badges { display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+        .badge { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+        .badge.match { color: var(--obsidian); background: var(--gold); padding: 3px 8px; border-radius: 999px; letter-spacing: 1px; }
+        .badge.muted { color: var(--silver); }
+        .addr { font-size: 17px; font-weight: 600; color: var(--soft-white); text-decoration: none; line-height: 1.35; display: inline-block; }
+        a.addr:hover { color: var(--gold); }
+        .meta { font-size: 14px; color: var(--silver); margin-top: 3px; }
+        .note { font-size: 14px; color: var(--soft-white); margin-top: 8px; line-height: 1.5; }
+        .row { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .react { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; font-size: 14px; cursor: pointer; }
+        .react svg { width: 16px; height: 16px; }
+        .react.mine-love { border-color: var(--gold); color: var(--gold); }
+        .react.mine-pass { border-color: var(--silver); color: var(--silver); }
+        .who { font-size: 13px; color: var(--silver); }
+        .view { margin-left: auto; font-size: 14px; color: var(--gold); text-decoration: none; }
+        .comments { margin-top: 12px; padding-left: 12px; border-left: 1px solid var(--line); }
+        .comment { font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
+        .comment b { font-weight: 600; margin-right: 6px; }
+        .comment span { color: var(--silver); font-size: 12px; margin-left: 6px; }
+        .say { display: flex; gap: 8px; margin-top: 6px; }
+        .say input { flex: 1; background: none; border: 0; border-bottom: 1px solid var(--line-strong); color: var(--soft-white); padding: 8px 0; font-size: 15px; min-width: 0; }
+        .say input:focus { outline: none; border-color: var(--gold); }
+        .say button { background: none; border: 0; color: var(--gold); font-weight: 600; font-size: 14px; cursor: pointer; }
+        .toggle { background: none; border: 0; color: var(--silver); font-size: 13px; cursor: pointer; padding: 6px 0 0; }
+        .empty { color: var(--silver); font-size: 15px; line-height: 1.6; padding: 12px 0 24px; }
+
+        .event { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+        .event:first-child { border-top: 0; }
+        .event time { color: var(--silver); font-size: 12px; white-space: nowrap; margin-left: auto; padding-left: 8px; }
+
+        .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+        .sheet { background: var(--deep-ink); border-top: 1px solid var(--line-strong); border-radius: 20px 20px 0 0; width: 100%; max-width: 520px; padding: 24px 22px calc(24px + env(safe-area-inset-bottom)); }
+        .sheet h3 { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+        .sheet p, .sheet li { font-size: 15px; color: var(--silver); line-height: 1.6; }
+        .sheet ol { padding-left: 20px; margin: 10px 0 18px; }
+        .sheet li b { color: var(--soft-white); }
+        .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--surface); color: var(--soft-white); padding: 12px 18px; border-radius: 999px; font-size: 14px; z-index: 60; max-width: 90vw; text-align: center; }
+
+        footer { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); text-align: center; color: var(--silver); font-size: 12px; line-height: 1.7; }
+        footer img.lockup { width: 120px; height: auto; margin: 0 auto 16px; display: block; }
+        footer a { color: var(--silver); }
+        footer .contact a { color: var(--soft-white); text-decoration: none; font-size: 14px; }
+        footer .marks { width: 100px; margin-top: 10px; opacity: 0.85; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <a class="back" href="/" id="quizLink">StyleDNA quiz</a>
+        <img src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606">
+    </div>
+
+    <div id="loading" class="empty">Loading your board...</div>
+    <div id="missing" class="empty" hidden>We couldn't find this board. Check the link, or <a href="/" style="color:var(--gold)">take the StyleDNA quiz</a> to start one.</div>
+
+    <main id="main" hidden>
+        <p class="kicker">Home board</p>
+        <h1 id="boardName"></h1>
+        <div class="members" id="members"></div>
+
+        <section class="card join" id="joinCard" hidden>
+            <h2 id="joinTitle">Join this board</h2>
+            <p id="joinText">Add your name to save homes, react and comment with everyone here.</p>
+            <input class="field" id="joinName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
+            <p class="err" id="joinErr"></p>
+            <button class="btn" id="joinBtn">Join the board</button>
+            <a class="link" id="quizFirst" href="/">Take the 60-second StyleDNA quiz first</a>
+        </section>
+
+        <div id="memberArea" hidden>
+            <div class="actions">
+                <button class="pill" id="inviteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Invite</button>
+                <button class="pill" id="alertBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="alertLabel">Get alerts</span></button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="homes">Homes<small id="homeCount"></small></button>
+                <button class="tab" data-tab="activity">Activity</button>
+            </div>
+
+            <section id="homesTab">
+                <form class="add" id="addForm">
+                    <input id="addInput" placeholder="Paste a joshwaters.com link or an address" autocomplete="off">
+                    <button type="submit" id="addBtn">Add</button>
+                </form>
+                <div class="filters" id="filters">
+                    <button class="chip active" data-f="all">All</button>
+                    <button class="chip" data-f="match">Group matches</button>
+                    <button class="chip" data-f="josh">Josh's picks</button>
+                    <button class="chip" data-f="loved">I loved</button>
+                </div>
+                <div id="homes"></div>
+            </section>
+            <section id="activityTab" hidden><div id="events"></div></section>
+        </div>
+    </main>
+
+    <footer>
+        <img class="lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606" loading="lazy">
+        <p class="contact"><b style="color:var(--soft-white);font-size:15px">Josh Waters</b><br><a href="tel:+14696706232">469.670.6232</a> &middot; <a href="mailto:josh@dallascollectivegroup.com">Email Josh</a></p>
+        <p style="margin-top:14px">Josh Waters, REALTOR&reg;, TX License 0833485<br>Dallas Collective Group<br>Brokered by Real Broker, LLC, License 9003138</p>
+        <p><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><br><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a></p>
+        <p>Listing details come from the listing pages and may change. Confirm everything with Josh before you act on it.</p>
+        <img class="marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
+    </footer>
+</div>
+
+<script>
+(function () {
+    const ARCH = { curator: 'The Curator', sanctuary: 'The Sanctuary Seeker', architect: 'The Experience Architect', custodian: 'The Heritage Custodian', visionary: 'The Visionary', authenticist: 'The Authenticist' };
+    const id = new URLSearchParams(location.search).get('id') || '';
+    const $ = (s) => document.getElementById(s);
+    const track = (name, data) => { try { window.va('event', { name, data: data || {} }); } catch (e) {} };
+    let board = null, me = null, filter = 'all', openComments = new Set(), busy = false;
+
+    const store = {
+        get() { try { return JSON.parse(localStorage.getItem('sdna_board_' + id) || 'null'); } catch (e) { return null; } },
+        set(v) { try { localStorage.setItem('sdna_board_' + id, JSON.stringify(v)); localStorage.setItem('sdna_last_board', id); } catch (e) {} },
+    };
+    // iPhone Home Screen apps don't share storage with Safari, so the personal link carries the member key.
+    (function keyFromLink() {
+        const q = new URLSearchParams(location.search);
+        if (q.get('k') && q.get('p') && !store.get()) store.set({ pid: q.get('p'), key: q.get('k'), name: q.get('n') || '' });
+    })();
+    function personalUrl() {
+        const q = new URLSearchParams({ id }); if (me) { q.set('p', me.pid); q.set('k', me.key); if (me.name) q.set('n', me.name); }
+        return location.pathname + '?' + q.toString();
+    }
+    const myResult = () => { try { return JSON.parse(localStorage.getItem('sdna_me') || 'null'); } catch (e) { return null; } };
+
+    function el(tag, attrs, ...kids) {
+        const n = document.createElement(tag);
+        Object.entries(attrs || {}).forEach(([k, v]) => {
+            if (v === null || v === undefined || v === false) return;
+            if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v);
+        });
+        kids.flat().forEach((k) => { if (k !== null && k !== undefined && k !== false) n.append(k.nodeType ? k : String(k)); });
+        return n;
+    }
+    const svg = (d) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '1.7'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.innerHTML = d; return s; };
+    const HEART = '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>';
+    const XMARK = '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
+    function toast(msg) { const t = el('div', { class: 'toast' }, msg); document.body.append(t); setTimeout(() => t.remove(), 2600); }
+    function ago(t) { const s = Math.max(1, Math.round((Date.now() - t) / 1000)); if (s < 60) return 'now'; const m = Math.round(s / 60); if (m < 60) return m + 'm'; const h = Math.round(m / 60); if (h < 24) return h + 'h'; const d = Math.round(h / 24); return d < 7 ? d + 'd' : new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+    const nameOf = (pid) => pid === 'josh' ? 'Josh' : ((board.members.find((m) => m.pid === pid) || {}).name || 'Someone');
+    const money = (n) => n ? '$' + Number(n).toLocaleString('en-US') : '';
+
+    async function api(body) {
+        const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ id, key: me && me.key }, body)) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) { const e = new Error(j.error || ('status ' + r.status)); e.code = j.error; throw e; }
+        if (j.board) { board = j.board; render(); }
+        return j;
+    }
+    async function load(quiet) {
+        try {
+            const r = await fetch('/api/board?id=' + encodeURIComponent(id), { cache: 'no-store' });
+            if (r.status === 404) { $('loading').hidden = true; $('missing').hidden = false; return; }
+            const j = await r.json();
+            if (j.ok) { board = j.board; render(); }
+        } catch (e) { if (!quiet) toast("Couldn't load the board. Check your connection."); }
+    }
+
+    function render() {
+        if (!board) return;
+        $('loading').hidden = true; $('main').hidden = false;
+        document.title = board.name + ' | Home Board';
+        $('boardName').textContent = board.name;
+        const saved = store.get();
+        me = saved && board.members.some((m) => m.pid === saved.pid) ? saved : null;
+        $('members').replaceChildren(...board.members.map((m) => el('span', { class: 'member' }, el('b', {}, m.pid === (me && me.pid) ? m.name + ' (you)' : m.name), m.archetype ? [' · ', el('i', {}, ARCH[m.archetype] || '')] : '')));
+        $('joinCard').hidden = !!me;
+        $('memberArea').hidden = !me;
+        if (!me) {
+            const r = myResult();
+            $('joinTitle').textContent = 'Join ' + board.name;
+            $('joinText').textContent = r && ARCH[r.a]
+                ? `Save homes, react and comment with everyone here. Your StyleDNA (${ARCH[r.a]}) will show on the board.`
+                : 'Save homes, react and comment with everyone here. Take the quiz first if you want your StyleDNA on the board.';
+            $('quizFirst').hidden = !!(r && ARCH[r.a]);
+            if (r && r.n && !$('joinName').value) $('joinName').value = r.n;
+            return;
+        }
+        $('alertBtn').classList.toggle('on', board.alerts.includes(me.pid));
+        $('alertLabel').textContent = board.alerts.includes(me.pid) ? 'Alerts on' : 'Get alerts';
+        $('homeCount').textContent = board.homes.length ? board.homes.length : '';
+        renderHomes(); renderEvents();
+    }
+
+    function renderHomes() {
+        let list = board.homes.slice();
+        if (filter === 'match') list = list.filter((h) => h.match);
+        if (filter === 'josh') list = list.filter((h) => h.source === 'josh');
+        if (filter === 'loved') list = list.filter((h) => h.reactions[me.pid] === 'love');
+        list.sort((a, b) => (b.match ? 1 : 0) - (a.match ? 1 : 0) || b.addedAt - a.addedAt);
+        if (!list.length) {
+            $('homes').replaceChildren(el('p', { class: 'empty' }, board.homes.length ? 'Nothing here yet.' :
+                "No homes yet. Paste a link from joshwaters.com above, or wait for Josh's picks. New listings that fit your StyleDNA show up here every morning."));
+            return;
+        }
+        $('homes').replaceChildren(...list.map(homeCard));
+    }
+
+    function homeCard(h) {
+        const mine = h.reactions[me.pid] || '';
+        const lovers = Object.entries(h.reactions).filter(([, v]) => v === 'love').map(([p]) => p === me.pid ? 'You' : nameOf(p));
+        const passers = Object.entries(h.reactions).filter(([, v]) => v === 'pass').map(([p]) => p === me.pid ? 'You' : nameOf(p));
+        const meta = [money(h.price), h.beds && h.beds + ' bd', h.baths && h.baths + ' ba', h.sqft && Number(h.sqft).toLocaleString('en-US') + ' sq ft', h.style, h.city].filter(Boolean).join(' · ');
+        const open = openComments.has(h.id);
+        const react = (value) => async () => {
+            if (busy) return; busy = true;
+            try { await api({ action: 'react', homeId: h.id, value: mine === value ? '' : value }); track('board_react', { value }); }
+            catch (e) { toast("Couldn't save that. Try again."); } finally { busy = false; }
+        };
+        const comments = el('div', { class: 'comments' },
+            h.comments.map((c) => el('p', { class: 'comment' }, el('b', {}, c.by === me.pid ? 'You' : nameOf(c.by)), c.text, el('span', {}, ago(c.at)))),
+            el('form', { class: 'say', onsubmit: async (e) => {
+                e.preventDefault(); const inp = e.target.querySelector('input'); const text = inp.value.trim(); if (!text || busy) return;
+                busy = true; try { await api({ action: 'comment', homeId: h.id, text }); track('board_comment'); } catch (err) { toast("Couldn't post that. Try again."); } finally { busy = false; }
+            } }, el('input', { placeholder: 'Add a comment', maxlength: '300' }), el('button', { type: 'submit' }, 'Post')));
+        comments.hidden = !open;
+        return el('article', { class: 'home' },
+            el('div', { class: 'badges' },
+                h.match ? el('span', { class: 'badge match' }, 'Group match') : null,
+                h.source === 'josh' ? el('span', { class: 'badge' }, "Josh's pick") : null,
+                h.isNew ? el('span', { class: 'badge' }, 'New listing') : null,
+                h.source !== 'josh' ? el('span', { class: 'badge muted' }, 'Added by ' + (h.addedBy === me.pid ? 'you' : nameOf(h.addedBy))) : null),
+            h.url ? el('a', { class: 'addr', href: h.url, target: '_blank', rel: 'noopener' }, h.address) : el('span', { class: 'addr' }, h.address),
+            meta ? el('p', { class: 'meta' }, meta) : null,
+            h.note ? el('p', { class: 'note' }, h.note) : null,
+            el('div', { class: 'row' },
+                el('button', { class: 'react' + (mine === 'love' ? ' mine-love' : ''), onclick: react('love'), 'aria-label': 'Love it' }, svg(HEART), lovers.length || ''),
+                el('button', { class: 'react' + (mine === 'pass' ? ' mine-pass' : ''), onclick: react('pass'), 'aria-label': 'Pass' }, svg(XMARK)),
+                el('span', { class: 'who' }, [lovers.length ? lovers.join(', ') + ' loved it' : '', passers.length ? (lovers.length ? '. ' : '') + passers.join(', ') + ' passed' : ''].join('')),
+                h.url ? el('a', { class: 'view', href: h.url, target: '_blank', rel: 'noopener' }, 'View →') : null),
+            el('button', { class: 'toggle', onclick: () => { open ? openComments.delete(h.id) : openComments.add(h.id); renderHomes(); } },
+                open ? 'Hide comments' : (h.comments.length ? `${h.comments.length} comment${h.comments.length === 1 ? '' : 's'}` : 'Comment')),
+            comments,
+            h.addedBy === me.pid && h.source !== 'josh' ? el('button', { class: 'toggle', style: 'margin-left:16px', onclick: async () => { try { await api({ action: 'remove-home', homeId: h.id }); } catch (e) { toast("Couldn't remove it."); } } }, 'Remove') : null);
+    }
+
+    function renderEvents() {
+        const ev = board.events || [];
+        $('events').replaceChildren(...(ev.length ? ev.map((e) => el('div', { class: 'event' }, el('span', {}, e.text), el('time', {}, ago(e.t)))) : [el('p', { class: 'empty' }, 'Nothing yet.')]));
+    }
+
+    // ---- join ----
+    $('joinBtn').addEventListener('click', async () => {
+        const name = $('joinName').value.trim();
+        if (!name) { $('joinErr').textContent = 'Add your first name.'; return; }
+        $('joinBtn').disabled = true; $('joinErr').textContent = '';
+        const r = myResult();
+        try {
+            const j = await api({ action: 'join', name, profile: r ? { archetype: r.a, loves: r.l || [] } : {} });
+            store.set({ pid: j.pid, key: j.key, name });
+            track('board_joined', { withResult: r ? 'yes' : 'no' });
+            render();
+            setTimeout(() => offerAlerts(true), 600);
+        } catch (e) {
+            $('joinErr').textContent = e.code === 'full' ? 'This board is full.' : "Couldn't join just now. Try again.";
+        } finally { $('joinBtn').disabled = false; }
+    });
+    $('quizFirst').href = '/?board=' + encodeURIComponent(id);
+    $('quizLink').href = '/?board=' + encodeURIComponent(id);
+
+    // ---- add a home ----
+    $('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const v = $('addInput').value.trim();
+        if (!v || busy) return;
+        const isLink = /^https?:\/\//i.test(v);
+        busy = true; $('addBtn').disabled = true; $('addBtn').textContent = '...';
+        try {
+            await api(Object.assign({ action: 'add-home' }, isLink ? { url: v } : { address: v }));
+            $('addInput').value = ''; filter = 'all'; setFilter('all'); toast('Added');
+            track('board_add', { link: isLink ? 'yes' : 'no' });
+        } catch (err) {
+            toast(err.code === 'already_added' ? "That home's already on the board." : err.code === 'bad_link' ? "That link didn't work. Try the address instead." : "Couldn't add it. Try again.");
+        } finally { busy = false; $('addBtn').disabled = false; $('addBtn').textContent = 'Add'; }
+    });
+
+    function setFilter(f) { filter = f; document.querySelectorAll('#filters .chip').forEach((c) => c.classList.toggle('active', c.dataset.f === f)); renderHomes(); }
+    document.querySelectorAll('#filters .chip').forEach((c) => c.addEventListener('click', () => setFilter(c.dataset.f)));
+    document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === t));
+        $('homesTab').hidden = t.dataset.tab !== 'homes'; $('activityTab').hidden = t.dataset.tab !== 'activity';
+    }));
+
+    // ---- invite ----
+    $('inviteBtn').addEventListener('click', () => {
+        const url = location.origin + '/board.html?id=' + encodeURIComponent(id);
+        const text = `Join our home board. We can save homes, react and comment in one place:`;
+        track('board_invite');
+        if (navigator.share) { navigator.share({ title: board.name, text, url }).catch(() => {}); return; }
+        (navigator.clipboard ? navigator.clipboard.writeText(text + ' ' + url) : Promise.reject()).then(() => toast('Invite link copied'), () => toast(url));
+    });
+
+    // ---- alerts ----
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const pushReady = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    function sheet(title, body, actions) {
+        const bg = el('div', { class: 'sheet-bg', onclick: (e) => { if (e.target === bg) bg.remove(); } },
+            el('div', { class: 'sheet' }, el('h3', {}, title), body, actions(bg)));
+        document.body.append(bg);
+    }
+    function offerAlerts(afterJoin) {
+        if (!me || board.alerts.includes(me.pid)) return;
+        if (afterJoin && window.Notification && Notification.permission === 'denied') return;
+        const iosSteps = isIOS && !standalone;
+        if (iosSteps) { try { history.replaceState(null, '', personalUrl()); } catch (e) {} }
+        sheet(iosSteps ? 'Get alerts on your iPhone' : 'Get alerts for new homes',
+            iosSteps
+                ? el('div', {}, el('p', {}, 'iPhone only sends alerts from websites saved to your Home Screen. It takes 10 seconds:'),
+                    el('p', { style: 'font-size:13px' }, 'This page link is now personal to you, so use the Invite button to share the board.'),
+                    el('ol', {}, el('li', {}, 'Tap the ', el('b', {}, 'Share'), ' button at the bottom of Safari.'), el('li', {}, 'Tap ', el('b', {}, 'Add to Home Screen'), ', then ', el('b', {}, 'Add'), '.'), el('li', {}, 'Open ', el('b', {}, 'Home Board'), ' from your Home Screen and tap ', el('b', {}, 'Get alerts'), '.')))
+                : el('p', { style: 'margin-bottom:18px' }, "We'll let you know when a new listing fits your StyleDNA, when someone adds a home and when you all love the same one."),
+            (bg) => iosSteps
+                ? el('button', { class: 'btn', onclick: () => bg.remove() }, 'Got it')
+                : el('div', {}, el('button', { class: 'btn', onclick: async () => { bg.remove(); await enableAlerts(); } }, 'Turn on alerts'), el('button', { class: 'link', style: 'display:block;margin:6px auto 0', onclick: () => bg.remove() }, 'Not now')));
+    }
+    function b64ToBytes(b64) { const pad = '='.repeat((4 - b64.length % 4) % 4); const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...raw].map((c) => c.charCodeAt(0))); }
+    async function enableAlerts() {
+        if (!pushReady) { toast("This browser can't show alerts."); return; }
+        try {
+            const perm = await Notification.requestPermission();
+            if (perm !== 'granted') { toast('Alerts are off. You can turn them on in your phone settings.'); return; }
+            const reg = await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.ready;
+            const k = await (await fetch('/api/board?vapid=1')).json();
+            if (!k.key) { toast("Alerts aren't set up yet."); return; }
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(k.key) });
+            await api({ action: 'subscribe', subscription: sub.toJSON() });
+            track('board_alerts_on', { ios: isIOS ? 'yes' : 'no' });
+            toast("Alerts on. We'll keep you posted.");
+        } catch (e) { console.warn(e); toast("Couldn't turn on alerts. Try again."); }
+    }
+    $('alertBtn').addEventListener('click', async () => {
+        if (board.alerts.includes(me.pid)) {
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                const sub = reg && await reg.pushManager.getSubscription();
+                await api({ action: 'unsubscribe', subscription: sub ? sub.toJSON() : {} });
+                if (sub) await sub.unsubscribe();
+                toast('Alerts off');
+            } catch (e) { toast("Couldn't change alerts."); }
+            return;
+        }
+        if (isIOS && !standalone) return offerAlerts(false);
+        enableAlerts();
+    });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'refresh') load(true); });
+    }
+
+    if (!id) { $('loading').hidden = true; $('missing').hidden = false; return; }
+    load();
+    setInterval(() => { if (document.visibilityState === 'visible') load(true); }, 20000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') load(true); });
+})();
+</script>
+</body>
+</html>

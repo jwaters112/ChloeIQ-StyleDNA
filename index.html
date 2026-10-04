@@ -1279,6 +1279,10 @@
         .btn-outline { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 13px 22px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; }
         .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
         .form-textarea { resize: none; line-height: 1.5; font-size: 16px; }
+        .board-start { max-width: 320px; margin: 0 auto; }
+        .board-start .form-input { text-align: center; margin-bottom: 12px; }
+        a.board-open { display: block; text-decoration: none; text-align: center; max-width: 320px; margin: 0 auto; }
+        .board-return { margin: 0 0 8px; }
 
         @media (min-width: 700px) {
             .welcome-headline { font-size: 42px; }
@@ -1317,6 +1321,7 @@
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
                 <p class="welcome-subheading">Every home has a personality. So do you. Swipe through twelve rooms, answer a few questions and find out yours.</p>
                 <p class="partner-invite" id="partnerInvite" hidden></p>
+                <p class="partner-invite" id="boardInvite" hidden>You're invited to a home board. Take the quiz so your StyleDNA shows on it, then join.</p>
                 <button class="welcome-cta" id="startBtn" onclick="startQuiz()">Find my StyleDNA</button>
                 <button class="text-link" id="compareSavedBtn" hidden onclick="compareSaved()">Compare my saved result instead</button>
                 <button class="text-link" id="lastResultBtn" hidden onclick="compareSaved()">See my last result</button>
@@ -1555,6 +1560,10 @@
                     </div>
                 </div>
 
+                <div class="results-section board-return" id="boardReturn" hidden>
+                    <a class="welcome-cta" id="boardReturnLink" href="#" style="display:block;text-align:center;text-decoration:none">Back to the home board</a>
+                </div>
+
                 <div class="results-section compare-section" id="compareResult" hidden>
                     <h3 class="results-section-title" id="compareTitle">You and Your Partner</h3>
                     <div class="compare-pair">
@@ -1584,8 +1593,14 @@
                     <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
                     <div class="invite-block" id="inviteBlock">
                         <p class="invite-title">House hunting with someone?</p>
-                        <p class="invite-text">Send them the quiz. When they finish, you'll both see where your styles overlap.</p>
-                        <button class="btn-outline" onclick="invitePartner()">Compare with a partner</button>
+                        <p class="invite-text">Start a home board. Save homes, react and comment together, and get an alert when a new listing fits your style.</p>
+                        <div class="board-start" id="boardStart">
+                            <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
+                            <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board</button>
+                            <p class="form-error" id="boardError" role="alert"></p>
+                        </div>
+                        <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
+                        <button class="text-link" onclick="invitePartner()">Or just compare styles with someone</button>
                     </div>
                     <div class="redo-links">
                         <button class="text-link" onclick="editSearch()">Change budget, home type or area</button>
@@ -2297,6 +2312,7 @@
             document.getElementById('examplesNote').hidden = loves.length === 0;
             saveMyResult();
             renderCompare();
+            renderBoardBits();
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
@@ -2438,6 +2454,7 @@
                 homeType: selectedHomeType ? selectedHomeTypeLabel : '',
                 dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
                 partner: partner ? { name: partner.n || '', archetype: archetypes[partner.a].name } : null,
+                board: boardParam || lastBoardId(),
                 archetype: archetypes[userArchetype].name,
                 budget: selectedPrice,
                 preferences: userPreferences,
@@ -2622,6 +2639,47 @@
         function sendBack() {
             shareLink('My StyleDNA', `I took it. I'm ${archetypes[userArchetype].name}. Open this to see how we compare:`, encodeResult(), 'send_back');
         }
+        // ===== Home boards =====
+        const boardParam = (new URLSearchParams(window.location.search).get('board') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
+        function lastBoardId() { try { return localStorage.getItem('sdna_last_board') || ''; } catch (e) { return ''; } }
+        function renderBoardBits() {
+            const back = document.getElementById('boardReturn');
+            if (boardParam) { back.hidden = false; document.getElementById('boardReturnLink').href = '/board.html?id=' + boardParam; }
+            const last = lastBoardId();
+            document.getElementById('boardStart').hidden = !!last;
+            const open = document.getElementById('boardOpen');
+            open.hidden = !last;
+            if (last) open.href = '/board.html?id=' + last;
+            const nm = document.getElementById('boardName');
+            if (!nm.value && firstName()) nm.value = firstName();
+        }
+        async function startBoard() {
+            const nameEl = document.getElementById('boardName'), err = document.getElementById('boardError'), btn = document.getElementById('boardBtn');
+            const name = nameEl.value.trim();
+            if (!name) { err.textContent = 'Add your first name.'; err.classList.add('show'); nameEl.focus(); return; }
+            err.textContent = ''; err.classList.remove('show');
+            btn.disabled = true; btn.textContent = 'Starting...';
+            try {
+                const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    action: 'create', name,
+                    profile: { archetype: userArchetype, loves: loves.map(h => h.style) },
+                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: (userData && userData.neighborhood) || selectedArea }
+                }) });
+                const j = await r.json();
+                if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
+                try {
+                    localStorage.setItem('sdna_board_' + j.id, JSON.stringify({ pid: j.pid, key: j.key, name }));
+                    localStorage.setItem('sdna_last_board', j.id);
+                } catch (e) {}
+                track('board_created', { archetype: userArchetype });
+                window.location.href = '/board.html?id=' + j.id;
+            } catch (e) {
+                err.textContent = "Couldn't start the board just now. Please try again."; err.classList.add('show');
+                btn.disabled = false; btn.textContent = 'Start a home board';
+            }
+        }
+        (function boardInviteNote() { if (boardParam) document.getElementById('boardInvite').hidden = false; })();
+
         (function offerLastResult() {
             const m = loadMyResult();
             if (!m || new URLSearchParams(window.location.search).get('pa')) return;

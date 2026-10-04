@@ -1,0 +1,9 @@
+{
+  "name": "homestyledna",
+  "private": true,
+  "description": "StyleDNA quiz and home boards (Vercel static site + serverless functions)",
+  "dependencies": {
+    "@vercel/blob": "^2.8.0",
+    "web-push": "^3.6.7"
+  }
+}
