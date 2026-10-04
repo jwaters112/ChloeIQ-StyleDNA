@@ -122,8 +122,20 @@ module.exports = async function handler(req, res) {
   }
 };
 
+// joshwaters.com listing pages save straight to the board (the Save button runs there).
+const ALLOWED_ORIGINS = ['https://joshwaters.com', 'https://www.joshwaters.com'].concat(process.env.BOARD_STORE_DIR && process.env.EXTRA_ORIGIN ? [process.env.EXTRA_ORIGIN] : []);
+
 async function handle(req, res) {
   res.setHeader('Cache-Control', 'no-store');
+  const origin = req.headers.origin || '';
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+  if (req.method === 'OPTIONS') return res.status(204).end();
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (limited(ip)) return res.status(429).json({ ok: false, error: 'too_many' });
 
@@ -154,6 +166,7 @@ async function handle(req, res) {
       criteria: {
         archetype: prof.archetype, budget: Number.isInteger(c.budget) ? c.budget : null, budgetLabel: clip(c.budgetLabel, 30),
         homeType: clip(c.homeType, 30), homeTypeLabel: clip(c.homeTypeLabel, 30), area: clip(c.area, 60),
+        areas: (Array.isArray(c.areas) ? c.areas : (c.area ? [c.area] : [])).slice(0, 6).map((a) => clip(a, 60)).filter(Boolean),
       },
       members: [member], homes: [], events: [], subs: [],
     };
@@ -242,15 +255,24 @@ async function handle(req, res) {
     const link = clip(body.url, 500);
     const typed = clip(body.address, 90);
     if (!link && !typed) return res.status(400).json({ ok: false, error: 'missing' });
-    const info = link ? await describeLink(link) : { url: '', address: typed };
+    // From the Save button: the listing page already told us the details, so don't fetch it.
+    const d = body.details && typeof body.details === 'object' ? body.details : null;
+    let info;
+    if (link && d && /^https:\/\/(www\.)?joshwaters\.com\/listing-detail\//.test(link)) {
+      info = { url: link.split('#')[0].split('?')[0], address: clip(d.address, 90), mls: clip(d.mls, 12).replace(/\D/g, ''),
+        price: money(d.price), beds: clip(d.beds, 4), baths: clip(d.baths, 5), sqft: clip(d.sqft, 7).replace(/\D/g, '') };
+    } else {
+      info = link ? await describeLink(link) : { url: '', address: typed };
+    }
     if (!info) return res.status(400).json({ ok: false, error: 'bad_link' });
     if (!info.address) info.address = typed || 'Home';
-    let home = null;
+    let home = null, dupId = '';
     const out = await store.update(id, (b) => {
       actor = memberByKey(b, key);
       if (!actor) return 'forbidden';
       if (b.homes.length >= MAX_HOMES) return 'full';
-      if (info.url && b.homes.some((h) => h.url === info.url)) return 'dupe';
+      const same = info.url && b.homes.find((h) => h.url === info.url || (info.mls && h.mls === info.mls));
+      if (same) { dupId = same.id; return 'dupe'; }
       home = { id: store.newId(8), source: 'member', mls: info.mls || '', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
         addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
       const note = clip(body.note, 300);
@@ -260,11 +282,11 @@ async function handle(req, res) {
     });
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
-    if (out.result === 'dupe') return res.status(409).json({ ok: false, error: 'already_added' });
+    if (out.result === 'dupe') return res.status(409).json({ ok: false, error: 'already_added', homeId: dupId, boardName: out.doc.name });
     if (out.result === 'full') return res.status(409).json({ ok: false, error: 'full' });
     const dead = await notify(out.doc, actor.pid, out.doc.name, `${actor.name} added ${shortAddr(home)}`);
     await dropDead(id, dead);
-    return res.status(200).json({ ok: true, board: view(out.doc) });
+    return res.status(200).json({ ok: true, homeId: home.id, board: view(out.doc) });
   }
 
   if (action === 'react') {

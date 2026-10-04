@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Connecting your board | StyleDNA</title>
+<meta name="theme-color" content="#030C0D">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 500; src: url('/fonts/montserrat-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 600; font-style: italic; src: url('/fonts/montserrat-latin-600-italic.woff2') format('woff2'); }
+  html, body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33,61,55,.55) 0%, rgba(14,41,38,.35) 35%, rgba(3,12,13,0) 75%), #030C0D; color: #F5F5F3; font-family: 'Montserrat', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 420px; margin: 0 auto; padding: 22vh 24px 40px; text-align: center; }
+  p.k { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #E0B24D; margin: 0 0 10px; }
+  h1 { font-size: 26px; font-weight: 600; font-style: italic; margin: 0 0 12px; }
+  p { color: #A3A7A6; font-size: 15px; line-height: 1.6; margin: 0 0 22px; }
+  a.btn { display: block; background: #E0B24D; color: #030C0D; text-decoration: none; border-radius: 999px; padding: 15px; font-weight: 600; margin-bottom: 8px; }
+  a.link { display: block; color: #A3A7A6; padding: 12px; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <p class="k">StyleDNA</p>
+  <h1>Connecting your board...</h1>
+</div>
+<script>
+(function () {
+  // Hands this phone's home board connection back to joshwaters.com so the Save button works there.
+  // Only ever returns to joshwaters.com, so the board key can't be sent anywhere else.
+  var q = new URLSearchParams(location.search);
+  var ret = q.get('return') || 'https://joshwaters.com/';
+  var ok = false;
+  try { var u = new URL(ret); ok = u.protocol === 'https:' && (u.hostname === 'joshwaters.com' || u.hostname === 'www.joshwaters.com'); } catch (e) {}
+  if (!ok) ret = 'https://joshwaters.com/';
+  var id = '', m = null;
+  try {
+    id = localStorage.getItem('sdna_last_board') || '';
+    m = id ? JSON.parse(localStorage.getItem('sdna_board_' + id) || 'null') : null;
+  } catch (e) {}
+  if (id && m && m.pid && m.key) {
+    location.replace(ret.split('#')[0] + '#sdna=' + id + '.' + m.pid + '.' + m.key);
+    return;
+  }
+  document.getElementById('wrap').innerHTML =
+    '<p class="k">StyleDNA</p><h1>No home board on this phone yet</h1>' +
+    '<p>Start one from your StyleDNA result, or open the board link someone sent you on this phone, then tap Save again.</p>' +
+    '<a class="btn" href="/?utm_source=joshwaters&utm_medium=connect">Take the StyleDNA quiz</a>' +
+    '<a class="link" href="' + ret.replace(/"/g, '') + '">Back to the listing</a>';
+})();
+</script>
+</body>
+</html>

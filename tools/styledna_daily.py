@@ -147,7 +147,7 @@ def board_picks(data, boards_path, out_path, per_board=3):
         if not c.get('archetype'):
             continue
         lo, hi = BUDGETS.get(c.get('budget'), (0, 0))
-        lead = {'archetype': c['archetype'], 'area': c.get('area') or '', 'priceMin': lo, 'priceMax': hi}
+        lead = {'archetype': c['archetype'], 'area': c.get('areas') or c.get('area') or '', 'priceMin': lo, 'priceMax': hi}
         have = set(b.get('mls') or [])
         picks = [t for t in sm.match(tags, lead, n=per_board + len(have)) if str(t.get('mls')) not in have][:per_board]
         if not picks:
