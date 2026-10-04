@@ -6,7 +6,7 @@
   if (window.__sdnaSave) return;
   window.__sdnaSave = true;
 
-  var APP = window.__SDNA_APP || 'https://homestyledna.vercel.app';
+  var APP = window.__SDNA_APP || 'https://homestyledna.com';
   var API = APP + '/api/board';
   var STORE = 'sdna_conn';
 

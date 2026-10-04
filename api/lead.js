@@ -148,7 +148,7 @@ async function handle(req, res) {
   if (dream) noteLines.splice(1, 0, 'In their words: "' + dream + '"');
   if (partnerArch) noteLines.push('Compared with: ' + (partnerName || 'a partner') + ' (' + partnerArch + ')');
   const boardId = clip(body.board, 24).replace(/[^A-Za-z0-9]/g, '');
-  if (boardId) noteLines.push('Home board: https://homestyledna.vercel.app/board.html?id=' + boardId);
+  if (boardId) noteLines.push('Home board: https://homestyledna.com/board.html?id=' + boardId);
   if (utmBits.length) noteLines.push('Came from: ' + utmBits.join(', '));
 
   const lead = {

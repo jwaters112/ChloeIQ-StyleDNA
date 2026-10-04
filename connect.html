@@ -41,6 +41,11 @@
     location.replace(ret.split('#')[0] + '#sdna=' + id + '.' + m.pid + '.' + m.key);
     return;
   }
+  // Boards started before the move to homestyledna.com live on the old address; look there once.
+  if (location.hostname === 'homestyledna.com' && !q.get('legacy')) {
+    location.replace('https://homestyledna.vercel.app/connect.html?legacy=1&return=' + encodeURIComponent(ret));
+    return;
+  }
   document.getElementById('wrap').innerHTML =
     '<p class="k">StyleDNA</p><h1>No home board on this phone yet</h1>' +
     '<p>Start one from your StyleDNA result, or open the board link someone sent you on this phone, then tap Save again.</p>' +
