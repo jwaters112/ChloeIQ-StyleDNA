@@ -158,3 +158,14 @@ Report the count in the wrap-up: "3 boards got new listings, 4 alerts sent".
 Write `runs/DATE.txt` on the Mac and push Josh a short note:
 "StyleDNA: 14,468 active homes, 1,500 new photo reads (11,766 left), 2 new quiz leads got matches
 in Lofty." Use the real numbers, and say if anything stopped early and why.
+
+## Cloud jobs (no Mac needed)
+
+Vercel runs `/api/daily` on its own schedule (see `crons` in vercel.json):
+- 6:00 am CT (`part=all`): checks every saved home on every board against Lofty (price drops,
+  under contract, sold, back on market, off market after two missed checks, new open houses),
+  updates the boards, sends phone and email alerts, then writes one Lofty note per lead with
+  their StyleDNA and joshwaters.com activity since the last note.
+- 6:00 pm CT (`part=listings`): the listing check only.
+The live job only runs for Vercel's scheduler (CRON_SECRET). On the test site it can be run by
+hand and limited with `&board=<id>` or `&visitor=<leadId>`.

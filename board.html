@@ -369,8 +369,8 @@
         const recent = h.lastChange && Date.now() - h.lastChange.t < 14 * 86400000 ? h.lastChange : null;
         const statusBadge = /under contract|sold|off market|coming soon/i.test(st) ? el('span', { class: 'badge alert' }, st) : null;
         const changeBadge = recent && (recent.kind === 'drop' || recent.kind === 'back' || recent.kind === 'open') ? el('span', { class: 'badge drop' }, recent.label) : null;
-        const ohStart = h.openHouse && h.openHouse.start ? Date.parse(String(h.openHouse.start).replace(' ', 'T')) : 0;
-        const oh = ohStart && ohStart > Date.now() - 6 * 3600000 ? el('p', { class: 'oh' }, 'Open house: ' + (h.openHouse.text || h.openHouse.start)) : null;
+        const ohDay = h.openHouse && h.openHouse.start ? String(h.openHouse.start).slice(0, 10) : '';
+        const oh = ohDay && ohDay >= new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' }) ? el('p', { class: 'oh' }, 'Open house: ' + (h.openHouse.text || h.openHouse.start)) : null;
         const pic = h.photo ? (h.url ? el('a', { href: withFrag(h.url), target: '_blank', rel: 'noopener' }, el('img', { class: 'photo', src: h.photo, alt: '', loading: 'lazy' })) : el('img', { class: 'photo', src: h.photo, alt: '', loading: 'lazy' })) : null;
         return el('article', { class: 'home' },
             pic,

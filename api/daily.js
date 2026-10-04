@@ -10,6 +10,8 @@ const money = (n) => '$' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{
 const short = (a) => String(a || 'a home').split(',')[0];
 const DAY = 86400000;
 const OFF = (s) => /off market|sold/i.test(s || '');
+const todayCT = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
+const upcoming = (start) => String(start || '').slice(0, 10) >= todayCT();
 
 let webpush = null;
 function push() {
@@ -60,7 +62,7 @@ function compare(h, L, lookupOk, now) {
       change = { kind: 'drop', label: `Price drop ${money(drop)}`, text: `${short(h.address)} dropped ${money(drop)} to ${money(L.price)}.` };
     }
     if (L.price && st !== 'Sold') h.price = L.price;
-    if (L.openHouse && L.openHouse.start && L.openHouse.start !== (h.openHouse && h.openHouse.start) && Date.parse(L.openHouse.start.replace(' ', 'T')) > now - 6 * 3600000) {
+    if (L.openHouse && L.openHouse.start && L.openHouse.start !== (h.openHouse && h.openHouse.start) && upcoming(L.openHouse.start)) {
       h.openHouse = L.openHouse;
       if (!change) change = { kind: 'open', label: 'Open house', text: `Open house at ${short(h.address)}: ${L.openHouse.text}.` };
     }
@@ -140,7 +142,7 @@ function summarize(browse, events, since) {
   list('contact', 'Clicked contact');
   const ev = (events || []).filter((e) => e.t > since);
   const count = (kind) => ev.filter((e) => e.kind === kind).length;
-  const bits = [count('love') && `${count('love')} hearts`, count('pass') && `${count('pass')} passes`, count('comment') && `${count('comment')} comments`, count('add') && `${count('add')} homes added`].filter(Boolean);
+  const bits = [count('love') && `${count('love')} heart${count('love') === 1 ? '' : 's'}`, count('pass') && `${count('pass')} pass${count('pass') === 1 ? '' : 'es'}`, count('comment') && `${count('comment')} comment${count('comment') === 1 ? '' : 's'}`, count('add') && `${count('add')} home${count('add') === 1 ? '' : 's'} added`].filter(Boolean);
   if (bits.length) lines.push(`On their board: ${bits.join(', ')}`);
   ev.filter((e) => e.kind === 'comment').slice(0, 3).forEach((e) => lines.push(`Comment: ${e.text}`));
   return lines;

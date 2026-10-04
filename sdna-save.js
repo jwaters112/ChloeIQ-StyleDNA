@@ -264,7 +264,7 @@
         var c = JSON.parse(raw), loc = c.location || {};
         if (loc.city) bits.push([].concat(loc.city).join(', '));
         if (loc.zipCode) bits.push('ZIP ' + [].concat(loc.zipCode).join(', '));
-        if (c.price) bits.push('$' + String(c.price).replace(',', ' to $'));
+        if (c.price) bits.push(String(c.price).split(',').map(function (n) { n = Number(n); return !n ? 'any' : n >= 1e6 ? '$' + (n / 1e6).toFixed(n % 1e6 ? 1 : 0) + 'M' : '$' + Math.round(n / 1000) + 'K'; }).join(' to '));
         if (c.beds || c.bedroom) bits.push((c.beds || c.bedroom) + '+ bd');
         if (c.propertytype) bits.push([].concat(c.propertytype).join(', '));
         if (c.style) bits.push('style ' + [].concat(c.style).slice(0, 2).join(', '));
