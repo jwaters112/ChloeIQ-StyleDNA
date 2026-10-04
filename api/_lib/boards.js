@@ -48,10 +48,20 @@ async function read(id) {
     const text = fs.readFileSync(f, 'utf8');
     return { doc: JSON.parse(text), etag: crypto.createHash('md5').update(text).digest('hex') };
   }
+  // The ETag comes from head() (the storage API's own ETag, which put's ifMatch checks), taken
+  // before the content is read. If the board changes in between, the write is refused and retried.
+  let etag = '';
+  try {
+    const h = await blobLib().head(keyFor(id));
+    etag = h && h.etag;
+  } catch (err) {
+    if (err && err.name === 'BlobNotFoundError') return null;
+    throw err;
+  }
   const r = await blobLib().get(keyFor(id), { access: 'private', useCache: false });
   if (!r) return null;
   const text = await streamToString(r.stream);
-  return { doc: JSON.parse(text), etag: r.blob && r.blob.etag };
+  return { doc: JSON.parse(text), etag };
 }
 
 async function write(id, doc, etag) {
@@ -72,6 +82,7 @@ async function write(id, doc, etag) {
     await blobLib().put(keyFor(id), text, opts);
   } catch (err) {
     if (err && (err.name === 'BlobPreconditionFailedError' || /precondition/i.test(err.message || ''))) {
+      console.warn('board write conflict, retrying', id);
       const e = new Error('precondition'); e.precondition = true; throw e;
     }
     throw err;
