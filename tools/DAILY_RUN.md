@@ -123,6 +123,10 @@ fails, skip it: photo_styles.csv is the one that matters).
   with "StyleDNA matches for".
 - Build the lead record: archetype from the tag `StyleDNA: <name>`, area from `Area: <name>`,
   price from the lead's inquiry `priceMin` / `priceMax` (or the `Budget:` tag).
+- Tags only cover single-family homes for now. If the lead has a `Home type:` tag of Townhome,
+  Condo or Land, skip the matches and add a one-line note instead: "StyleDNA: wants <type>, no
+  style-tagged <type> listings yet. Their joshwaters.com link is filtered to <type>."
+- If the note has an `In their words:` line, keep it in mind when checking the matches.
 - `python3 tools/styledna_match.py WORK/tags.csv leads.json matches.json`
 - For each match line, swap the search link for the home's own page: WebFetch the search link and
   take the `https://joshwaters.com/listing-detail/...` link whose address matches. Keep the search
