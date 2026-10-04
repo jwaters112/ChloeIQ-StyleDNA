@@ -117,7 +117,8 @@ fails, skip it: photo_styles.csv is the one that matters).
 
 ### 6. Matches for new quiz leads (Lofty connector, no Mac needed)
 - `search_leads` with `filters: {anyTags: ["StyleDNA Quiz"]}`, newest first, created in the last
-  14 days.
+  14 days. If Lofty answers "tags ... by name not found", no quiz lead exists yet (the quiz is not
+  live until Josh approves it): skip this step and say "no quiz leads yet".
 - For each lead, `search_lead_activities` for its notes. Skip the lead if a note already starts
   with "StyleDNA matches for".
 - Build the lead record: archetype from the tag `StyleDNA: <name>`, area from `Area: <name>`,
