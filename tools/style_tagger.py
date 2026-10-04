@@ -209,6 +209,7 @@ PHOTO_INTERIOR = {'m': ('visionary', 1.0, 'modern'), 'l': ('curator', 1.0, 'luxe
                   's': ('sanctuary', 0.5, 'soft transitional'), 't': ('custodian', 0.5, 'traditional'),
                   'r': ('authenticist', 1.0, 'rustic'), 'x': (None, 0, 'dated')}
 PHOTOS = {}  # mls -> (exterior code, interior code), filled in main()
+ZIPS = {}  # mls -> ZIP from the Matrix photo page (the export has no ZIP column)
 
 
 def rarity(label):
@@ -345,6 +346,7 @@ def tag(row):
         'status': row.get('Mls Status', ''),
         'address': re.sub(r'\s+', ' ', row.get('Address', '')).strip(),
         'city': row.get('City', ''),
+        'zip': ZIPS.get(row.get('ML #', ''), ''),
         'subdivision': row.get('Subdivision Name', ''),
         'price': row.get('Current Price', ''),
         'year_built': year or '',
@@ -377,6 +379,8 @@ def main():
         i = args.index('--photos')
         for r in csv.DictReader(open(args[i + 1])):
             PHOTOS[r['mls']] = (r['photo_exterior'], r.get('photo_interior', ''))
+            if r.get('zip'):
+                ZIPS[r['mls']] = r['zip']
         del args[i:i + 2]
     sys.argv[1:] = args
     src, out = sys.argv[1], sys.argv[2]
