@@ -1121,7 +1121,7 @@
         .swipe-card-style { font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
         .swipe-card-title { font-size: 22px; font-style: normal; margin-bottom: 4px; }
         .swipe-card-description { font-size: 14px; color: rgba(245, 245, 243, 0.78); }
-        .swipe-footer { gap: 40px; padding: 18px 20px 30px; }
+        .swipe-footer { gap: 28px; padding: 18px 20px 30px; }
         .swipe-button { width: 60px; height: 60px; font-size: 22px; border: 1px solid var(--line-strong); background: none; }
         .swipe-button-yes { border-color: rgba(224, 178, 77, 0.6); }
         .swipe-button:hover { transform: none; border-color: var(--gold); box-shadow: none; }
@@ -1239,6 +1239,60 @@
         .activation-link { display: block; width: 100%; margin-top: 6px; }
         .activation-link-quiet { font-size: 14px; opacity: 0.8; }
 
+
+        /* Search screen chips */
+        .chip-label { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); margin: 4px 0 12px; }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+        .chip { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 10px 16px; font-size: 15px; font-weight: 500; cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+        .chip:hover { border-color: var(--silver); }
+        .chip.active { border-color: var(--gold); color: var(--gold); }
+        #searchArea { margin-bottom: 32px; }
+        #searchError { margin: -16px 0 16px; }
+
+        /* Links that look like buttons */
+        a.activation-cta { display: block; text-align: center; text-decoration: none; }
+        a.homes-go, a.homes-all, a.activation-link { text-decoration: none; text-align: center; }
+        a.homes-all { text-align: right; }
+
+        .examples-note { font-size: 13px; color: var(--silver); margin: -8px 0 18px; opacity: 0.85; }
+        .partner-invite { font-size: 15px; line-height: 1.6; color: var(--soft-white); margin: -12px 0 24px; padding: 14px 16px; border: 1px solid rgba(224, 178, 77, 0.35); border-radius: 12px; max-width: 340px; }
+
+        .compare-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+        .compare-who { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--silver); margin-bottom: 4px; }
+        .compare-arch { font-size: 18px; font-weight: 600; font-style: italic; color: var(--gold); line-height: 1.25; }
+        .compare-read { font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
+        .compare-overlap { font-size: 14px; line-height: 1.5; color: var(--silver); margin-bottom: 6px; }
+        .compare-send { margin-top: 14px; }
+        .swipe-back { background: none; border: 0; color: var(--silver); font-size: 30px; line-height: 1; width: 36px; height: 36px; margin-left: -10px; cursor: pointer; flex-shrink: 0; }
+        .swipe-back:hover { color: var(--soft-white); }
+        .swipe-undo { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--silver); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity .2s ease, color .15s ease; }
+        .swipe-undo svg { width: 18px; height: 18px; }
+        .swipe-undo:disabled { opacity: 0.25; cursor: default; }
+        .swipe-undo:not(:disabled):hover { color: var(--soft-white); border-color: var(--line-strong); }
+        .results-screen { position: relative; }
+        .redo-links { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+        .redo-links .text-link { font-size: 14px; text-decoration: none; margin: 0; }
+
+        .invite-block { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
+        .invite-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+        .invite-text { font-size: 14px; line-height: 1.55; color: var(--silver); margin: 0 auto 16px; max-width: 320px; }
+        .btn-outline { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 13px 22px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .form-textarea { resize: none; line-height: 1.5; font-size: 16px; }
+        [hidden] { display: none !important; }
+        .social { margin: 26px auto 0; text-align: center; }
+        .social-title { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); margin-bottom: 12px; }
+        .social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .social-icon { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--soft-white); display: inline-flex; align-items: center; justify-content: center; transition: border-color .15s ease, color .15s ease; }
+        .social-icon:hover { border-color: var(--gold); color: var(--gold); }
+        .social-icon svg { width: 18px; height: 18px; }
+        a.logo-link { display: inline-block; line-height: 0; }
+
+        .board-start { max-width: 320px; margin: 0 auto; }
+        .board-start .form-input { text-align: center; margin-bottom: 12px; }
+        a.board-open { display: block; text-decoration: none; text-align: center; max-width: 320px; margin: 0 auto; }
+        .board-return { margin: 0 0 8px; }
+
         @media (min-width: 700px) {
             .welcome-headline { font-size: 42px; }
             .welcome-lockup { width: 230px; }
@@ -1271,11 +1325,15 @@
         <!-- WELCOME SCREEN -->
         <div class="screen welcome-screen active" id="welcomeScreen">
             <div class="welcome-content">
-                <img class="welcome-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606">
+                <a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606"></a>
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
-                <p class="welcome-subheading">Every home has a personality. So do you. Swipe through twelve rooms and find out yours.</p>
-                <button class="welcome-cta" onclick="goToPrice()">Find my StyleDNA</button>
+                <p class="welcome-subheading">Every home has a personality. So do you. Swipe through twelve rooms, answer a few questions and find out yours.</p>
+                <p class="partner-invite" id="partnerInvite" hidden></p>
+                <p class="partner-invite" id="boardInvite" hidden>You're invited to a home board. Take the quiz so your StyleDNA shows on it, then join.</p>
+                <button class="welcome-cta" id="startBtn" onclick="startQuiz()">Find my StyleDNA</button>
+                <button class="text-link" id="compareSavedBtn" hidden onclick="compareSaved()">Compare my saved result instead</button>
+                <button class="text-link" id="lastResultBtn" hidden onclick="compareSaved()">See my last result</button>
                 <p class="welcome-meta">About 60 seconds &middot; Powered by ChloeIQ</p>
             </div>
             <footer class="welcome-footer">
@@ -1287,50 +1345,49 @@
             </footer>
         </div>
 
-        <!-- PRICE POINT SCREEN -->
+        <!-- SEARCH SCREEN (last step: budget, home type, area) -->
         <div class="screen preference-screen" id="priceScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
-            <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="preference-content">
-                <h2 class="preference-headline">What's Your Budget?</h2>
-                <p class="preference-subheading">So we can show you homes in the right range</p>
-                <div class="progress-indicator">Step 1 of 5</div>
+                <h2 class="preference-headline">Last Step: Your Search</h2>
+                <p class="preference-subheading">So we can point you to real homes that fit</p>
+                <div class="progress-indicator">Step 5 of 5</div>
 
-                <div class="pref-options">
-                    <button class="pref-option" onclick="selectPrice(0, 'Under $300K', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Under $300K</span>
-                    </button>
-                    <button class="pref-option" onclick="selectPrice(1, '$300K to $500K', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>$300K to $500K</span>
-                    </button>
-                    <button class="pref-option" onclick="selectPrice(2, '$500K to $750K', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>$500K to $750K</span>
-                    </button>
-                    <button class="pref-option" onclick="selectPrice(3, '$750K to $1M', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>$750K to $1M</span>
-                    </button>
-                    <button class="pref-option" onclick="selectPrice(4, '$1M+', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>$1M+</span>
-                    </button>
+                <p class="chip-label">Budget</p>
+                <div class="chips" id="budgetChips">
+                    <button type="button" class="chip" onclick="selectPrice(0, 'Under $300K', this)">Under $300K</button>
+                    <button type="button" class="chip" onclick="selectPrice(1, '$300K to $500K', this)">$300K to $500K</button>
+                    <button type="button" class="chip" onclick="selectPrice(2, '$500K to $750K', this)">$500K to $750K</button>
+                    <button type="button" class="chip" onclick="selectPrice(3, '$750K to $1M', this)">$750K to $1M</button>
+                    <button type="button" class="chip" onclick="selectPrice(4, '$1M+', this)">$1M+</button>
                 </div>
 
-                <button class="pref-continue" onclick="goToFloorPlan()">Continue</button>
+                <p class="chip-label">Home type</p>
+                <div class="chips" id="typeChips">
+                    <button type="button" class="chip" onclick="selectHomeType('Single Family Home', 'Single family', this)">Single family</button>
+                    <button type="button" class="chip" onclick="selectHomeType('Townhouse', 'Townhome', this)">Townhome</button>
+                    <button type="button" class="chip" onclick="selectHomeType('Condo', 'Condo', this)">Condo</button>
+                    <button type="button" class="chip" onclick="selectHomeType('Vacant Land', 'Land', this)">Land</button>
+                    <button type="button" class="chip active" onclick="selectHomeType('', 'Open to any', this)">Open to any</button>
+                </div>
+
+                <p class="chip-label"><label for="searchArea">Area</label></p>
+                <select class="form-select" id="searchArea" aria-label="Area">
+                    <option value="">Anywhere in DFW</option>
+                </select>
+
+                <p class="form-error" id="searchError" role="alert"></p>
+                <button class="pref-continue search-continue" onclick="finishSearch()">See my StyleDNA</button>
             </div>
         </div>
 
         <!-- FLOOR PLAN SCREEN -->
         <div class="screen preference-screen" id="floorPlanScreen">
-            <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="preference-content">
                 <h2 class="preference-headline">Preferred Floor Plan</h2>
                 <p class="preference-subheading">How do you like your spaces organized?</p>
-                <div class="progress-indicator">Step 2 of 5</div>
+                <div class="progress-indicator">Step 1 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectFloorPlan('open', this)">
@@ -1358,7 +1415,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Outdoor Space</h2>
                 <p class="preference-subheading">What matters to you outside?</p>
-                <div class="progress-indicator">Step 3 of 5</div>
+                <div class="progress-indicator">Step 2 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectBackyard('large', this)">
@@ -1390,7 +1447,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Kitchen Style</h2>
                 <p class="preference-subheading">What's your kitchen personality?</p>
-                <div class="progress-indicator">Step 4 of 5</div>
+                <div class="progress-indicator">Step 3 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectKitchen('statement', this)">
@@ -1422,7 +1479,7 @@
             <div class="preference-content">
                 <h2 class="preference-headline">Entertaining Preference</h2>
                 <p class="preference-subheading">How do you like to gather?</p>
-                <div class="progress-indicator">Step 5 of 5</div>
+                <div class="progress-indicator">Step 4 of 5</div>
 
                 <div class="pref-options">
                     <button class="pref-option" onclick="selectEntertaining('frequent', this)">
@@ -1439,13 +1496,14 @@
                     </button>
                 </div>
 
-                <button class="pref-continue" onclick="goToSwipe()">Start swiping</button>
+                <button class="pref-continue" onclick="goToSearch()">Continue</button>
             </div>
         </div>
 
         <!-- SWIPE SCREEN -->
         <div class="screen swipe-screen" id="swipeScreen">
             <div class="swipe-header">
+                <button class="swipe-back" type="button" onclick="swipeBack()" aria-label="Go back">&#8249;</button>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -1461,6 +1519,7 @@
 
             <div class="swipe-footer">
                 <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me" aria-label="Not for me">&#10005;</button>
+                <button class="swipe-undo" id="undoBtn" onclick="undoLastSwipe()" title="Undo" aria-label="Undo last swipe" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
                 <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it" aria-label="Love it">&#9829;&#xFE0E;</button>
             </div>
         </div>
@@ -1479,6 +1538,7 @@
 
         <!-- RESULTS SCREEN -->
         <div class="screen results-screen" id="resultsScreen">
+            <button class="back-btn" type="button" onclick="goBack()" aria-label="Change my answers" id="resultsBack">&#8249;</button>
             <div class="results-sticky-header">
                 <div class="results-archetype">
                     <div class="archetype-kicker">Your StyleDNA</div>
@@ -1502,11 +1562,26 @@
                             <option value="">Anywhere in DFW</option>
                         </select>
                         <div class="homes-actions">
-                            <button type="button" class="homes-go" id="browseRangeLink" onclick="openHomes('picker', true)">See homes in my style &rarr;</button>
-                            <button type="button" class="homes-all" onclick="openHomes('picker', false)">All homes</button>
+                            <a class="homes-go" id="browseRangeLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'picker', true)">See homes in my style &rarr;</a>
+                            <a class="homes-all" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'picker', false)">All homes</a>
                         </div>
                         <p class="homes-note"><span id="homesNote">In your price range, on joshwaters.com</span></p>
                     </div>
+                </div>
+
+                <div class="results-section board-return" id="boardReturn" hidden>
+                    <a class="welcome-cta" id="boardReturnLink" href="#" style="display:block;text-align:center;text-decoration:none">Back to the home board</a>
+                </div>
+
+                <div class="results-section compare-section" id="compareResult" hidden>
+                    <h3 class="results-section-title" id="compareTitle">You and Your Partner</h3>
+                    <div class="compare-pair">
+                        <div><p class="compare-who">You</p><p class="compare-arch" id="compareMe"></p></div>
+                        <div><p class="compare-who" id="comparePartnerName">Partner</p><p class="compare-arch" id="compareThem"></p></div>
+                    </div>
+                    <p class="compare-read" id="compareRead"></p>
+                    <p class="compare-overlap" id="compareOverlap"></p>
+                    <button class="btn-outline compare-send" onclick="sendBack()"><span id="sendBackLabel">Send your result back</span></button>
                 </div>
 
                 <div class="results-section">
@@ -1518,20 +1593,37 @@
 
                 <div class="results-section">
                     <h3 class="results-section-title" id="lovedTitle">Styles You Loved</h3>
+                    <p class="examples-note" id="examplesNote">Example photos from the quiz, not homes for sale.</p>
                     <div id="matchedHomes"></div>
                 </div>
 
                 <div class="results-section results-cta">
                     <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
                     <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
+                    <div class="invite-block" id="inviteBlock">
+                        <p class="invite-title">House hunting with someone?</p>
+                        <p class="invite-text">Start a home board. Save homes, react and comment together, and get an alert when a new listing fits your style.</p>
+                        <div class="board-start" id="boardStart">
+                            <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
+                            <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board</button>
+                            <p class="form-error" id="boardError" role="alert"></p>
+                        </div>
+                        <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
+                        <button class="text-link" onclick="invitePartner()">Or just compare styles with someone</button>
+                    </div>
+                    <div class="redo-links">
+                        <button class="text-link" onclick="editSearch()">Change budget, home type or area</button>
+                        <button class="text-link" onclick="restartQuiz()">Retake the quiz</button>
+                    </div>
                 </div>
 
                 <div class="contact-block">
-                    <img class="contact-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606" loading="lazy">
+                    <a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page" style="display:block"><img class="contact-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606" loading="lazy"></a>
                     <p class="contact-lead">Want a second set of eyes on homes that fit your style?</p>
                     <p class="contact-name">Josh Waters</p>
                     <p class="contact-role">REALTOR&reg; &middot; Real Estate Advisor</p>
                     <p class="contact-lines"><a href="tel:+14696706232">469.670.6232</a><br><a href="mailto:josh@dallascollectivegroup.com">josh@dallascollectivegroup.com</a></p>
+                    <div class="social"><p class="social-title">Follow along</p><div class="social-row"><a class="social-icon" href="https://www.instagram.com/mrdallascollective/" target="_blank" rel="noopener" aria-label="Follow on Instagram" title="Instagram" onclick="track('social_clicked', { site: 'instagram' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg></a><a class="social-icon" href="https://www.facebook.com/MrDallasCollective" target="_blank" rel="noopener" aria-label="Follow on Facebook" title="Facebook" onclick="track('social_clicked', { site: 'facebook' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a><a class="social-icon" href="https://www.youtube.com/@DallasCollectiveGroup?sub_confirmation=1" target="_blank" rel="noopener" aria-label="Follow on YouTube" title="YouTube" onclick="track('social_clicked', { site: 'youtube' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a><a class="social-icon" href="https://www.tiktok.com/@mrdallascollective" target="_blank" rel="noopener" aria-label="Follow on TikTok" title="TikTok" onclick="track('social_clicked', { site: 'tiktok' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a><a class="social-icon" href="https://www.linkedin.com/in/josh-waters-763a3624" target="_blank" rel="noopener" aria-label="Follow on LinkedIn" title="LinkedIn" onclick="track('social_clicked', { site: 'linkedin' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div></div>
                 </div>
 
                 <div class="legal">
@@ -1567,8 +1659,7 @@
                     </div>
 
                     <div class="form-hp" aria-hidden="true">
-                        <label for="websiteInput">Website</label>
-                        <input type="text" id="websiteInput" tabindex="-1" autocomplete="off">
+                        <input type="text" id="sdnaTrap" name="sdna_trap" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore>
                     </div>
 
                     <div class="form-group">
@@ -1666,6 +1757,11 @@
                         <input type="text" class="form-input" id="otherNeighborhoodInput" placeholder="Enter your city or area">
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label" for="dreamInput">Your dream home in a sentence <span class="form-optional">Optional</span></label>
+                        <textarea class="form-input form-textarea" id="dreamInput" rows="2" maxlength="300" placeholder="Single story, big backyard, quiet street, room for a home office"></textarea>
+                    </div>
+
                     <label class="consent-row" for="consentInput">
                         <input type="checkbox" id="consentInput">
                         <span>Yes, Josh Waters with Dallas Collective Group, brokered by REAL Broker, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
@@ -1688,10 +1784,11 @@
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
                 <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
-                <button class="activation-cta" id="homesBtn" onclick="openHomes('area', true)">See homes in my style</button>
-                <button class="activation-link" onclick="openHomes('area', false)">See all homes for sale</button>
+                <a class="activation-cta" id="homesBtn" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'area', true)">See homes in my style</a>
+                <a class="activation-link" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'area', false)">See all homes for sale</a>
                 <button class="activation-link share-btn" onclick="shareResults()"><span>Share my StyleDNA</span></button>
                 <button class="activation-link activation-link-quiet" onclick="finalAction()">Back to my results</button>
+                <div class="social"><p class="social-title">Follow along</p><div class="social-row"><a class="social-icon" href="https://www.instagram.com/mrdallascollective/" target="_blank" rel="noopener" aria-label="Follow on Instagram" title="Instagram" onclick="track('social_clicked', { site: 'instagram' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg></a><a class="social-icon" href="https://www.facebook.com/MrDallasCollective" target="_blank" rel="noopener" aria-label="Follow on Facebook" title="Facebook" onclick="track('social_clicked', { site: 'facebook' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a><a class="social-icon" href="https://www.youtube.com/@DallasCollectiveGroup?sub_confirmation=1" target="_blank" rel="noopener" aria-label="Follow on YouTube" title="YouTube" onclick="track('social_clicked', { site: 'youtube' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a><a class="social-icon" href="https://www.tiktok.com/@mrdallascollective" target="_blank" rel="noopener" aria-label="Follow on TikTok" title="TikTok" onclick="track('social_clicked', { site: 'tiktok' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a><a class="social-icon" href="https://www.linkedin.com/in/josh-waters-763a3624" target="_blank" rel="noopener" aria-label="Follow on LinkedIn" title="LinkedIn" onclick="track('social_clicked', { site: 'linkedin' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div></div>
             </div>
         </div>
     </div>
@@ -1816,42 +1913,98 @@
         };
 
         let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = 'curator', selectedPrice = null, selectedPriceLabel = '';
+        let selectedHomeType = '', selectedHomeTypeLabel = 'Open to any', selectedArea = '', partner = null;
         let userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
         let userData = null, isDragging = false, startX = 0, currentX = 0, startY = 0, currentY = 0, currentHomes = [];
         let screenHistory = [];
         const AUTO_ADVANCE_MS = 220;
 
+        // Every step is a browser history entry, so the on-screen back arrow and the phone's own back
+        // gesture both go one step back instead of leaving the quiz.
         function showScreen(screenId, recordHistory) {
             const current = document.querySelector('.screen.active');
             if (recordHistory && current && current.id !== screenId) {
                 screenHistory.push(current.id);
+                try { history.pushState({ sdna: 1, i: screenHistory.length }, ''); } catch (e) {}
             }
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             const target = document.getElementById(screenId);
             if (target) target.classList.add('active');
+            window.scrollTo(0, 0);
+            if (screenId === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
         }
 
         function goBack() {
             if (screenHistory.length === 0) return;
-            const prev = screenHistory.pop();
-            const target = document.getElementById(prev) || document.getElementById('welcomeScreen');
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            target.classList.add('active');
+            history.back();
         }
+        function backTo(depth) {
+            let prev = null;
+            while (screenHistory.length > depth) prev = screenHistory.pop();
+            if (!prev) return;
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            (document.getElementById(prev) || document.getElementById('welcomeScreen')).classList.add('active');
+            window.scrollTo(0, 0);
+            // Back from the first question lands on the last card, with that answer undone.
+            if (prev === 'swipeScreen' && currentSwipeIndex >= currentHomes.length) undoLastSwipe();
+            if (prev === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
+        }
+        window.addEventListener('popstate', (e) => {
+            const depth = (e.state && e.state.sdna) ? e.state.i : 0;
+            if (depth < screenHistory.length) backTo(depth);
+        });
+        try { history.replaceState({ sdna: 1, i: 0 }, ''); } catch (e) {}
 
         function setActiveOption(screenId, btn) {
             document.querySelectorAll('#'+screenId+' .pref-option').forEach(b=>b.classList.remove('active'));
             if (btn) btn.classList.add('active');
         }
 
-        function goToPrice() { if (!window.__quizStart) window.__quizStart = Date.now(); track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct' }); showScreen('priceScreen', true); }
+        function startQuiz() {
+            if (!window.__quizStart) window.__quizStart = Date.now();
+            track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct', partner: partner ? 'yes' : 'no' });
+            loves = []; passes = [];
+            userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
+            document.querySelectorAll('.pref-option.active, .chip.active').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#typeChips .chip').forEach(b => { if (b.textContent === 'Open to any') b.classList.add('active'); });
+            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any';
+            showScreen('swipeScreen', true);
+            currentHomes = buildDeck();
+            initializeSwipe();
+        }
+        // After the last swipe: the four questions. History starts fresh so Back never returns to the empty deck.
+        function goToQuestions() { showScreen('floorPlanScreen', true); }
+        function goToSearch() { if (userPreferences.entertaining === null) return; showScreen('priceScreen', true); }
+
+        function setActiveChip(groupId, btn) {
+            document.querySelectorAll('#' + groupId + ' .chip').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
         function selectPrice(index, label, btn) {
             selectedPrice = index;
             selectedPriceLabel = label;
-            setActiveOption('priceScreen', btn);
-            setTimeout(()=>goToFloorPlan(), AUTO_ADVANCE_MS);
+            setActiveChip('budgetChips', btn);
+            const err = document.getElementById('searchError'); err.textContent = ''; err.classList.remove('show');
         }
-        function goToFloorPlan() { if (selectedPrice === null) return; showScreen('floorPlanScreen', true); }
+        function selectHomeType(value, label, btn) {
+            selectedHomeType = value;
+            selectedHomeTypeLabel = label;
+            setActiveChip('typeChips', btn);
+        }
+        function finishSearch() {
+            if (selectedPrice === null) {
+                const err = document.getElementById('searchError');
+                err.textContent = 'Pick a budget to continue.'; err.classList.add('show');
+                return;
+            }
+            selectedArea = document.getElementById('searchArea').value || '';
+            if (selectedArea && KNOWN_AREAS.has(selectedArea)) {
+                document.getElementById('homesArea').value = selectedArea;
+                document.getElementById('neighborhoodInput').value = selectedArea;
+            }
+            track('search_set', { budget: selectedPriceLabel, type: selectedHomeTypeLabel, area: selectedArea || 'all' });
+            goToLoading();
+        }
 
         function selectFloorPlan(value, btn) {
             userPreferences.floorPlan = value;
@@ -1877,14 +2030,7 @@
         function selectEntertaining(value, btn) {
             userPreferences.entertaining = value;
             setActiveOption('entertainingScreen', btn);
-            setTimeout(()=>goToSwipe(), AUTO_ADVANCE_MS);
-        }
-
-        function goToSwipe() {
-            if (Object.values(userPreferences).some(v => v === null)) return;
-            showScreen('swipeScreen', true);
-            currentHomes = buildDeck();
-            initializeSwipe();
+            setTimeout(()=>goToSearch(), AUTO_ADVANCE_MS);
         }
 
         function shuffle(arr) {
@@ -2080,7 +2226,7 @@
         function nextCard() {
             currentSwipeIndex++;
             updateProgress();
-            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToLoading(); return; }
+            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToQuestions(); return; }
 
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
@@ -2109,6 +2255,20 @@
         }
 
         let swipeLocked = false;
+        function updateUndo() { const u = document.getElementById('undoBtn'); if (u) u.disabled = currentSwipeIndex === 0; }
+        function undoLastSwipe() {
+            if (swipeLocked || currentSwipeIndex === 0) return;
+            currentSwipeIndex--;
+            const h = currentHomes[currentSwipeIndex];
+            const li = loves.lastIndexOf(h), pi = passes.lastIndexOf(h);
+            if (li >= 0) loves.splice(li, 1); else if (pi >= 0) passes.splice(pi, 1);
+            renderCardStack();
+            updateProgress();
+            setupSwipeListeners();
+            track('swipe_undo', { at: currentSwipeIndex });
+        }
+        // Header arrow: undo the last card, or leave the deck from the first card.
+        function swipeBack() { if (currentSwipeIndex > 0) undoLastSwipe(); else goBack(); }
         function lockSwipe(card) { swipeLocked = true; card.classList.remove('active'); card.classList.add('leaving'); }
         function passCard() {
             if (swipeLocked) return;
@@ -2136,11 +2296,13 @@
             const progress = (currentSwipeIndex/currentHomes.length)*100;
             document.getElementById('progressFill').style.width = progress+'%';
             document.getElementById('progressText').textContent = `${currentSwipeIndex}/${currentHomes.length}`;
+            updateUndo();
         }
 
         function goToLoading() {
-            showScreen('loadingScreen', false);
+            showScreen('loadingScreen', true);
             setTimeout(()=>{
+                if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
                 userArchetype = computeArchetype();
                 showResults();
             }, 2500);
@@ -2155,8 +2317,13 @@
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
-            document.getElementById('homesNote').textContent = `${selectedPriceLabel}, on joshwaters.com`;
-            if (userData && KNOWN_AREAS.has(userData.neighborhood)) document.getElementById('homesArea').value = userData.neighborhood;
+            document.getElementById('homesNote').textContent = `${selectedPriceLabel}${selectedHomeType ? ' \u00b7 ' + selectedHomeTypeLabel : ''}, on joshwaters.com`;
+            const prefArea = (userData && userData.neighborhood) || selectedArea;
+            if (prefArea && KNOWN_AREAS.has(prefArea)) document.getElementById('homesArea').value = prefArea;
+            document.getElementById('examplesNote').hidden = loves.length === 0;
+            saveMyResult();
+            renderCompare();
+            renderBoardBits();
 
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
@@ -2217,7 +2384,9 @@
         };
         function homesUrl(area, budgetIdx, styled) {
             const cond = { purchasetype: ['For Sale'] };
-            if (styled && ARCH_MLS_STYLES[userArchetype]) cond.style = ARCH_MLS_STYLES[userArchetype];
+            if (selectedHomeType) cond.propertytype = [selectedHomeType];
+            // Land has no architectural style, so the style filter would hide every lot.
+            if (styled && selectedHomeType !== 'Vacant Land' && ARCH_MLS_STYLES[userArchetype]) cond.style = ARCH_MLS_STYLES[userArchetype];
             if (area && AREA_ZIPS[area]) cond.location = { zipCode: AREA_ZIPS[area] };
             else if (area && KNOWN_AREAS.has(area)) cond.location = { city: [area + ', TX'] };
             if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
@@ -2227,18 +2396,22 @@
         }
         // Area picker on the results screen: same areas as the lead form, minus "Other".
         (function fillHomesArea() {
-            const target = document.getElementById('homesArea');
-            document.querySelectorAll('#neighborhoodInput optgroup').forEach(g => {
-                const copy = g.cloneNode(true);
-                copy.querySelectorAll('option[value="__other__"]').forEach(o => o.remove());
-                target.appendChild(copy);
+            ['homesArea', 'searchArea'].forEach(id => {
+                const target = document.getElementById(id);
+                document.querySelectorAll('#neighborhoodInput optgroup').forEach(g => {
+                    const copy = g.cloneNode(true);
+                    copy.querySelectorAll('option[value="__other__"]').forEach(o => o.remove());
+                    target.appendChild(copy);
+                });
             });
         })();
-        function openHomes(where, styled) {
+        // The buttons are real links (in-app browsers often block pop-ups); this fills in the address as it's tapped.
+        function openHomes(el, where, styled) {
             const area = where === 'picker' ? (document.getElementById('homesArea').value || null)
-                : (where === 'area' && userData ? userData.neighborhood : null);
-            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
-            window.open(homesUrl(area, selectedPrice, styled), '_blank', 'noopener');
+                : ((userData && userData.neighborhood) || selectedArea || null);
+            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, type: selectedHomeTypeLabel, area: area && KNOWN_AREAS.has(area) ? area : (area ? 'other' : 'all') });
+            el.href = homesUrl(area, selectedPrice, styled);
+            return true;
         }
 
         function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
@@ -2288,7 +2461,11 @@
                 name, email, phone,
                 area: neighborhood,
                 consent: document.getElementById('consentInput').checked,
-                website: document.getElementById('websiteInput').value,
+                website: document.getElementById('sdnaTrap').value,
+                homeType: selectedHomeType ? selectedHomeTypeLabel : '',
+                dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
+                partner: partner ? { name: partner.n || '', archetype: archetypes[partner.a].name } : null,
+                board: boardParam || lastBoardId(),
                 archetype: archetypes[userArchetype].name,
                 budget: selectedPrice,
                 preferences: userPreferences,
@@ -2329,7 +2506,25 @@
             document.getElementById('homesBtn').textContent = area2 && KNOWN_AREAS.has(area2) ? `See my style in ${area2}` : 'See homes in my style';
             showScreen('activationScreen', true);
         }
-        function finalAction() { showScreen('resultsScreen', true); window.scrollTo(0, 0); }
+        function finalAction() {
+            const at = screenHistory.lastIndexOf('resultsScreen');
+            if (at >= 0) history.go(-(screenHistory.length - at));
+            else showScreen('resultsScreen', false);
+        }
+        // From the results: jump back to the last step with every answer kept.
+        function editSearch() {
+            const at = screenHistory.lastIndexOf('priceScreen');
+            if (at >= 0) history.go(-(screenHistory.length - at));
+            else showScreen('priceScreen', true);
+        }
+        function restartQuiz() {
+            track('quiz_restarted', { archetype: userArchetype });
+            screenHistory = [];
+            try { history.replaceState({ sdna: 1, i: 0 }, ''); } catch (e) {}
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById('welcomeScreen').classList.add('active');
+            startQuiz();
+        }
 
         const STYLEDNA_BASE_URL = 'https://homestyledna.vercel.app';
 
@@ -2376,6 +2571,147 @@
             if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
             else fallback();
         }
+
+        // ===== Partner compare =====
+        // An invite link carries the sender's result (archetype, loved styles, first name). The person who
+        // opens it takes the quiz and sees where they overlap. Your own last result is kept on this device
+        // so a link sent back can show the comparison without retaking the quiz.
+        const STYLE_KEYS = Object.keys(STYLE_CARDS);
+        function cardFor(style) {
+            const c = STYLE_CARDS[style];
+            return c ? { style, ...c, image: c.img ? './img/' + c.img : styleImage(style), fallback: fallbackImage(style) } : null;
+        }
+        function firstName() {
+            if (userData && userData.name) return userData.name.split(' ')[0];
+            const m = loadMyResult(); return (m && m.n) || '';
+        }
+        function encodeResult() {
+            const idx = loves.map(h => STYLE_KEYS.indexOf(h.style)).filter(i => i >= 0);
+            const q = new URLSearchParams({ m: 'compare', pa: userArchetype, pl: idx.join('-') });
+            if (firstName()) q.set('pn', firstName());
+            return `${STYLEDNA_BASE_URL}/s/${encodeURIComponent(userArchetype)}.html?${q.toString()}`;
+        }
+        function saveMyResult() {
+            try {
+                localStorage.setItem('sdna_me', JSON.stringify({
+                    a: userArchetype, l: loves.map(h => h.style), p: selectedPrice, pl: selectedPriceLabel,
+                    t: selectedHomeType, tl: selectedHomeTypeLabel, ar: selectedArea, prefs: userPreferences, n: firstName(), at: Date.now()
+                }));
+            } catch (e) {}
+        }
+        function loadMyResult() {
+            try { const m = JSON.parse(localStorage.getItem('sdna_me') || 'null'); return m && archetypes[m.a] ? m : null; } catch (e) { return null; }
+        }
+        function compareSaved() {
+            const m = loadMyResult();
+            if (!m) return startQuiz();
+            userArchetype = m.a; loves = (m.l || []).map(cardFor).filter(Boolean); passes = [];
+            selectedPrice = m.p; selectedPriceLabel = m.pl || ''; selectedHomeType = m.t || ''; selectedHomeTypeLabel = m.tl || 'Open to any';
+            selectedArea = m.ar || ''; userPreferences = m.prefs || userPreferences;
+            track('compare_saved', { archetype: userArchetype });
+            showResults();
+            showScreen('resultsScreen', false);
+            window.scrollTo(0, 0);
+        }
+        function renderCompare() {
+            const box = document.getElementById('compareResult');
+            if (!partner) { box.hidden = true; return; }
+            const me = archetypes[userArchetype], them = archetypes[partner.a];
+            const who = partner.n || 'Your partner';
+            document.getElementById('compareTitle').textContent = `You and ${partner.n || 'your partner'}`;
+            document.getElementById('comparePartnerName').textContent = who;
+            document.getElementById('compareMe').textContent = me.name;
+            document.getElementById('compareThem').textContent = them.name;
+            const low = w => w.toLowerCase();
+            document.getElementById('compareRead').textContent = userArchetype === partner.a
+                ? `Same StyleDNA. Look for homes that lean ${low(me.aesthetic[0])} and ${low(me.aesthetic[1])}.`
+                : `Different StyleDNA. Look for homes that blend ${low(me.aesthetic[0])} with ${low(them.aesthetic[0])}.`;
+            const mine = new Set(loves.map(h => h.style));
+            const both = (partner.l || []).filter(st => mine.has(st));
+            document.getElementById('compareOverlap').textContent = both.length
+                ? `Styles you both loved: ${both.join(', ')}.`
+                : 'No styles you both loved yet. Compare favorites before you tour.';
+            document.getElementById('sendBackLabel').textContent = partner.n ? `Send your result back to ${partner.n}` : 'Send your result back';
+            box.hidden = false;
+        }
+        function shareLink(title, text, url, channel) {
+            if (navigator.share) {
+                track('shared', { channel, archetype: userArchetype });
+                navigator.share({ title, text, url }).catch(err => {
+                    if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
+                });
+                return;
+            }
+            copyShareLink(text + ' ' + url);
+        }
+        function invitePartner() {
+            shareLink('Compare our home styles', `I'm ${archetypes[userArchetype].name} on the StyleDNA quiz. Take it and see how our home styles compare:`, encodeResult(), 'invite');
+        }
+        function sendBack() {
+            shareLink('My StyleDNA', `I took it. I'm ${archetypes[userArchetype].name}. Open this to see how we compare:`, encodeResult(), 'send_back');
+        }
+        // ===== Home boards =====
+        const boardParam = (new URLSearchParams(window.location.search).get('board') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
+        function lastBoardId() { try { return localStorage.getItem('sdna_last_board') || ''; } catch (e) { return ''; } }
+        function renderBoardBits() {
+            const back = document.getElementById('boardReturn');
+            if (boardParam) { back.hidden = false; document.getElementById('boardReturnLink').href = '/board.html?id=' + boardParam; }
+            const last = lastBoardId();
+            document.getElementById('boardStart').hidden = !!last;
+            const open = document.getElementById('boardOpen');
+            open.hidden = !last;
+            if (last) open.href = '/board.html?id=' + last;
+            const nm = document.getElementById('boardName');
+            if (!nm.value && firstName()) nm.value = firstName();
+        }
+        async function startBoard() {
+            const nameEl = document.getElementById('boardName'), err = document.getElementById('boardError'), btn = document.getElementById('boardBtn');
+            const name = nameEl.value.trim();
+            if (!name) { err.textContent = 'Add your first name.'; err.classList.add('show'); nameEl.focus(); return; }
+            err.textContent = ''; err.classList.remove('show');
+            btn.disabled = true; btn.textContent = 'Starting...';
+            try {
+                const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    action: 'create', name,
+                    profile: { archetype: userArchetype, loves: loves.map(h => h.style) },
+                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: (userData && userData.neighborhood) || selectedArea }
+                }) });
+                const j = await r.json();
+                if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
+                try {
+                    localStorage.setItem('sdna_board_' + j.id, JSON.stringify({ pid: j.pid, key: j.key, name }));
+                    localStorage.setItem('sdna_last_board', j.id);
+                } catch (e) {}
+                track('board_created', { archetype: userArchetype });
+                window.location.href = '/board.html?id=' + j.id;
+            } catch (e) {
+                err.textContent = "Couldn't start the board just now. Please try again."; err.classList.add('show');
+                btn.disabled = false; btn.textContent = 'Start a home board';
+            }
+        }
+        (function boardInviteNote() { if (boardParam) document.getElementById('boardInvite').hidden = false; })();
+
+        (function offerLastResult() {
+            const m = loadMyResult();
+            if (!m || new URLSearchParams(window.location.search).get('pa')) return;
+            const btn = document.getElementById('lastResultBtn');
+            btn.textContent = `See my last result: ${archetypes[m.a].name}`;
+            btn.hidden = false;
+        })();
+        (function readPartnerLink() {
+            try {
+                const q = new URLSearchParams(window.location.search);
+                const a = q.get('pa');
+                if (!a || !archetypes[a]) return;
+                const l = (q.get('pl') || '').split('-').map(Number).filter(i => Number.isInteger(i) && STYLE_KEYS[i]).map(i => STYLE_KEYS[i]);
+                const n = (q.get('pn') || '').replace(/[^A-Za-z' .-]/g, '').slice(0, 24);
+                partner = { a, l, n };
+                const note = document.getElementById('partnerInvite');
+                note.textContent = `${n || 'A friend'} took the StyleDNA quiz and got ${archetypes[a].name}. Take it to see how your home styles compare.`;
+                note.hidden = false;
+                if (loadMyResult()) document.getElementById('compareSavedBtn').hidden = false;
+            } catch (e) {}
+        })();
 
         (function captureUtm() {
             try {

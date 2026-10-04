@@ -27,7 +27,7 @@ const AREA_ZIPS = {
 // the honeypot and the too-fast check below catch most bots on their own.
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX_PER_IP = 5;
-const MIN_QUIZ_SECONDS = 20; // a real person can't finish the price step, 5 questions and the swipes faster
+const MIN_QUIZ_SECONDS = 20; // a real person can't finish 12 swipes, 5 steps and the form faster
 const recentByIp = new Map();
 const recentEmails = new Map();
 
@@ -65,16 +65,25 @@ async function handle(req, res) {
     return res.status(400).json({ ok: false, error: 'bad_request' });
   }
 
-  // Spam trap: real people never fill this hidden field.
-  if (body.website) return res.status(200).json({ ok: true });
+  // Spam trap: real people never fill this hidden field. Every silent drop is logged so a real
+  // person caught by mistake shows up in the Vercel logs.
+  const dropDomain = String(body.email || '').split('@')[1] || 'none';
+  if (body.website) {
+    console.warn('lead dropped: trap field filled', { domain: dropDomain });
+    return res.status(200).json({ ok: true });
+  }
   // Finished the whole quiz in under 20 seconds: a bot. Answer ok so it doesn't retry.
   const elapsed = Number(body.elapsed);
   if (body.elapsed !== null && body.elapsed !== undefined && Number.isFinite(elapsed) && elapsed < MIN_QUIZ_SECONDS) {
+    console.warn('lead dropped: too fast', { elapsed, domain: dropDomain });
     return res.status(200).json({ ok: true });
   }
   const now = Date.now();
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  if (overLimit(ip, now)) return res.status(429).json({ ok: false, error: 'too_many' });
+  if (overLimit(ip, now)) {
+    console.warn('lead refused: rate limit', { domain: dropDomain });
+    return res.status(429).json({ ok: false, error: 'too_many' });
+  }
 
   const name = clip(body.name, 60);
   const email = clip(body.email, 120).toLowerCase();
@@ -104,17 +113,26 @@ async function handle(req, res) {
   const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {};
   const loved = list(body.loved);
   const passed = list(body.passed);
+  const homeType = clip(body.homeType, 30);
+  const dream = clip(body.dream, 300).replace(/\s+/g, ' ');
+  const partner = (body.partner && typeof body.partner === 'object') ? body.partner : null;
+  const partnerName = partner ? clip(partner.name, 24) : '';
+  const partnerArch = partner ? clip(partner.archetype, 40) : '';
 
   const tags = ['StyleDNA Quiz'];
   if (archetype) tags.push(clip('StyleDNA: ' + archetype, 64));
   if (budget) tags.push(clip('Budget: ' + budget.label, 64));
   if (area) tags.push(clip('Area: ' + area, 64));
+  if (homeType) tags.push(clip('Home type: ' + homeType, 64));
+  if (partnerArch) tags.push('Partner compare');
+  if (clip(body.board, 24)) tags.push('Home board');
 
   const noteLines = [
     'StyleDNA quiz result',
     'Archetype: ' + (archetype || 'n/a'),
     'Budget: ' + (budget ? budget.label : 'n/a'),
     'Area: ' + (area || 'n/a'),
+    'Home type: ' + (homeType || 'open to any'),
     'Floor plan: ' + clip(prefs.floorPlan, 20) + ' | Outdoor: ' + clip(prefs.backyard, 20) +
       ' | Kitchen: ' + clip(prefs.kitchen, 20) + ' | Entertaining: ' + clip(prefs.entertaining, 20),
     'Loved styles: ' + (loved.join(', ') || 'none'),
@@ -123,6 +141,10 @@ async function handle(req, res) {
   ];
   const utmBits = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']
     .filter((k) => utm[k]).map((k) => k.replace('utm_', '') + '=' + clip(utm[k], 60));
+  if (dream) noteLines.splice(1, 0, 'In their words: "' + dream + '"');
+  if (partnerArch) noteLines.push('Compared with: ' + (partnerName || 'a partner') + ' (' + partnerArch + ')');
+  const boardId = clip(body.board, 24).replace(/[^A-Za-z0-9]/g, '');
+  if (boardId) noteLines.push('Home board: https://homestyledna.vercel.app/board.html?id=' + boardId);
   if (utmBits.length) noteLines.push('Came from: ' + utmBits.join(', '));
 
   const lead = {

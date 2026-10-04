@@ -12,6 +12,9 @@
       listing's ZIP from the Matrix photo page when given ({mls: zip}).
   python3 tools/styledna_daily.py tag <data>
       Re-run the tagger on everything: writes tags.csv and tags.json and prints a summary.
+  python3 tools/styledna_daily.py board-picks <data> <boards.json> <out.json>
+      For each home board (the admin-list from the preview site), pick up to 3 of today's new
+      listings that fit its StyleDNA, budget and area. Writes [{id, homes:[...]}] for postPicks().
 """
 import csv
 import datetime
@@ -45,6 +48,11 @@ def merge_export(data, exports, full):
     path = os.path.join(data, 'source_active.csv')
     old, cols = read_csv(path)
     by = {r['ML #']: r for r in old}
+    before = set(by)
+    # source_active.csv is too big to keep on the Mac, so yesterday's MLS list lives in active_mls.txt.
+    mls_path = os.path.join(data, 'active_mls.txt')
+    if not before and os.path.exists(mls_path):
+        before = set(open(mls_path).read().split())
     seen = set()
     for e in exports:
         rows, c = read_csv(e)
@@ -62,14 +70,24 @@ def merge_export(data, exports, full):
                 del by[m]
                 dropped += 1
     write_csv(path, list(by.values()), cols)
-    print(f'source_active.csv: {len(by)} listings ({len(seen)} in today\'s export, {dropped} dropped as no longer active)')
+    # New on the market since the last run. The very first run has nothing to compare with.
+    new = sorted(m for m in seen if m not in before) if before else []
+    with open(os.path.join(data, 'new_today.txt'), 'w') as f:
+        f.write('\n'.join(new))
+    with open(mls_path, 'w') as f:
+        f.write('\n'.join(sorted(by)))
+    print(f'source_active.csv: {len(by)} listings ({len(seen)} in today\'s export, {dropped} dropped as no longer active, {len(new)} new)')
 
 
 def todo_photos(data, cap):
     src, _ = read_csv(os.path.join(data, 'source_active.csv'))
     done, _ = read_csv(os.path.join(data, 'photo_styles.csv'))
     have = {r['mls'] for r in done}
-    todo = sorted(r['ML #'] for r in src if r.get('ML #') and r['ML #'] not in have and r['ML #'].isdigit())
+    new_path = os.path.join(data, 'new_today.txt')
+    new = set(open(new_path).read().split()) if os.path.exists(new_path) else set()
+    # Today's new listings first (their buyers get alerts), then the newest MLS numbers.
+    todo = sorted((r['ML #'] for r in src if r.get('ML #') and r['ML #'] not in have and r['ML #'].isdigit()),
+                  key=lambda m: (m not in new, -int(m)))
     if cap:
         todo = todo[:cap]
     for i in range(0, len(todo), 51):
@@ -107,6 +125,43 @@ def tag(data):
     subprocess.run(cmd, check=True)
 
 
+BUDGETS = {0: (0, 300000), 1: (300000, 500000), 2: (500000, 750000), 3: (750000, 1000000), 4: (1000000, 0)}
+
+
+def board_picks(data, boards_path, out_path, per_board=3):
+    sys.path.insert(0, HERE)
+    import styledna_match as sm
+    new_path = os.path.join(data, 'new_today.txt')
+    new = set(open(new_path).read().split()) if os.path.exists(new_path) else set()
+    tags = [t for t in sm.load_tags(os.path.join(data, 'tags.csv')) if str(t.get('mls')) in new]
+    boards = json.load(open(boards_path))
+    if isinstance(boards, dict):
+        boards = boards.get('boards', [])
+    out, skipped = [], 0
+    for b in boards:
+        c = b.get('criteria') or {}
+        # Style tags cover single-family homes only for now.
+        if c.get('homeType') and c.get('homeType') != 'Single Family Home':
+            skipped += 1
+            continue
+        if not c.get('archetype'):
+            continue
+        lo, hi = BUDGETS.get(c.get('budget'), (0, 0))
+        lead = {'archetype': c['archetype'], 'area': c.get('area') or '', 'priceMin': lo, 'priceMax': hi}
+        have = set(b.get('mls') or [])
+        picks = [t for t in sm.match(tags, lead, n=per_board + len(have)) if str(t.get('mls')) not in have][:per_board]
+        if not picks:
+            continue
+        homes = [{'mls': str(t.get('mls')), 'address': (t.get('address') or '').strip(), 'city': t.get('city') or '',
+                  'price': t.get('price') or '', 'beds': t.get('beds') or '', 'baths': t.get('baths') or '',
+                  'sqft': t.get('sqft') or '', 'style': t.get('styledna_style') if t.get('styledna_style') not in ('', 'Not confirmed') else '',
+                  'url': sm.home_link(t), 'isNew': True} for t in picks]
+        out.append({'id': b['id'], 'homes': homes})
+    json.dump(out, open(out_path, 'w'), indent=1)
+    print(f'board picks: {len(out)} boards get new listings ({sum(len(x["homes"]) for x in out)} homes); '
+          f'{len(new)} new listings today; {skipped} boards skipped (not single family)')
+
+
 def main():
     a = sys.argv[1:]
     if not a:
@@ -123,6 +178,8 @@ def main():
         merge_photos(data, rest[0], rest[rest.index('--zips') + 1] if '--zips' in rest else None)
     elif cmd == 'tag':
         tag(data)
+    elif cmd == 'board-picks':
+        board_picks(data, rest[0], rest[1])
     else:
         print(__doc__)
 
