@@ -2443,7 +2443,15 @@
             if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
             const q = [['listingSource', 'all listings'], ['condition', JSON.stringify(cond)], ['page', '1'],
                 ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
-            return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+            return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&') + boardFragment();
+        }
+        // Carries their home board connection to joshwaters.com so the Save button there works in one tap.
+        function boardFragment() {
+            try {
+                const id = localStorage.getItem('sdna_last_board');
+                const m = id ? JSON.parse(localStorage.getItem('sdna_board_' + id) || 'null') : null;
+                return m && m.pid && m.key ? '#sdna=' + id + '.' + m.pid + '.' + m.key : '';
+            } catch (e) { return ''; }
         }
         // Area picker on the results screen: same areas as the lead form, minus "Other".
         (function fillHomesArea() {

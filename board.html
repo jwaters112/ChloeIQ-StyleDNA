@@ -44,7 +44,7 @@
         .member b { color: var(--soft-white); font-weight: 600; }
         .member i { color: var(--gold); font-style: italic; }
         .actions { display: flex; gap: 10px; margin-bottom: 28px; }
-        .pill { flex: 1; background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 12px 14px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .pill { flex: 1; text-decoration: none; background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 12px 14px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .pill svg { width: 16px; height: 16px; }
         .pill:hover { border-color: var(--gold); color: var(--gold); }
         .pill.on { border-color: rgba(224, 178, 77, 0.6); color: var(--gold); }
@@ -158,6 +158,7 @@
         <div id="memberArea" hidden>
             <div class="actions">
                 <button class="pill" id="inviteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Invite</button>
+                <a class="pill" id="findBtn" href="https://joshwaters.com/listing" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find homes</a>
                 <button class="pill" id="alertBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="alertLabel">Get alerts</span></button>
             </div>
 
@@ -215,6 +216,32 @@
         const q = new URLSearchParams({ id }); if (me) { q.set('p', me.pid); q.set('k', me.key); if (me.name) q.set('n', me.name); }
         return location.pathname + '?' + q.toString();
     }
+    // Links to joshwaters.com carry this board's connection so its Save button saves here in one tap.
+    function frag() { return me ? '#sdna=' + id + '.' + me.pid + '.' + me.key + '.' + encodeURIComponent(board ? board.name : '') : ''; }
+    const IDX = 'https://joshwaters.com/listing';
+    const STYLES = { curator: ['French','English','Contemporary/Modern','Mediterranean'], visionary: ['Contemporary/Modern','Mid-Century Modern','Loft'],
+        architect: ['Mediterranean','Modern Farmhouse','Spanish','Contemporary/Modern'], sanctuary: ['Contemporary/Modern','Craftsman','Modern Farmhouse','Prairie'],
+        custodian: ['Tudor','Craftsman','Colonial','Mid-Century Modern'], authenticist: ['Ranch','Barndominium','Modern Farmhouse','Southwestern'] };
+    const PRICES = { 0: ',300000', 1: '300000,500000', 2: '500000,750000', 3: '750000,1000000', 4: '1000000,' };
+    const ZIPS = { 'Uptown': ['75201','75204'], 'Downtown Dallas': ['75201','75202'], 'Preston Hollow': ['75225','75229','75230'], 'Bishop Arts': ['75208'], 'Lakewood': ['75214'],
+        'Lake Highlands': ['75238','75243'], 'M Streets': ['75206'], 'Oak Lawn': ['75219'], 'Oak Cliff': ['75208','75211','75224'], 'Deep Ellum': ['75226'], 'Knox-Henderson': ['75205','75206'],
+        'Turtle Creek': ['75219'], 'Devonshire': ['75209'], 'TCU/West Cliff': ['76109','76110'], 'Tanglewood': ['76109'], 'Rivercrest': ['76107'], 'Cultural District': ['76107'],
+        'Near Southside': ['76104'], 'Mistletoe Heights': ['76104'], 'Downtown Fort Worth': ['76102'], 'Las Colinas': ['75038','75039','75063'] };
+    const FW = ['TCU/West Cliff','Tanglewood','Rivercrest','Cultural District','Near Southside','Mistletoe Heights','Downtown Fort Worth'];
+    function findUrl() {
+        const c = board.criteria || {}, cond = { purchasetype: ['For Sale'] };
+        const arch = c.archetype || ((board.members.find((m) => me && m.pid === me.pid) || {}).archetype);
+        if (c.homeType) cond.propertytype = [c.homeType];
+        if (arch && STYLES[arch] && c.homeType !== 'Vacant Land') cond.style = STYLES[arch];
+        const areas = (c.areas && c.areas.length ? c.areas : (c.area ? [c.area] : []));
+        if (areas.length) {
+            if (areas.every((a) => ZIPS[a])) cond.location = { zipCode: [...new Set(areas.flatMap((a) => ZIPS[a]))] };
+            else cond.location = { city: [...new Set(areas.map((a) => ZIPS[a] ? (a === 'Las Colinas' ? 'Irving' : FW.includes(a) ? 'Fort Worth' : 'Dallas') : a))].map((x) => x + ', TX') };
+        }
+        if (PRICES[c.budget] !== undefined) cond.price = PRICES[c.budget];
+        return IDX + '?listingSource=' + encodeURIComponent('all listings') + '&condition=' + encodeURIComponent(JSON.stringify(cond)) + '&page=1&utm_source=styledna&utm_medium=board' + frag();
+    }
+    const withFrag = (u) => /^https:\/\/(www\.)?joshwaters\.com\//.test(u || '') ? u.split('#')[0] + frag() : u;
     const myResult = () => { try { return JSON.parse(localStorage.getItem('sdna_me') || 'null'); } catch (e) { return null; } };
 
     function el(tag, attrs, ...kids) {
@@ -270,6 +297,7 @@
             if (r && r.n && !$('joinName').value) $('joinName').value = r.n;
             return;
         }
+        $('findBtn').href = findUrl();
         $('alertBtn').classList.toggle('on', board.alerts.includes(me.pid));
         $('alertLabel').textContent = board.alerts.includes(me.pid) ? 'Alerts on' : 'Get alerts';
         $('homeCount').textContent = board.homes.length ? board.homes.length : '';
@@ -314,14 +342,14 @@
                 h.source === 'josh' ? el('span', { class: 'badge' }, "Josh's pick") : null,
                 h.isNew ? el('span', { class: 'badge' }, 'New listing') : null,
                 h.source !== 'josh' ? el('span', { class: 'badge muted' }, 'Added by ' + (h.addedBy === me.pid ? 'you' : nameOf(h.addedBy))) : null),
-            h.url ? el('a', { class: 'addr', href: h.url, target: '_blank', rel: 'noopener' }, h.address) : el('span', { class: 'addr' }, h.address),
+            h.url ? el('a', { class: 'addr', href: withFrag(h.url), target: '_blank', rel: 'noopener' }, h.address) : el('span', { class: 'addr' }, h.address),
             meta ? el('p', { class: 'meta' }, meta) : null,
             h.note ? el('p', { class: 'note' }, h.note) : null,
             el('div', { class: 'row' },
                 el('button', { class: 'react' + (mine === 'love' ? ' mine-love' : ''), onclick: react('love'), 'aria-label': 'Love it' }, svg(HEART), lovers.length || ''),
                 el('button', { class: 'react' + (mine === 'pass' ? ' mine-pass' : ''), onclick: react('pass'), 'aria-label': 'Pass' }, svg(XMARK)),
                 el('span', { class: 'who' }, [lovers.length ? lovers.join(', ') + ' loved it' : '', passers.length ? (lovers.length ? '. ' : '') + passers.join(', ') + ' passed' : ''].join('')),
-                h.url ? el('a', { class: 'view', href: h.url, target: '_blank', rel: 'noopener' }, 'View →') : null),
+                h.url ? el('a', { class: 'view', href: withFrag(h.url), target: '_blank', rel: 'noopener' }, 'View →') : null),
             el('button', { class: 'toggle', onclick: () => { open ? openComments.delete(h.id) : openComments.add(h.id); renderHomes(); } },
                 open ? 'Hide comments' : (h.comments.length ? `${h.comments.length} comment${h.comments.length === 1 ? '' : 's'}` : 'Comment')),
             comments,
