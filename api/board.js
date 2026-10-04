@@ -329,7 +329,7 @@ async function handle(req, res) {
   if (action === 'react') {
     const value = ['love', 'pass', ''].includes(body.value) ? body.value : null;
     if (value === null) return res.status(400).json({ ok: false });
-    let matched = null;
+    let matched = null, matchTask = true;
     const out = await store.update(id, (b) => {
       actor = memberByKey(b, key);
       if (!actor) return 'forbidden';
@@ -340,7 +340,7 @@ async function handle(req, res) {
       if (value) h.reactions[actor.pid] = value; else delete h.reactions[actor.pid];
       const people = b.members.filter((m) => m.role !== 'agent');
       const allLove = people.length >= 2 && people.every((m) => h.reactions[m.pid] === 'love');
-      if (allLove && !h.match) { h.match = Date.now(); matched = h; event(b, 'match', actor.pid, h.id, `Group match: everyone loves ${shortAddr(h)}`); }
+      if (allLove && !h.match) { h.match = Date.now(); matched = h; b.hot = b.hot || {}; matchTask = hot.fresh(b.hot, 'task|match'); event(b, 'match', actor.pid, h.id, `Group match: everyone loves ${shortAddr(h)}`); }
       else if (!allLove && h.match) delete h.match;
       if (value === 'love' && !matched) event(b, 'love', actor.pid, h.id, `${actor.name} loves ${shortAddr(h)}`);
       if (value === 'pass') event(b, 'pass', actor.pid, h.id, `${actor.name} passed on ${shortAddr(h)}`);
@@ -356,7 +356,7 @@ async function handle(req, res) {
       const names = (out.doc.members || []).filter((m) => m.role !== 'agent').map((m) => m.name).join(' and ');
       await hot.alert({ kind: 'match', who: names, leadId: lead ? lead.leadId : null, headline: `Group match: ${names} all love ${shortAddr(matched)}`,
         details: [`Board: ${out.doc.name}`, matched.price ? 'Price: $' + Number(matched.price).toLocaleString('en-US') : ''].filter(Boolean),
-        link: matched.url || `https://homestyledna.com/board.html?id=${id}` });
+        link: matched.url || `https://homestyledna.com/board.html?id=${id}`, task: matchTask });
     }
     return res.status(200).json({ ok: true, board: view(out.doc) });
   }
@@ -415,7 +415,7 @@ async function handle(req, res) {
   if (action === 'ask') {
     const text = clip(body.text, 500);
     if (!text) return res.status(400).json({ ok: false, error: 'empty' });
-    let home = null, contact = '';
+    let home = null, contact = '', askTask = true;
     const out = await store.update(id, (b) => {
       actor = memberByKey(b, key);
       if (!actor) return 'forbidden';
@@ -427,6 +427,7 @@ async function handle(req, res) {
         if (home.comments.length >= MAX_COMMENTS) home.comments.shift();
         home.comments.push({ id: store.newId(6), by: actor.pid, text: 'Asked Josh: ' + text, at: Date.now() });
       }
+      b.hot = b.hot || {}; askTask = hot.fresh(b.hot, 'task|' + actor.pid);
       event(b, 'ask', actor.pid, home ? home.id : '', `${actor.name} asked Josh${home ? ' about ' + shortAddr(home) : ''}: ${text}`);
     });
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
@@ -438,7 +439,7 @@ async function handle(req, res) {
     await hot.alert({ kind: 'ask', who: actor.name, leadId: actor.leadId || null,
       headline: `${actor.name} asked you${home ? ' about ' + shortAddr(home) : ''}`,
       details: [`"${text}"`, reach ? 'Reach them: ' + reach : 'No email or phone on file yet. Reply on their board.', `Board: ${out.doc.name}`],
-      link: (home && home.url) || `https://homestyledna.com/board.html?id=${id}` });
+      link: (home && home.url) || `https://homestyledna.com/board.html?id=${id}`, task: askTask });
     return res.status(200).json({ ok: true, board: view(out.doc) });
   }
 

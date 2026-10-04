@@ -233,7 +233,7 @@ async function writeNotes(report, only, onlyVisitor) {
         const ok = await lofty.addNote(m.leadId, [`StyleDNA activity, ${date} (${b.name}):`, ...lines.map((l) => '- ' + l), `StyleDNA score: ${sc.score} (${sc.tier})`, `Board: https://homestyledna.com/board.html?id=${b.id}`].join('\n'));
         if (ok) { u.notedAt = now; report.notes++; }
       }
-      const t = await followUp(m, sc, report);
+      const t = await followUp(Object.assign({}, m, { lastTaskAt: Math.max(m.lastTaskAt || 0, (b.hot || {})['task|' + m.pid] || 0) }), sc, report);
       if (t) u.lastTaskAt = t;
       upd[m.pid] = u;
     }
@@ -254,7 +254,7 @@ async function writeNotes(report, only, onlyVisitor) {
       const ok = await lofty.addNote(v.leadId, [`StyleDNA activity, ${date}:`, ...lines.map((l) => '- ' + l), `StyleDNA score: ${sc.score} (${sc.tier})`].join('\n'));
       if (ok) { u.notedAt = now; report.notes++; }
     }
-    const t = await followUp(v, sc, report);
+    const t = await followUp(Object.assign({}, v, { lastTaskAt: Math.max(v.lastTaskAt || 0, (v.hot || {})['task|'] || 0) }), sc, report);
     if (t) u.lastTaskAt = t;
     await store.upsert('visitors', vid, (doc) => { Object.assign(doc, u); });
   }

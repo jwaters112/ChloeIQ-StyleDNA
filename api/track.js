@@ -79,14 +79,14 @@ module.exports = async (req, res) => {
         apply(doc.browse, m.pid, events);
         doc.hot = doc.hot || {};
         sig = signals(doc.browse, m.pid, events, m.lastSeen, doc.hot);
-        sig.forEach((x) => { x.key = m.pid; });
+        if (sig.length) sig[0].task = hot.fresh(doc.hot, 'task|' + m.pid);
         who = { name: m.name, leadId: m.leadId || null, board: doc.name };
         m.lastSeen = Date.now();
       });
       if (!out || out.result === 'forbidden') return res.status(403).json({ ok: false });
       for (const x of sig) {
         await hot.alert({ kind: x.kind, who: who.name, leadId: who.leadId, headline: `${who.name} ${x.what}`,
-          details: [`Board: ${who.board}`], link: x.link || `https://homestyledna.com/board.html?id=${b.id}` });
+          details: [`Board: ${who.board}`], link: x.link || `https://homestyledna.com/board.html?id=${b.id}`, task: !!x.task });
       }
       return res.status(200).json({ ok: true });
     }
@@ -98,12 +98,13 @@ module.exports = async (req, res) => {
         apply(doc.browse, '', events);
         doc.hot = doc.hot || {};
         sig = signals(doc.browse, '', events, doc.lastSeen, doc.hot);
+        if (sig.length) sig[0].task = hot.fresh(doc.hot, 'task|');
         doc.lastSeen = Date.now();
       }, () => ({ leadId: Number(l.id) }));
       if (sig.length) {
         let name = out.doc.name;
         if (!name) { const L = await lofty.lead(l.id); name = (L && L.name) || 'A StyleDNA lead'; await store.upsert('visitors', String(l.id), (doc) => { doc.name = name; }); }
-        for (const x of sig) await hot.alert({ kind: x.kind, who: name, leadId: Number(l.id), headline: `${name} ${x.what}`, details: ['Took the StyleDNA quiz, no home board yet'], link: x.link });
+        for (const x of sig) await hot.alert({ kind: x.kind, who: name, leadId: Number(l.id), headline: `${name} ${x.what}`, details: ['Took the StyleDNA quiz, no home board yet'], link: x.link, task: !!x.task });
       }
       return res.status(200).json({ ok: true });
     }

@@ -15,13 +15,18 @@ async function emailJosh(subject, lines, link) {
   const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#030C0D;max-width:560px">
     ${lines.map((l) => `<p style="margin:0 0 8px">${esc(l)}</p>`).join('')}
     ${link ? `<p style="margin:16px 0 0"><a href="${esc(link)}" style="color:#B8892B;font-weight:600">Open</a></p>` : ''}</div>`;
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: `StyleDNA <alerts@${DOMAIN}>`, to: [JOSH], subject, text, html }), signal: AbortSignal.timeout(8000),
-    });
-    return r.ok;
-  } catch (e) { return false; }
+  // The email service allows two sends a second, so wait and retry when it says slow down.
+  for (let i = 0; i < 4; i++) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST', headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: `StyleDNA <alerts@${DOMAIN}>`, to: [JOSH], subject, text, html }), signal: AbortSignal.timeout(8000),
+      });
+      if (r.status === 429) { await new Promise((ok) => setTimeout(ok, 700 * (i + 1))); continue; }
+      return r.ok;
+    } catch (e) { return false; }
+  }
+  return false;
 }
 
 // Due time for a hot follow-up: within the next couple of hours during the day, else 9:30 tomorrow.

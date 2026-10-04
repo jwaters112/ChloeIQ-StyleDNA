@@ -13,16 +13,21 @@ const cleanEmail = (v) => { const s = String(v || '').trim().toLowerCase().slice
 
 async function send(msg) {
   if (!process.env.RESEND_API_KEY) return { ok: false, error: 'no_key' };
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.assign({ from: FROM, reply_to: REPLY_TO }, msg)),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!r.ok) console.warn('email send failed', r.status, (await r.text()).slice(0, 200));
-    return { ok: r.ok };
-  } catch (e) { console.warn('email send error', e && e.message); return { ok: false }; }
+  // Two sends a second is the service's limit: wait and retry when it says slow down.
+  for (let i = 0; i < 4; i++) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ from: FROM, reply_to: REPLY_TO }, msg)),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (r.status === 429) { await new Promise((ok) => setTimeout(ok, 700 * (i + 1))); continue; }
+      if (!r.ok) console.warn('email send failed', r.status, (await r.text()).slice(0, 200));
+      return { ok: r.ok };
+    } catch (e) { console.warn('email send error', e && e.message); return { ok: false }; }
+  }
+  return { ok: false };
 }
 
 const boardLink = (b, m) => {
