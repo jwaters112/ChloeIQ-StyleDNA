@@ -13,9 +13,10 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason }) {
   const lead = reason || (n === 1 ? 'A home that fits your StyleDNA just came up.' : `${n} homes that fit your StyleDNA just came up.`);
   const rows = (homes || []).slice(0, 5).map(h => `
       <tr><td style="padding:14px 0;border-top:1px solid #E6E6E3">
-        <div style="font-size:16px;font-weight:600;color:#030C0D">${esc(h.address)}</div>
+        <div style="font-size:16px;font-weight:600">${h.link ? `<a href="${esc(h.link)}" style="color:#030C0D;text-decoration:underline">${esc(h.address)}</a>` : `<span style="color:#030C0D">${esc(h.address)}</span>`}</div>
         ${h.price ? `<div style="font-size:14px;color:#5A5F5E;margin-top:2px">${esc(h.price)}</div>` : ''}
         ${h.why ? `<div style="font-size:14px;color:#5A5F5E;margin-top:6px">${esc(h.why)}</div>` : ''}
+        ${h.link ? `<div style="font-size:14px;margin-top:8px"><a href="${esc(h.link)}" style="color:#B8892B;font-weight:600;text-decoration:none">See photos and details</a></div>` : ''}
       </td></tr>`).join('');
   const html = `<!doctype html><html><body style="margin:0;background:#F5F5F3;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F3"><tr><td align="center" style="padding:28px 16px">
@@ -39,7 +40,7 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason }) {
     </div>
   </td></tr></table></body></html>`;
   const text = [hi, '', lead, '',
-    ...(homes || []).slice(0, 5).map(h => `- ${h.address}${h.price ? ' (' + h.price + ')' : ''}${h.why ? ': ' + h.why : ''}`),
+    ...(homes || []).slice(0, 5).map(h => `- ${h.address}${h.price ? ' (' + h.price + ')' : ''}${h.why ? ': ' + h.why : ''}${h.link ? '\n  See photos and details: ' + h.link : ''}`),
     '', `Open ${boardName}: ${boardUrl}`, '',
     `You're getting this because you turned on email alerts for ${boardName}.`,
     `Turn off email alerts: ${unsubUrl}`, `StyleDNA, ${ADDRESS}`].join('\n');

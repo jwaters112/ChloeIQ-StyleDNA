@@ -58,7 +58,7 @@ async function emailAlert(board, exceptPid, opts) {
 const commas = (n) => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const homeLine = (h) => {
   const facts = [h.beds ? h.beds + ' bd' : '', h.baths ? h.baths + ' ba' : '', h.sqft ? commas(h.sqft) + ' sqft' : ''].filter(Boolean).join(', ');
-  return { address: h.address || 'Home', price: h.price ? '$' + commas(h.price) : '', why: [facts, h.note].filter(Boolean).join('. ') };
+  return { url: h.url || '', address: h.address || 'Home', price: h.price ? '$' + commas(h.price) : '', why: [facts, h.note].filter(Boolean).join('. ') };
 };
 
 async function dropDead(id, dead) {

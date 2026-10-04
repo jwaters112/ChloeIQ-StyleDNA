@@ -63,7 +63,11 @@ async function alertBoard(b, exceptPid, { kind, homes, reason }) {
   await Promise.all(list.map(async (e) => {
     const m = (b.members || []).find((x) => x.pid === e.pid);
     if (!m) return;
-    const msg = renderAlert({ name: m.name, boardName: b.name, boardUrl: boardLink(b, m), homes, unsubUrl: unsubLink(b, e), reason });
+    const board = boardLink(b, m);
+    const frag = '#sdna=' + b.id + '.' + m.pid + '.' + m.key + '.' + encodeURIComponent(b.name || '');
+    const mine = (homes || []).map((h) => Object.assign({}, h, {
+      link: /^https:\/\/(www\.)?joshwaters\.com\/listing-detail\//.test(h.url || '') ? h.url.split('#')[0] + frag : board }));
+    const msg = renderAlert({ name: m.name, boardName: b.name, boardUrl: board, homes: mine, unsubUrl: unsubLink(b, e), reason });
     const r = await send({ to: [e.email], subject: msg.subject, html: msg.html, text: msg.text, headers: msg.headers });
     if (r.ok) sent.push(e.pid);
   }));
