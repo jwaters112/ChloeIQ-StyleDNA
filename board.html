@@ -53,6 +53,8 @@
         .btn:disabled { opacity: 0.6; cursor: wait; }
         .link { background: none; border: 0; color: var(--silver); font-size: 14px; cursor: pointer; padding: 10px; text-decoration: none; display: inline-block; }
         .link:hover { color: var(--soft-white); }
+        .btn-ghost { display: block; text-align: center; text-decoration: none; background: none; color: var(--soft-white); border: 1px solid var(--line-strong); margin-top: 10px; }
+        .btn-ghost:hover { background: none; border-color: var(--gold); color: var(--gold); }
 
         .card { border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: rgba(6, 25, 26, 0.5); }
         .join h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
@@ -60,6 +62,10 @@
         .field { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line-strong); color: var(--soft-white); font-size: 17px; padding: 10px 0; margin-bottom: 18px; }
         .field:focus { outline: none; border-color: var(--gold); }
         .field::placeholder { color: rgba(163, 167, 166, 0.55); }
+        .what { list-style: none; padding: 0; margin: -4px 0 20px; border-top: 1px solid var(--line); }
+        .what li { font-size: 14px; line-height: 1.55; color: var(--silver); padding: 10px 0; border-bottom: 1px solid var(--line); }
+        .what b { color: var(--soft-white); font-weight: 600; }
+        .join .kicker { margin-bottom: 6px; }
         .err { color: #E8A598; font-size: 13px; margin: -8px 0 12px; min-height: 1px; }
 
         .tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
@@ -147,12 +153,18 @@
         <div class="members" id="members"></div>
 
         <section class="card join" id="joinCard" hidden>
+            <p class="kicker" id="joinKicker">You're invited</p>
             <h2 id="joinTitle">Join this board</h2>
             <p id="joinText">Add your name to save homes, react and comment with everyone here.</p>
+            <ul class="what" id="joinWhat">
+                <li><b>StyleDNA</b> is a 60-second quiz. Swipe through twelve rooms and it names your home style.</li>
+                <li><b>This board</b> is where you save homes together, heart or pass on them and leave comments.</li>
+                <li><b>Alerts</b> let you know when a new listing fits your style or someone adds a home.</li>
+            </ul>
             <input class="field" id="joinName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
             <p class="err" id="joinErr"></p>
             <button class="btn" id="joinBtn">Join the board</button>
-            <a class="link" id="quizFirst" href="/">Take the 60-second StyleDNA quiz first</a>
+            <a class="btn btn-ghost" id="quizFirst" href="/">Take the 60-second quiz first</a>
         </section>
 
         <div id="memberArea" hidden>
@@ -289,10 +301,13 @@
         $('memberArea').hidden = !me;
         if (!me) {
             const r = myResult();
+            const host = board.members[0] && board.members[0].name;
+            $('joinKicker').textContent = host ? `${host} invited you` : "You're invited";
             $('joinTitle').textContent = 'Join ' + board.name;
             $('joinText').textContent = r && ARCH[r.a]
-                ? `Save homes, react and comment with everyone here. Your StyleDNA (${ARCH[r.a]}) will show on the board.`
-                : 'Save homes, react and comment with everyone here. Take the quiz first if you want your StyleDNA on the board.';
+                ? `Your StyleDNA (${ARCH[r.a]}) will show next to your name.`
+                : 'Take the quiz first so your style shows on the board, or join now and take it later.';
+            $('joinWhat').hidden = !!(r && ARCH[r.a]);
             $('quizFirst').hidden = !!(r && ARCH[r.a]);
             if (r && r.n && !$('joinName').value) $('joinName').value = r.n;
             return;
