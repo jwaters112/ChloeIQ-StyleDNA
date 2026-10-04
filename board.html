@@ -433,8 +433,8 @@
     const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const pushReady = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
     function sheet(title, body, actions) {
-        const bg = el('div', { class: 'sheet-bg', onclick: (e) => { if (e.target === bg) bg.remove(); } },
-            el('div', { class: 'sheet' }, el('h3', {}, title), body, actions(bg)));
+        const bg = el('div', { class: 'sheet-bg', onclick: (e) => { if (e.target === bg) bg.remove(); } });
+        bg.append(el('div', { class: 'sheet' }, el('h3', {}, title), body, actions(bg)));
         document.body.append(bg);
     }
     function offerAlerts(afterJoin) {
