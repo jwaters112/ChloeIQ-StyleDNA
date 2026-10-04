@@ -83,19 +83,22 @@ async function describeLink(url) {
   if (slug) out.address = decodeURIComponent(slug).replace(/-/g, ' ').replace(/\s+TX$/i, ', TX');
   if (!FETCH_HOSTS.includes(u.hostname)) return out;
   try {
-    const r = await fetch(u.toString(), { headers: { 'User-Agent': 'Mozilla/5.0 StyleDNA board' }, signal: AbortSignal.timeout(4000), redirect: 'follow' });
-    if (!r.ok) return out;
+    const r = await fetch(u.toString(), { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'en-US,en;q=0.9' }, signal: AbortSignal.timeout(6000), redirect: 'follow' });
+    if (!r.ok) { console.warn('listing fetch', r.status, u.hostname); return out; }
     const html = (await r.text()).slice(0, 400000);
     const meta = (prop) => { const m = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]*content=["']([^"']*)`, 'i')) || html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${prop}["']`, 'i')); return m ? m[1] : ''; };
     const title = meta('og:title') || (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
     const desc = meta('og:description') || meta('description') || '';
     const text = (title + ' | ' + desc).replace(/&amp;/g, '&').replace(/&#39;/g, "'");
+    // joshwaters.com: "Homes for sale: 9105 Norman DR, Plano, TX 75025 (MLS #: 21398016) with 3 beds ..."
+    const lofty = desc.match(/for sale:\s*([^(]+?)\s*\(MLS\s*#:\s*(\d+)\)/i);
+    if (lofty) { out.address = lofty[1].trim(); out.mls = lofty[2]; }
     if (!out.address) out.address = clip(title.split('|')[0].split(' - ')[0], 90);
     const price = text.match(/\$\s?([\d,]{5,})/); if (price) out.price = money(price[1]);
     const beds = text.match(/(\d+)\s*(?:bd|beds?|bedrooms?)\b/i); if (beds) out.beds = beds[1];
     const baths = text.match(/(\d+(?:\.\d)?)\s*(?:ba|baths?|bathrooms?)\b/i); if (baths) out.baths = baths[1];
     const sqft = text.match(/([\d,]{3,})\s*(?:sq\.?\s?ft|sqft|square feet)/i); if (sqft) out.sqft = sqft[1].replace(/,/g, '');
-  } catch (e) { /* keep what the link itself told us */ }
+  } catch (e) { console.warn('listing fetch failed', u.hostname, e && e.message); }
   out.address = clip(out.address, 90);
   return out;
 }
@@ -241,7 +244,7 @@ async function handle(req, res) {
       if (!actor) return 'forbidden';
       if (b.homes.length >= MAX_HOMES) return 'full';
       if (info.url && b.homes.some((h) => h.url === info.url)) return 'dupe';
-      home = { id: store.newId(8), source: 'member', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
+      home = { id: store.newId(8), source: 'member', mls: info.mls || '', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
         addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
       const note = clip(body.note, 300);
       if (note) home.comments.push({ id: store.newId(6), by: actor.pid, text: note, at: Date.now() });
