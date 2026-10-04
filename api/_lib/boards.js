@@ -55,7 +55,7 @@ async function read(id) {
     const h = await blobLib().head(keyFor(id));
     etag = h && h.etag;
   } catch (err) {
-    if (err && err.name === 'BlobNotFoundError') return null;
+    if (err && (err.name === 'BlobNotFoundError' || /does not exist|not found/i.test(err.message || ''))) return null;
     throw err;
   }
   const r = await blobLib().get(keyFor(id), { access: 'private', useCache: false });
