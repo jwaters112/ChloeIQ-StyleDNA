@@ -53,6 +53,7 @@ const RATE_MAX_PER_IP = 5;
 const MIN_QUIZ_SECONDS = 25; // a real person can't finish 20 swipes, 4 steps and the form faster
 const recentByIp = new Map();
 const recentEmails = new Map();
+const recentUpdates = new Map();
 
 function overLimit(ip, now) {
   const hits = (recentByIp.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
@@ -118,7 +119,10 @@ async function handle(req, res) {
 
   // Same email again within 10 minutes (double submit, back button): don't create a second lead.
   const seen = recentEmails.get(email);
-  if (seen && now - seen < RATE_WINDOW_MS) return res.status(200).json({ ok: true, duplicate: true });
+  // A search change from the results page after they sent their info: allowed, at most once a minute.
+  const isUpdate = body.update === true;
+  if (isUpdate) { const u = recentUpdates.get(email); if (u && now - u < 60000) return res.status(200).json({ ok: true, duplicate: true }); recentUpdates.set(email, now); if (recentUpdates.size > 5000) recentUpdates.clear(); }
+  else if (seen && now - seen < RATE_WINDOW_MS) return res.status(200).json({ ok: true, duplicate: true });
 
   const key = process.env.LOFTY_API_KEY;
   if (!key) {
@@ -245,8 +249,9 @@ async function handle(req, res) {
   // Already in Lofty (retake, second device, partner using the same email): add the new result as a
   // note on the existing lead instead of creating a duplicate.
   const existing = await lofty.leadIdByEmail(email);
+  if (isUpdate && !existing) return res.status(200).json({ ok: true, skipped: true }); // never create a lead from an update
   if (existing) {
-    await lofty.addNote(existing, ['StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
+    await lofty.addNote(existing, [isUpdate ? 'StyleDNA search updated on the results page' : 'StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
     recentEmails.set(email, now);
     await linkMember(body.member, existing);
     await rememberSharer(body.sid, existing, name);

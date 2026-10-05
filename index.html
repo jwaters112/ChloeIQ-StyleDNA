@@ -1434,6 +1434,18 @@
         .cta-list li { position: relative; padding: 0 0 0 20px; margin: 0 0 8px; font-size: 14px; color: var(--silver); line-height: 1.45; }
         .cta-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
         .cta-card .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .sx { margin: 12px 0 0; }
+        .sx-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "k c" "v c"; gap: 2px 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); align-items: center; }
+        .sx-k { grid-area: k; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--silver); }
+        .sx-v { grid-area: v; font-size: 15px; color: var(--soft-white); min-width: 0; }
+        .sx-c { grid-area: c; background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; }
+        .sx-row.on .sx-c { visibility: hidden; }
+        .sx-panel { margin: 0 0 12px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .sx-panel .chip-label { margin-top: 4px; }
+        .sx-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .sx-panel .welcome-cta:disabled { opacity: .5; }
+        .sx-panel .text-link { display: block; margin: 6px auto 0; }
+        .sx-panel .must-row { padding: 8px 0; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1681,28 +1693,32 @@
                 <div class="results-section">
                     <p class="results-description" id="archetypeDescription"></p>
                     <div class="how-love" id="howLove" hidden></div>
-                    <div class="search-row"><details class="search-sum">
+                    <div class="search-row"><details class="search-sum" id="searchSum">
                         <summary><span class="search-sum-k">Your search</span><span class="search-sum-v" id="searchLine"></span></summary>
-                        <dl class="profile-list">
+                        <div class="sx" id="sxList">
+                            <div class="sx-row" data-part="area"><span class="sx-k">Area</span><span class="sx-v" id="sxArea"></span><button type="button" class="sx-c" onclick="openPart('area')">Change</button></div>
+                            <div class="sx-row" data-part="budget"><span class="sx-k">Budget</span><span class="sx-v" id="sxBudget"></span><button type="button" class="sx-c" onclick="openPart('budget')">Change</button></div>
+                            <div class="sx-row" data-part="type"><span class="sx-k">Home type</span><span class="sx-v" id="sxType"></span><button type="button" class="sx-c" onclick="openPart('type')">Change</button></div>
+                            <div class="sx-row" data-part="must"><span class="sx-k">Must and nice to have</span><span class="sx-v" id="sxMust"></span><button type="button" class="sx-c" onclick="openPart('must')">Change</button></div>
+                            <div class="sx-row" data-part="picks"><span class="sx-k">Quick picks</span><span class="sx-v" id="sxPicks"></span><button type="button" class="sx-c" onclick="openPart('picks')">Change</button></div>
+                        </div>
+                        <div class="sx-panel" id="sxPanel" hidden>
+                            <div id="sxBody"></div>
+                            <p class="area-count" id="sxCount" aria-live="polite"></p>
+                            <button type="button" class="welcome-cta" id="sxDone" onclick="applyPart()">Show these homes</button>
+                            <button type="button" class="text-link" onclick="closePart()">Cancel</button>
+                        </div>
+                        <dl class="profile-list" hidden>
                             <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
                             <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
                             <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
                             <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
                             <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
                         </dl>
-                        <button class="text-link" onclick="editSearch()">Edit my search</button>
                     </details></div>
                     <div class="results-budget-note" id="budgetNote"></div>
                     <div class="avail" id="availBlock">
-                        <div class="area-line"><span class="area-now" id="areaNow"></span><button type="button" class="area-change" id="areaChangeBtn" onclick="openArea()" aria-expanded="false" aria-controls="areaPanel">Change</button></div>
-                        <div class="area-panel" id="areaPanel" hidden>
-                            <p class="chip-label">Counties</p>
-                            <div class="chips" id="areaCounties"></div>
-                            <div id="areaCityBlock" hidden><p class="chip-label">Cities <span class="chip-hint">Optional</span></p><div class="chips city-chips" id="areaCities"></div></div>
-                            <p class="area-count" id="areaCount" aria-live="polite"></p>
-                            <button type="button" class="welcome-cta" id="areaDone" onclick="applyArea()">Show homes here</button>
-                            <button type="button" class="text-link" onclick="closeArea()">Cancel</button>
-                        </div>
+                        <div class="area-line"><span class="area-now" id="areaNow"></span><button type="button" class="area-change" id="areaChangeBtn" onclick="openPart('area')">Change</button></div>
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
                         <button type="button" class="welcome-cta avail-go" id="availLink" hidden onclick="toggleHomeList()" aria-expanded="false" aria-controls="homeList">See homes for sale</button>
                         <div class="home-list" id="homeList" hidden></div>
@@ -2802,6 +2818,7 @@
             const lean = document.getElementById('styleLean');
             lean.hidden = false; lean.textContent = info.label + ' architecture' + (styleNext ? ', with a lean toward ' + styleLabel(styleNext) : '');
             document.getElementById('archetypeDescription').textContent = sig.line;
+            setTimeout(refreshSearchText, 0);
             const how = howYouLove();
             document.getElementById('howLove').hidden = !how.length;
             document.getElementById('howLove').innerHTML = how.map(r => `<div class="how-row"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('');
@@ -2928,56 +2945,111 @@
             if (selectedCounties.length) return selectedCounties.length <= 3 ? selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County') : selectedCounties.slice(0, 2).join(', ') + ' and ' + (selectedCounties.length - 2) + ' more counties';
             return 'All of DFW';
         }
-        let draft = null, draftTimer = null, draftResult = null;
-        function openArea() {
-            const panel = document.getElementById('areaPanel');
-            if (!panel.hidden) return closeArea();
+        // ---- Edit one part of the search right on the results; swipes and the result stay as they are ----
+        let part = null, draft = null, draftTimer = null, draftResult = null;
+        function snapshotSearch() { return { counties: selectedCounties.slice(), cities: selectedCities.slice(), prices: new Set(selPrices), types: new Set(selTypes), must: Object.assign({}, must), picks: JSON.parse(JSON.stringify(picks)) }; }
+        function draftCriteria() {
+            return { counties: draft.counties, cities: draft.cities, prices: [...draft.prices].map(i => PRICE_RANGES[i]), types: [...draft.types], price: '', type: '', must: draft.must, picks: draft.picks };
+        }
+        function openPart(p) {
+            const det = document.getElementById('searchSum'); det.open = true;
             mergeCities();
-            draft = { counties: selectedCounties.slice(), cities: selectedCities.slice() };
-            panel.hidden = false; document.getElementById('areaChangeBtn').setAttribute('aria-expanded', 'true');
-            document.getElementById('areaChangeBtn').textContent = 'Close';
-            renderDraft(); countDraft();
-            track('area_change_opened', { archetype: userArchetype });
+            part = p; draft = snapshotSearch();
+            const row = document.querySelector(`.sx-row[data-part="${p}"]`), panel = document.getElementById('sxPanel');
+            row.after(panel); panel.hidden = false;
+            document.querySelectorAll('.sx-row').forEach(r => r.classList.toggle('on', r === row));
+            renderPart(); countPart();
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            track('search_part_opened', { part: p });
         }
-        function closeArea() {
-            document.getElementById('areaPanel').hidden = true; draft = null;
-            const b = document.getElementById('areaChangeBtn'); b.setAttribute('aria-expanded', 'false'); b.textContent = 'Change';
+        function closePart() {
+            document.getElementById('sxPanel').hidden = true; part = null; draft = null;
+            document.querySelectorAll('.sx-row').forEach(r => r.classList.remove('on'));
         }
-        function renderDraft() {
-            document.getElementById('areaCounties').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, draft.counties.includes(c), () => {
-                draft.counties = draft.counties.includes(c) ? draft.counties.filter(x => x !== c) : draft.counties.concat(c);
-                const keep = new Set(draft.counties.flatMap(x => COUNTY_CITIES[x]));
-                draft.cities = draft.cities.filter(x => keep.has(x));
-                renderDraft(); countDraft();
-            })));
-            const cities = [...new Set(draft.counties.flatMap(c => COUNTY_CITIES[c]))].sort();
-            document.getElementById('areaCityBlock').hidden = !cities.length;
-            document.getElementById('areaCities').replaceChildren(...cities.map(c => chip(c, draft.cities.includes(c), () => {
-                draft.cities = draft.cities.includes(c) ? draft.cities.filter(x => x !== c) : draft.cities.concat(c).slice(-12);
-                renderDraft(); countDraft();
-            })));
+        function renderPart() {
+            const body = document.getElementById('sxBody'), redo = () => { renderPart(); countPart(); };
+            const box = (cls) => { const d = document.createElement('div'); d.className = cls || 'chips'; return d; };
+            const label = (t) => Object.assign(document.createElement('p'), { className: 'chip-label', textContent: t });
+            const nodes = [];
+            if (part === 'area') {
+                const c = box(); Object.keys(COUNTY_CITIES).forEach(k => c.append(chip(k, draft.counties.includes(k), () => {
+                    draft.counties = draft.counties.includes(k) ? draft.counties.filter(x => x !== k) : draft.counties.concat(k);
+                    const keep = new Set(draft.counties.flatMap(x => COUNTY_CITIES[x])); draft.cities = draft.cities.filter(x => keep.has(x)); redo();
+                })));
+                nodes.push(label('Counties'), c);
+                const cities = [...new Set(draft.counties.flatMap(x => COUNTY_CITIES[x]))].sort();
+                if (cities.length) { const ci = box('chips city-chips'); cities.forEach(k => ci.append(chip(k, draft.cities.includes(k), () => { draft.cities = draft.cities.includes(k) ? draft.cities.filter(x => x !== k) : draft.cities.concat(k).slice(-12); redo(); }))); nodes.push(label('Cities (optional)'), ci); }
+            } else if (part === 'budget') {
+                const c = box(); ['Under $300K', '$300K to $500K', '$500K to $750K', '$750K to $1M', '$1M+'].forEach((t, i) => c.append(chip(t, draft.prices.has(i), () => { if (draft.prices.has(i)) draft.prices.delete(i); else draft.prices.add(i); redo(); })));
+                nodes.push(label('Pick all that work'), c);
+            } else if (part === 'type') {
+                const c = box(); Object.entries(TYPE_LABEL).forEach(([v, t]) => c.append(chip(t, draft.types.has(v), () => { if (draft.types.has(v)) draft.types.delete(v); else draft.types.add(v); redo(); })));
+                c.append(chip('Open to any', !draft.types.size, () => { draft.types.clear(); redo(); }));
+                nodes.push(label('Pick all that work'), c);
+            } else if (part === 'must') {
+                const byK = Object.fromEntries(MUSTS.map(m => [m.k, m]));
+                mustOrder.map(k => byK[k]).filter(Boolean).forEach(m => {
+                    const row = document.createElement('div'); row.className = 'must-row';
+                    const t = document.createElement('div'); t.className = 'must-text'; t.append(Object.assign(document.createElement('b'), { textContent: m.label }));
+                    const seg = document.createElement('div'); seg.className = 'seg';
+                    [['must', 'Must'], ['nice', 'Nice']].forEach(([v, l]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = l; b.className = draft.must[m.k] === v ? 'on' : ''; b.onclick = () => { if (draft.must[m.k] === v) delete draft.must[m.k]; else draft.must[m.k] = v; redo(); }; seg.append(b); });
+                    row.append(t, seg); nodes.push(row);
+                });
+            } else if (part === 'picks') {
+                PICKS.forEach(p => {
+                    const cur = Array.isArray(draft.picks[p.k]) ? draft.picks[p.k] : draft.picks[p.k] ? [draft.picks[p.k]] : [];
+                    const c = box(); p.opts.forEach(([v, l]) => c.append(chip(l, cur.includes(v), () => { const a = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v); if (a.length) draft.picks[p.k] = a; else delete draft.picks[p.k]; redo(); })));
+                    nodes.push(label(p.label), c);
+                });
+            }
+            body.replaceChildren(...nodes);
         }
-        function countDraft() {
-            const out = document.getElementById('areaCount'), done = document.getElementById('areaDone');
-            out.textContent = 'Counting homes in your style...'; draftResult = null; done.disabled = true;
+        function countPart() {
+            const out = document.getElementById('sxCount'), done = document.getElementById('sxDone');
+            if (part === 'picks') { out.textContent = 'Quick picks change which homes show first, not how many.'; done.disabled = false; done.textContent = 'Save'; draftResult = null; return; }
+            if (part === 'budget' && !draft.prices.size) { out.textContent = 'Pick at least one budget.'; done.disabled = true; return; }
+            out.textContent = 'Counting homes in your style...'; done.disabled = true; draftResult = null;
             clearTimeout(draftTimer);
-            const k = userArchetype, area = { counties: draft.counties.slice(), cities: draft.cities.slice() };
-            draftTimer = setTimeout(() => availFetch(k, null, area).then(j => {
-                if (!draft || JSON.stringify(area) !== JSON.stringify({ counties: draft.counties, cities: draft.cities })) return;
-                draftResult = j; done.disabled = false;
-                const label = styleLabel(k), n = j.count;
-                out.innerHTML = n >= 5 ? `<b>${n.toLocaleString('en-US')}</b> ${esc(label)} homes here in your price range.` : n ? `Only <b>${n}</b> ${esc(label)} ${n === 1 ? 'home' : 'homes'} here in your price range right now.` : `No ${esc(label)} homes here in your price range right now.`;
-                done.textContent = n ? 'Show these homes' : 'Use this area';
-            }).catch(() => { out.textContent = "Couldn't count homes just now."; done.disabled = false; done.textContent = 'Use this area'; }), 450);
+            const k = userArchetype, crit = draftCriteria(), key = JSON.stringify(crit);
+            draftTimer = setTimeout(() => fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, crit)) })
+                .then(r => r.json()).then(j => {
+                    if (!draft || JSON.stringify(draftCriteria()) !== key || !j || !j.ok) return;
+                    draftResult = j; done.disabled = false;
+                    const n = j.count, label = styleLabel(k);
+                    out.innerHTML = n >= 5 ? `<b>${n.toLocaleString('en-US')}</b> ${esc(label)} homes with these changes.` : n ? `Only <b>${n}</b> ${esc(label)} ${n === 1 ? 'home' : 'homes'} with these changes right now.` : `No ${esc(label)} homes with these changes right now.`;
+                    done.textContent = n ? 'Show these homes' : 'Use these changes';
+                }).catch(() => { out.textContent = "Couldn't count homes just now. You can still save."; done.disabled = false; done.textContent = 'Save'; }), 400);
         }
-        function applyArea() {
+        function applyPart() {
             if (!draft) return;
-            selectedCounties = draft.counties.slice(); selectedCities = draft.cities.slice();
-            const j = draftResult;
-            track('area_changed', { counties: selectedCounties.join('|') || 'all', cities: selectedCities.length, count: j ? j.count : -1 });
-            closeArea();
-            document.getElementById('pWhere').textContent = whereLabel();
+            const j = draftResult, p = part;
+            selectedCounties = draft.counties; selectedCities = draft.cities;
+            selPrices = draft.prices; selTypes = draft.types; syncBudget(); syncTypes();
+            must = draft.must; picks = draft.picks;
+            track('search_part_changed', { part: p, count: j ? j.count : -1 });
+            closePart();
+            refreshSearchText();
             if (j) renderAvail(j); else loadAvailability(true);
+            saveMyResult();
+            resyncLead();
+        }
+        // Keep every place that shows their search in step after a change.
+        function refreshSearchText() {
+            const mustL = Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]);
+            const niceL = Object.keys(must).filter(k => must[k] === 'nice').map(k => MUST_LABEL[k]);
+            const pk = Object.keys(picks).flatMap(k => (Array.isArray(picks[k]) ? picks[k] : [picks[k]]).map(v => PICK_LABEL[k][v])).filter(Boolean);
+            document.getElementById('pWhere').textContent = whereLabel();
+            document.getElementById('pBudget').textContent = [selectedPriceLabel, selTypes.size ? selectedHomeTypeLabel : ''].filter(Boolean).join(', ') || 'Open';
+            document.getElementById('pMust').textContent = listText(mustL); document.getElementById('pMustRow').hidden = !mustL.length;
+            document.getElementById('pNice').textContent = listText(niceL); document.getElementById('pNiceRow').hidden = !niceL.length;
+            document.getElementById('pPicks').textContent = listText(pk); document.getElementById('pPicksRow').hidden = !pk.length;
+            document.getElementById('sxArea').textContent = areaName();
+            document.getElementById('sxBudget').textContent = selectedPriceLabel || 'Any price';
+            document.getElementById('sxType').textContent = selectedHomeTypeLabel;
+            document.getElementById('sxMust').textContent = [mustL.length ? 'Must: ' + mustL.join(', ') : '', niceL.length ? 'Nice: ' + niceL.join(', ') : ''].filter(Boolean).join(' · ') || 'None';
+            document.getElementById('sxPicks').textContent = pk.join(', ') || 'None';
+            document.getElementById('areaNow').textContent = areaName();
+            updateSearchLine();
         }
         // Few homes here: say so, offer a short swipe of what is here, the closest area with their style,
         // and if there are none, ask whether building new or renovating would be on the table.
@@ -3122,6 +3194,7 @@
             document.getElementById('pNice').textContent = listText(Object.keys(must).filter(x => must[x] === 'nice').map(x => MUST_LABEL[x]));
             document.getElementById('pNiceRow').hidden = false;
             const note = MUST_LABEL[m] + ' moved to nice-to-have.';
+            setTimeout(refreshSearchText, 0); resyncLead();
             if (j) renderAvail(j, note); else loadAvailability(true);
         }
         function homeCard(h, where) {
@@ -3214,29 +3287,9 @@
             if (field) field.focus();
         }
 
-        let submitting = false;
-        async function submitData(event) {
-            event.preventDefault();
-            if (submitting) return;
-            const nameEl = document.getElementById('nameInput');
-            const emailEl = document.getElementById('emailInput');
-            const phoneEl = document.getElementById('phoneInput');
-            const select = document.getElementById('neighborhoodInput');
-            const name = nameEl.value.trim();
-            const email = emailEl.value.trim();
-            const phone = phoneEl.value.trim();
-            let neighborhood = select.value;
-            if (neighborhood === '__other__') neighborhood = document.getElementById('otherNeighborhoodInput').value.trim();
-
-            if (!name) return showFormError('Please add your name.', nameEl);
-            if (!/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) return showFormError('Please check your email address.', emailEl);
-            if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
-            if (!neighborhood && select.value === '__other__') return showFormError('Please type the area you are most interested in.', document.getElementById('otherNeighborhoodInput'));
-            if (!neighborhood) neighborhood = myAreas()[0] || '';
-            showFormError('');
-
-            userData = { name, email, phone, neighborhood };
-            const payload = {
+        let submitting = false, leadSent = null;
+        function leadPayload(name, email, phone, neighborhood) {
+            return {
                 name, email, phone,
                 area: neighborhood,
                 areas: [...new Set([neighborhood, ...myAreas()])].filter(Boolean).slice(0, 6),
@@ -3263,6 +3316,41 @@
                 source: window.__srcLabel || '', sid: window.__sid || '', referredBy: (window.__src && window.__src.r) || '',
                 elapsed: window.__quizStart ? Math.round((Date.now() - window.__quizStart) / 1000) : null
             };
+        }
+        // After they've sent their info, a search change goes to Lofty as an updated note.
+        let resyncTimer = null;
+        function resyncLead() {
+            if (!leadSent) return;
+            clearTimeout(resyncTimer);
+            resyncTimer = setTimeout(() => {
+                const p = leadPayload(leadSent.name, leadSent.email, leadSent.phone, myAreas()[0] || leadSent.neighborhood);
+                p.update = true;
+                fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }).then(() => track('lead_search_updated', {})).catch(() => {});
+            }, 1500);
+        }
+        async function submitData(event) {
+            event.preventDefault();
+            if (submitting) return;
+            const nameEl = document.getElementById('nameInput');
+            const emailEl = document.getElementById('emailInput');
+            const phoneEl = document.getElementById('phoneInput');
+            const select = document.getElementById('neighborhoodInput');
+            const name = nameEl.value.trim();
+            const email = emailEl.value.trim();
+            const phone = phoneEl.value.trim();
+            let neighborhood = select.value;
+            if (neighborhood === '__other__') neighborhood = document.getElementById('otherNeighborhoodInput').value.trim();
+
+            if (!name) return showFormError('Please add your name.', nameEl);
+            if (!/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) return showFormError('Please check your email address.', emailEl);
+            if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
+            if (!neighborhood && select.value === '__other__') return showFormError('Please type the area you are most interested in.', document.getElementById('otherNeighborhoodInput'));
+            if (!neighborhood) neighborhood = myAreas()[0] || '';
+            showFormError('');
+
+            userData = { name, email, phone, neighborhood };
+            const payload = leadPayload(name, email, phone, neighborhood);
+            leadSent = null;
 
             const btn = document.getElementById('submitBtn');
             const label = btn.textContent;
@@ -3276,6 +3364,7 @@
                 const data = await r.json().catch(() => ({}));
                 if (!r.ok || !data.ok) throw new Error(data.error || ('status ' + r.status));
                 if (data.leadId && data.leadToken) { try { localStorage.setItem('sdna_lead', JSON.stringify({ id: String(data.leadId), t: data.leadToken })); } catch (e) {} }
+                leadSent = { name, email, phone, neighborhood };
                 if (window.sdnaStat) sdnaStat('lead');
                 track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: select.value === '__other__' ? 'other' : neighborhood, phone: phone ? 'yes' : 'no' });
                 showActivation(true);
