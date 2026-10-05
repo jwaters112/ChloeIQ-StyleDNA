@@ -136,7 +136,7 @@ async function buildDeck(input) {
     const results = await each(styles.map((s) => () => idx.search(Object.assign({}, baseCond(c), s.q), 12)), 6);
     const all = []; results.forEach((r) => (r ? r.list : []).forEach((l) => all.push(l)));
     const tags = await phototag.tagAll(all, 60, 7000);
-    homes = all.filter((l) => tags[l.id] && phototag.CODE_STYLE[tags[l.id]]).map((l) => Object.assign({}, l, { k: phototag.CODE_STYLE[tags[l.id]] }));
+    homes = all.map((l) => { const t = phototag.parse(tags[l.id]); return t && t.sure ? Object.assign({}, l, { k: t.k }) : null; }).filter(Boolean);
   }
   // Narrow city picks the nightly sample doesn't cover well: look those cities up live and read any new photos now.
   if (source === 'pool' && cities.size && homes.length < DECK_SIZE) {
@@ -145,7 +145,7 @@ async function buildDeck(input) {
     results.forEach((r) => (r ? r.list : []).forEach((l) => { if (!have.has(l.id)) { have.add(l.id); fresh.push(l); } }));
     if (fresh.length) {
       const tags = await phototag.tagAll(fresh, 40, 5000);
-      fresh.forEach((l) => { const code = tags[l.id]; if (code && phototag.CODE_STYLE[code]) homes.push(Object.assign({}, l, { k: phototag.CODE_STYLE[code] })); });
+      fresh.forEach((l) => { const t = phototag.parse(tags[l.id]); if (t && t.sure) homes.push(Object.assign({}, l, { k: t.k })); });
     }
   }
   const cands = pick(homes, false);

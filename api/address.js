@@ -21,6 +21,17 @@ module.exports = async (req, res) => {
     try {
       if (b.action === 'deck') return res.status(200).json(await deck.buildDeck(b));
       if (b.action === 'availability') return res.status(200).json(await deck.availability(b, String(b.k || '')));
+      // Test site only: re-read a spread of pool homes with the current photo reader, without saving.
+      if (b.action === 'tagsample' && process.env.VERCEL_ENV !== 'production') {
+        const store = require('./_lib/boards'), phototag = require('./_lib/phototag');
+        const counties = ['Dallas', 'Collin', 'Denton', 'Tarrant', 'Parker', 'Ellis'];
+        const docs = await Promise.all(counties.map((c) => store.readIn('pool', c).catch(() => null)));
+        const byK = {}; docs.forEach((d) => ((d && d.doc && d.doc.homes) || []).forEach((h) => { (byK[h.k] = byK[h.k] || []).push(h); }));
+        const pick = []; let round = 0;
+        while (pick.length < (b.n || 20) && round < 10) { Object.values(byK).forEach((a) => { if (a[round] && pick.length < (b.n || 20)) pick.push(a[Math.floor(Math.random() * a.length)]); }); round++; }
+        const out = await Promise.all(pick.map(async (h) => ({ id: h.id, old: h.k, now: await phototag.readOne(h.photo), photo: h.photo.replace('/w600_original_', '/w800_original_'), address: h.address })));
+        return res.status(200).json({ ok: true, model: phototag.MODEL, out });
+      }
     } catch (e) {
       console.error('deck failed', e && e.message);
       return res.status(502).json({ ok: false, error: 'listings_unavailable' });

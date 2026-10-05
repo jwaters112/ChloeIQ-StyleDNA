@@ -60,7 +60,7 @@ async function findListing(address) {
 
 // ---- listing search (the same search the site's results page runs) ----
 const num = (v) => { const n = Number(String(v == null ? '' : v).replace(/[^\d.]/g, '')); return Number.isFinite(n) ? n : 0; };
-const photoUrl = (u) => String(u || '').split('?')[0].replace('/original_', '/w600_original_');
+const photoUrl = (u) => String(u || '').split('?')[0].replace('/original_', '/w800_original_');
 function slim(l) {
   const m = (l && l.multiFieldsJson && typeof l.multiFieldsJson === 'object') ? l.multiFieldsJson : {};
   const street = l.streetAddress || '', city = l.city || '', zip = l.zipCode || '';
@@ -70,6 +70,7 @@ function slim(l) {
     address: [street, city, ['TX', zip].filter(Boolean).join(' ')].filter(Boolean).join(', '), street, city, county: l.county || '', zip,
     price: num(l.price), beds: num(l.bedrooms), baths: num(l.bathrooms), sqft: num(l.sqft), built: num(l.builtYear),
     photo: photoUrl(l.previewPicture), office: l.agentOrganizationName || '',
+    photos: String(l.listingPictures || '').split('|').filter((u) => /^https:/.test(u)).slice(0, 6).map(photoUrl),
     lat: num(l.latitude), lng: num(l.longitude),
     acres: num(m.chimeLotAcreage), pool: /yes/i.test(m.chimePrivatePoolFlag || m.chimePool || ''),
     stories: String(m.chimeStory || ''), hoa: /yes/i.test(m.chimeHoaFlag || ''), materials: String(m.chimeMaterials || ''),
