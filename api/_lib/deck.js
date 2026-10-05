@@ -100,7 +100,7 @@ function inSearch(l, c, cities) {
 // Deal up to 20 cards: one of each style first (biggest first), then more rounds.
 function deal(styles, cands, sizes) {
   const avail = styles.filter((s) => cands[s.k] && cands[s.k].length).sort((a, b) => (sizes[b.k] || 0) - (sizes[a.k] || 0));
-  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 4 : 7;
+  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 5 : 8;
   const chosen = [];
   for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
     for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
@@ -137,14 +137,18 @@ async function buildDeck(input) {
   const cands = pick(homes, false);
   const sizes = Object.fromEntries(Object.entries(cands).map(([k, a]) => [k, a.length]));
   let total = homes.length;
-  // Thin areas: top up from the three nearest counties, marked "Nearby".
-  if (total < 14 && source === 'pool') {
+  const addNear = (more) => {
+    const ids = new Set(Object.values(cands).flat().map((x) => x.id));
+    const add = pick(more.filter((l) => !ids.has(l.id)), true);
+    Object.entries(add).forEach(([k, a]) => { cands[k] = (cands[k] || []).concat(a); });
+    total += Object.values(add).reduce((n, a) => n + a.length, 0);
+  };
+  // Short of a full deck: the rest of their counties first, then the nearest neighboring counties, marked "Nearby".
+  if (total < DECK_SIZE && source === 'pool' && cities.size) addNear((await pool.load(counties)).filter((l) => inSearch(l, c, null)));
+  if (total < DECK_SIZE && source === 'pool') {
     const center = areaCenter(c);
     const extra = Object.keys(COUNTIES).filter((k) => !counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
-    const more = (await pool.load(extra)).filter((l) => inSearch(l, c, null));
-    const add = pick(more, true);
-    Object.entries(add).forEach(([k, a]) => { cands[k] = (cands[k] || []).concat(a); });
-    total += more.length;
+    addNear((await pool.load(extra)).filter((l) => inSearch(l, c, null)));
   }
   const deck = deal(styles, cands, sizes).map((x) => { delete x._f; return x; });
   return { ok: true, cards: deck, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
