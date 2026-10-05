@@ -1,0 +1,155 @@
+// Builds the swipe deck from real homes for sale in the areas someone picked, scores homes against
+// their must-haves, and answers "how many homes in my style are near me, and if none, where?".
+const idx = require('./idx');
+const { STYLES, BY_KEY, COUNTIES } = require('./styles');
+
+const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
+const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
+const LEVEL = new Set(['must', 'nice']);
+const clip = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
+
+// Whatever the browser sends, keep only values we know.
+function criteria(b) {
+  b = b || {};
+  const counties = (Array.isArray(b.counties) ? b.counties : []).filter((c) => COUNTIES[c]).slice(0, 8);
+  const cities = (Array.isArray(b.cities) ? b.cities : []).map((c) => clip(c, 40).replace(/[^A-Za-z .'-]/g, '')).filter(Boolean).slice(0, 12);
+  const must = {}, picks = {};
+  ['pool', 'acres', 'gameroom', 'suite', 'access'].forEach((k) => { const v = b.must && b.must[k]; if (LEVEL.has(v)) must[k] = v; });
+  const allowed = { exterior: ['brick', 'stone', 'stucco', 'siding'], layout: ['open', 'separate'], condition: ['ready', 'updates', 'project'], hoa: ['no', 'yes'], setting: ['near', 'secluded'] };
+  Object.entries(allowed).forEach(([k, vals]) => { const v = b.picks && b.picks[k]; if (vals.includes(v)) picks[k] = v; });
+  return { counties, cities, price: PRICES.has(b.price) ? b.price : '', type: TYPES.has(b.type) ? b.type : '', must, picks };
+}
+
+function baseCond(c, countiesOverride) {
+  const cond = {};
+  if (c.type) cond.propertytype = [c.type];
+  if (c.price) cond.price = c.price;
+  const counties = countiesOverride || c.counties;
+  if (!countiesOverride && c.cities.length) cond.location = { city: c.cities.map((x) => x + ', TX') };
+  else cond.location = { county: counties.length ? counties : Object.keys(COUNTIES) };
+  if (c.must.acres === 'must') cond.acres = '1,';
+  return cond;
+}
+
+// ---- what a listing has, read from the MLS fields and the remarks ----
+const has = {
+  pool: (l) => l.pool,
+  acres: (l) => l.acres >= 1,
+  gameroom: (l) => /game ?room|media room|theater|theatre|bonus room/.test(l.remarks),
+  suite: (l) => /guest suite|in-law|mother-in-law|casita|guest quarters|guest house|second primary|dual primar|next ?gen|multi-?gen/.test(l.remarks),
+  access: (l) => /^(one|1)$/i.test(l.stories) || /single[- ]story|one[- ]story|wheelchair|no[- ]step|wide doorways|accessib/.test(l.remarks),
+};
+const pickHas = {
+  exterior: { brick: (l) => /brick/i.test(l.materials), stone: (l) => /stone|rock/i.test(l.materials), stucco: (l) => /stucco/i.test(l.materials), siding: (l) => /siding|hardi|fiber cement|wood|vinyl/i.test(l.materials) },
+  layout: { open: (l) => /open (concept|floor ?plan|layout)/.test(l.remarks), separate: (l) => /formal (dining|living)|separate (dining|living)|private (study|office)/.test(l.remarks) },
+  condition: {
+    ready: (l) => /move-in ready|turn-?key|updated|remodeled|renovated|new construction|brand new/.test(l.remarks),
+    updates: () => true,
+    project: (l) => /investor|fixer|needs (work|tlc|updat)|as[- ]is|\btlc\b|bring your (ideas|vision|contractor)|sweat equity/.test(l.remarks),
+  },
+  hoa: { no: (l) => !l.hoa, yes: (l) => l.hoa },
+  setting: {
+    near: (l) => /walk(ing)? (distance )?to|steps (from|to)|minutes (from|to)|shopping|restaurants|dining and/.test(l.remarks),
+    secluded: (l) => l.acres >= 1 || /secluded|private (lot|setting|retreat)|wooded|tree-?lined|cul-de-sac|peaceful/.test(l.remarks),
+  },
+};
+const FEATURE_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game room', suite: 'Guest suite', access: 'One story' };
+function fit(l, c) {
+  let score = 0; const hits = [];
+  Object.entries(c.must).forEach(([k, lvl]) => {
+    if (has[k](l)) { score += lvl === 'must' ? 3 : 1; hits.push(FEATURE_LABEL[k]); } else if (lvl === 'must') score -= 2;
+  });
+  Object.entries(c.picks).forEach(([k, v]) => { if (pickHas[k] && pickHas[k][v] && pickHas[k][v](l)) score += 1; });
+  return { score, hits };
+}
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+async function pool(tasks, n) {
+  const out = new Array(tasks.length); let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, tasks.length) }, async () => { while (i < tasks.length) { const at = i++; out[at] = await tasks[at](); } }));
+  return out;
+}
+const dist = (a, b) => Math.hypot(a[0] - b[0], (a[1] - b[1]) * 0.84);
+function areaCenter(c) {
+  const pts = c.counties.map((k) => COUNTIES[k]).filter(Boolean);
+  if (!pts.length) return [32.85, -96.95];
+  return [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+}
+function stylesFor(c) {
+  // Condos and townhomes don't come as barndominiums or acreage ranches.
+  return STYLES.filter((s) => !(c.type && c.type !== 'Single Family Home' && ['barndo', 'hillcountry'].includes(s.k)));
+}
+const factsLine = (l) => [l.city, l.beds && l.beds + ' bd', l.baths && l.baths + ' ba', l.acres >= 1 ? l.acres.toFixed(1).replace(/\.0$/, '') + ' acres' : '', l.pool ? 'Pool' : ''].filter(Boolean).join(' · ');
+function card(l, s, c, near) {
+  const f = fit(l, c);
+  return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, url: l.url, address: l.address, city: l.city, county: l.county,
+    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near };
+}
+
+const DECK_SIZE = 20;
+async function buildDeck(input) {
+  const c = criteria(input);
+  const styles = stylesFor(c);
+  // Remark-word styles are the more specific label, so they claim a home before its MLS style does.
+  const order = styles.slice().sort((a, b) => (b.q.keyword ? 1 : 0) - (a.q.keyword ? 1 : 0));
+  const run = async (countiesOverride) => pool(order.map((s) => () => idx.search(Object.assign({}, baseCond(c, countiesOverride), s.q), 16)), 6);
+  const results = await run();
+  if (results.every((r) => r === null)) return { ok: false, error: 'listings_unavailable' };
+  const counts = {}, cands = {}, seen = new Set();
+  order.forEach((s, i) => {
+    const r = results[i]; counts[s.k] = r ? r.count : 0;
+    cands[s.k] = (r ? r.list : []).filter((l) => !seen.has(l.id) && (seen.add(l.id), true)).map((l) => ({ l, f: fit(l, c).score + Math.random() * 0.5 }));
+    cands[s.k].sort((a, b) => b.f - a.f);
+  });
+  // If their areas are thin, top up from the nearest neighboring counties, marked "Nearby".
+  let total = Object.values(cands).reduce((n, a) => n + a.length, 0);
+  const near = {};
+  if (total < 12) {
+    const center = areaCenter(c);
+    const extra = Object.keys(COUNTIES).filter((k) => !c.counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
+    const more = await run(c.counties.concat(extra));
+    order.forEach((s, i) => {
+      const r = more[i]; if (!r) return;
+      r.list.forEach((l) => { if (!seen.has(l.id)) { seen.add(l.id); near[l.id] = true; cands[s.k].push({ l, f: fit(l, c).score }); } });
+    });
+    total = Object.values(cands).reduce((n, a) => n + a.length, 0);
+  }
+  // One of each style first, biggest styles first, then a second and third round.
+  const avail = styles.filter((s) => cands[s.k] && cands[s.k].length).sort((a, b) => (counts[b.k] || 0) - (counts[a.k] || 0));
+  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 4 : 6;
+  const chosen = [];
+  for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
+    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(card(x.l, s, c, near[x.l.id])); }
+  }
+  // Spread the deck so the same style never sits back to back when it can be helped.
+  let deck = shuffle(chosen);
+  for (let t = 0; t < 60 && deck.some((d, i) => i && d.k === deck[i - 1].k); t++) deck = shuffle(chosen);
+  return { ok: true, cards: deck, counts, total, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
+}
+
+// How many homes in this style fit their search, and if few, the closest city that has them.
+async function availability(input, k) {
+  const c = criteria(input); const s = BY_KEY[k];
+  if (!s) return { ok: false };
+  const here = await idx.search(Object.assign({}, baseCond(c), s.q), 24);
+  const count = here ? here.count : 0;
+  const top = here ? here.list.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c)) : [];
+  const out = { ok: true, k, label: s.label, count, url: idx.searchUrl(Object.assign({}, baseCond(c), s.q)), homes: top };
+  if (count < 3) {
+    const wide = await idx.search(Object.assign({}, baseCond(Object.assign({}, c, { cities: [] }), Object.keys(COUNTIES)), s.q), 60);
+    if (wide && wide.list.length) {
+      const center = areaCenter(c), mine = new Set(c.cities.map((x) => x.toLowerCase()));
+      const byCity = {};
+      wide.list.forEach((l) => { if (!l.city || mine.has(l.city.toLowerCase())) return; const b = byCity[l.city] = byCity[l.city] || { city: l.city, county: l.county, n: 0, lat: 0, lng: 0 }; b.n++; b.lat += l.lat; b.lng += l.lng; });
+      const best = Object.values(byCity).filter((b) => b.n >= 2 && b.lat).map((b) => Object.assign(b, { d: dist([b.lat / b.n, b.lng / b.n], center) })).sort((a, b) => a.d - b.d)[0]
+        || Object.values(byCity).sort((a, b) => b.n - a.n)[0];
+      if (best) {
+        const cond = Object.assign({}, baseCond(Object.assign({}, c, { cities: [best.city] })), s.q);
+        out.nearest = { city: best.city, county: best.county, url: idx.searchUrl(cond) };
+      }
+    }
+  }
+  return out;
+}
+
+module.exports = { criteria, buildDeck, availability, fit, baseCond };

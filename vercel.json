@@ -92,5 +92,11 @@
       "destination": "/?utm_source=text&utm_medium=sms&utm_campaign=styledna_quiz",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/deck",
+      "destination": "/api/address"
+    }
   ]
 }
