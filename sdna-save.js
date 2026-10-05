@@ -328,6 +328,12 @@
         if (link) { heartClicked(link.href); return; }
       }
       var btn = t.closest('button, a');
+      // joshwaters.com/evaluation: the address they're valuing (their current home).
+      if (btn && /\/evaluation/.test(location.pathname) && /next|get|value|estimate/i.test(btn.innerText || '')) {
+        var inp = document.querySelector('input[placeholder*="address" i]');
+        var addr = inp && inp.value.trim();
+        if (addr && addr.length > 5 && addr !== (window.__sdnaVal || '')) { window.__sdnaVal = addr; send([{ k: 'value', a: addr }]); }
+      }
       if (btn) {
         var label = (btn.innerText || '').trim();
         if (btn.classList.contains('gotour') || /schedule a (free )?tour|request (a )?showing|book a tour/i.test(label)) send([{ k: 'tour', lid: lidFrom(location.pathname), a: isListing() ? details().address : '' }]);

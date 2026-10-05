@@ -6,7 +6,7 @@ const lofty = require('./_lib/lofty');
 const hot = require('./_lib/hot');
 
 const MAX = 400;
-const KINDS = ['view', 'time', 'search', 'heart', 'save', 'tour', 'contact'];
+const KINDS = ['view', 'time', 'search', 'heart', 'save', 'tour', 'contact', 'value'];
 const ORIGINS = ['https://joshwaters.com', 'https://www.joshwaters.com'].concat(process.env.BOARD_STORE_DIR && process.env.EXTRA_ORIGIN ? [process.env.EXTRA_ORIGIN] : []);
 const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).replace(/\s+/g, ' ').trim().slice(0, n) : '';
 const hits = new Map();
@@ -34,6 +34,7 @@ function signals(list, pid, events, lastSeen, seen) {
   if (lastSeen && Date.now() - lastSeen > 14 * 86400000 && hot.fresh(seen, 'back')) out.push({ kind: 'back', what: 'is back browsing after ' + Math.round((Date.now() - lastSeen) / 86400000) + ' days away', link: '' });
   events.forEach((e) => {
     if ((e.k === 'tour' || e.k === 'contact') && hot.fresh(seen, e.k + '|' + (e.lid || e.a))) out.push({ kind: e.k, what: (e.k === 'tour' ? 'clicked to schedule a tour of ' : 'clicked contact on ') + addr(e), link: listingUrl(e) });
+    if (e.k === 'value' && e.a && hot.fresh(seen, 'value|' + e.a)) out.push({ kind: 'value', what: 'is checking their home value on joshwaters.com: ' + e.a, link: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(e.a) });
     if (e.k === 'view' && e.lid) {
       const n = list.filter((x) => x.k === 'view' && x.lid === e.lid && (!pid || x.pid === pid)).length;
       if (n >= 3 && hot.fresh(seen, 'repeat|' + e.lid)) out.push({ kind: 'repeat', what: `has viewed ${addr(e)} ${n} times`, link: listingUrl(e) });
@@ -81,6 +82,7 @@ module.exports = async (req, res) => {
         sig = signals(doc.browse, m.pid, events, m.lastSeen, doc.hot);
         if (sig.length) sig[0].task = hot.fresh(doc.hot, 'task|' + m.pid);
         who = { name: m.name, leadId: m.leadId || null, board: doc.name };
+        const val = events.find((e) => e.k === 'value'); if (val) m.home = { full: val.a, at: Date.now(), via: 'joshwaters' };
         m.lastSeen = Date.now();
       });
       if (!out || out.result === 'forbidden') return res.status(403).json({ ok: false });
@@ -99,6 +101,7 @@ module.exports = async (req, res) => {
         doc.hot = doc.hot || {};
         sig = signals(doc.browse, '', events, doc.lastSeen, doc.hot);
         if (sig.length) sig[0].task = hot.fresh(doc.hot, 'task|');
+        const val = events.find((e) => e.k === 'value'); if (val) doc.home = { full: val.a, at: Date.now(), via: 'joshwaters' };
         doc.lastSeen = Date.now();
       }, () => ({ leadId: Number(l.id) }));
       if (sig.length) {
