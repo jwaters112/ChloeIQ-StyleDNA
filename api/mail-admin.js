@@ -21,6 +21,8 @@ module.exports = async (req, res) => {
   const a = (req.query && req.query.a) || 'list';
   try {
     if (a === 'list') return res.json(await rs('/domains'));
+    if (a === 'recent') return res.json(await rs('/emails?limit=15'));
+    if (a === 'email') return res.json(await rs('/emails/' + encodeURIComponent(req.query.id)));
     if (a === 'create') return res.json(await rs('/domains', 'POST', { name: SEND_DOMAIN, region: 'us-east-1' }));
     if (a === 'get') return res.json(await rs('/domains/' + encodeURIComponent(req.query.id)));
     if (a === 'verify') return res.json(await rs('/domains/' + encodeURIComponent(req.query.id) + '/verify', 'POST'));
