@@ -50,5 +50,47 @@
     "api/daily.js": {
       "maxDuration": 300
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/ig",
+      "destination": "/?utm_source=ig&utm_medium=social&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/fb",
+      "destination": "/?utm_source=fb&utm_medium=social&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/tt",
+      "destination": "/?utm_source=tt&utm_medium=social&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/li",
+      "destination": "/?utm_source=li&utm_medium=social&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/qr",
+      "destination": "/?utm_source=qr&utm_medium=print&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/oh",
+      "destination": "/?utm_source=openhouse&utm_medium=print&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/email",
+      "destination": "/?utm_source=email&utm_medium=email&utm_campaign=styledna_quiz",
+      "permanent": false
+    },
+    {
+      "source": "/text",
+      "destination": "/?utm_source=text&utm_medium=sms&utm_campaign=styledna_quiz",
+      "permanent": false
+    }
+  ]
 }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>StyleDNA Scoreboard</title>
+<meta name="theme-color" content="#030C0D">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 500; src: url('/fonts/montserrat-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 600; src: url('/fonts/montserrat-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 600; font-style: italic; src: url('/fonts/montserrat-latin-600-italic.woff2') format('woff2'); }
+  :root { --ink: #F5F5F3; --silver: #A3A7A6; --muted: #6E7473; --gold: #E0B24D; --line: rgba(163,167,166,.16); --card: rgba(255,255,255,.03); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33,61,55,.55) 0%, rgba(14,41,38,.35) 35%, rgba(3,12,13,0) 75%), #030C0D; color: var(--ink); font-family: 'Montserrat', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+  .mark { font-weight: 600; font-style: italic; font-size: 20px; white-space: nowrap; } .mark b { color: var(--gold); font-weight: 600; }
+  .hair { flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold), rgba(224,178,77,0)); opacity: .7; }
+  .date { color: var(--silver); font-size: 13px; white-space: nowrap; }
+  h2 { font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--silver); margin: 34px 0 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .tile .n { font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1.1; }
+  .tile .l { font-size: 13px; color: var(--silver); margin-top: 4px; }
+  .tile .s { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin: 0 0 2px; } .card p.sub { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  svg { display: block; width: 100%; height: auto; }
+  .bars .row { display: grid; grid-template-columns: 130px 1fr 44px; gap: 10px; align-items: center; font-size: 13px; margin: 7px 0; }
+  .bars .row span:first-child { color: var(--silver); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bars .track { height: 10px; border-radius: 4px; background: rgba(163,167,166,.08); overflow: hidden; }
+  .bars .fill { height: 100%; border-radius: 4px; background: var(--gold); }
+  .bars .row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .people .p { border-top: 1px solid var(--line); padding: 12px 0; }
+  .people .p:first-child { border-top: 0; }
+  .people .name { font-weight: 600; } .people .tier { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-left: 8px; }
+  .tier.hot { background: var(--gold); color: #030C0D; } .tier.warm { border: 1px solid var(--gold); color: var(--gold); }
+  .people .why { font-size: 13px; color: var(--silver); margin-top: 4px; line-height: 1.5; }
+  .trend { font-size: 13px; } .trend .row { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 8px 0; } .trend .row:first-child { border-top: 0; }
+  .up { color: var(--gold); } .down { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .lock { max-width: 360px; margin: 20vh auto; text-align: center; color: var(--silver); }
+  .lock input { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); font-size: 16px; padding: 10px 0; margin: 14px 0; text-align: center; }
+  .tip { position: fixed; pointer-events: none; background: #0E2926; border: 1px solid rgba(224,178,77,.5); color: var(--ink); font-size: 12px; padding: 6px 9px; border-radius: 8px; display: none; z-index: 9; }
+  .links { font-size: 13px; color: var(--silver); line-height: 1.8; } .links code { color: var(--ink); }
+  .problem { color: var(--gold); font-size: 14px; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="empty">Loading...</p></div>
+<div class="tip" id="tip"></div>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const q = new URLSearchParams(location.search);
+  let key = q.get('k');
+  try { if (key) { localStorage.setItem('sdna_sb', key); history.replaceState(null, '', location.pathname); } else key = localStorage.getItem('sdna_sb'); } catch (e) {}
+  if (!key) return lock();
+
+  function lock(bad) {
+    $('app').innerHTML = `<div class="lock"><p class="mark">Style<b>DNA</b> scoreboard</p><p>${bad ? 'That key did not work.' : 'Enter your scoreboard key.'}</p><input id="k" autocomplete="off"><p style="font-size:12px">It stays on this device.</p></div>`;
+    $('k').addEventListener('change', () => { try { localStorage.setItem('sdna_sb', $('k').value.trim()); } catch (e) {} location.reload(); });
+  }
+
+  const tip = $('tip');
+  function hover(el, text) {
+    el.addEventListener('mousemove', (e) => { tip.style.display = 'block'; tip.textContent = text; tip.style.left = (e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 30) + 'px'; });
+    el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  }
+
+  // One measure over time: a thin gold line, recessive grid, crosshair-style hover per day.
+  function lineChart(series, field, label) {
+    const W = 520, H = 170, L = 30, R = 10, T = 12, B = 22;
+    const max = Math.max(1, ...series.map((d) => d[field]));
+    const step = (W - L - R) / Math.max(1, series.length - 1);
+    const x = (i) => L + i * step, y = (v) => T + (H - T - B) * (1 - v / max);
+    const ticks = [...new Set([0, Math.round(max / 2), max])];
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)} per day">`;
+    ticks.forEach((t) => { svg += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="rgba(163,167,166,.14)"/><text x="${L - 6}" y="${y(t) + 4}" fill="#6E7473" font-size="10" text-anchor="end">${t}</text>`; });
+    [0, Math.floor(series.length / 2), series.length - 1].forEach((i, n) => { const d = series[i]; if (d) svg += `<text x="${x(i)}" y="${H - 6}" fill="#6E7473" font-size="10" text-anchor="${n === 0 ? 'start' : n === 2 ? 'end' : 'middle'}">${d.day.slice(5).replace('-', '/')}</text>`; });
+    svg += `<path d="${series.map((d, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(d[field]).toFixed(1)).join(' ')}" fill="none" stroke="#E0B24D" stroke-width="2" stroke-linejoin="round"/>`;
+    const last = series[series.length - 1];
+    if (last) svg += `<circle cx="${x(series.length - 1)}" cy="${y(last[field])}" r="4" fill="#E0B24D" stroke="#030C0D" stroke-width="2"/>`;
+    series.forEach((d, i) => { svg += `<rect class="hit" data-i="${i}" x="${x(i) - step / 2}" y="${T}" width="${step}" height="${H - T - B}" fill="transparent"/>`; });
+    svg += '</svg>';
+    const div = document.createElement('div'); div.innerHTML = svg;
+    div.querySelectorAll('.hit').forEach((r) => { const d = series[r.dataset.i]; hover(r, `${d.day}: ${d[field]} ${label.toLowerCase()}`); });
+    return div;
+  }
+
+  function bars(entries, total) {
+    if (!entries.length) return '<p class="empty">Nothing yet.</p>';
+    const max = Math.max(...entries.map((e) => e[1]));
+    return '<div class="bars">' + entries.map(([k, n]) => `<div class="row" title="${esc(k)}: ${n}${total ? ' (' + Math.round(n / total * 100) + '%)' : ''}"><span>${esc(k)}</span><div class="track"><div class="fill" style="width:${Math.max(3, n / max * 100)}%"></div></div><span>${n}</span></div>`).join('') + '</div>';
+  }
+  const top = (obj, n) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, n || 8);
+
+  fetch('/api/stats?days=30&k=' + encodeURIComponent(key), { cache: 'no-store' }).then((r) => { if (r.status === 401) { try { localStorage.removeItem('sdna_sb'); } catch (e) {} lock(true); throw 0; } return r.json(); }).then(render).catch((e) => { if (e) $('app').innerHTML = '<p class="empty">Could not load the scoreboard. Try again.</p>'; });
+
+  function render(d) {
+    const s = d.series, today = s[s.length - 1] || {}, sum = (f, n) => s.slice(-n).reduce((a, x) => a + x[f], 0);
+    const rep = d.report || {};
+    const c30 = d.total.c || {};
+    const funnel = [['Visited', c30.visit || 0], ['Started the quiz', c30.quiz_start || 0], ['Finished the quiz', c30.quiz_done || 0], ['Became a lead', c30.lead || 0], ['Started a board', c30.board || 0]];
+    const visits = funnel[0][1] || 1;
+    const app = $('app');
+    app.innerHTML = `
+      <header><span class="mark">Style<b>DNA</b></span><span class="hair"></span><span class="date">Scoreboard · ${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span></header>
+      <div class="tiles">
+        <div class="tile"><div class="n">${today.visitors || 0}</div><div class="l">Visitors today</div><div class="s">${today.newVisitors || 0} new</div></div>
+        <div class="tile"><div class="n">${sum('visitors', 7)}</div><div class="l">Visitors, 7 days</div><div class="s">${sum('visitors', 30)} in 30 days</div></div>
+        <div class="tile"><div class="n">${sum('quizDone', 7)}</div><div class="l">Quizzes finished, 7 days</div><div class="s">${sum('shares', 7)} shared</div></div>
+        <div class="tile"><div class="n">${sum('leads', 7)}</div><div class="l">New leads, 7 days</div><div class="s">${sum('values', 7)} home value requests</div></div>
+        <div class="tile"><div class="n">${(rep.hot || []).length}</div><div class="l">Hot leads</div><div class="s">${(rep.warm || []).length} warm</div></div>
+        <div class="tile"><div class="n">${rep.views24 || 0}</div><div class="l">Listing views, 24 hours</div><div class="s">${rep.active24 || 0} people browsing</div></div>
+      </div>
+      <h2>Growth, last 30 days</h2>
+      <div class="grid2"><div class="card"><h3>Visitors per day</h3><p class="sub">Unique people on homestyledna.com</p><div id="c1"></div></div>
+        <div class="card"><h3>New leads per day</h3><p class="sub">Quiz takers who gave their email</p><div id="c2"></div></div></div>
+      <h2>Who to call</h2>
+      <div class="card people" id="people"></div>
+      <h2>Where people come from</h2>
+      <div class="grid2"><div class="card"><h3>Sources, 30 days</h3><p class="sub">First stop that brought them in</p>${bars(top(d.total.src, 8), c30.visit)}</div>
+        <div class="card"><h3>Quiz funnel, 30 days</h3><p class="sub">Share of visitors reaching each step</p>${bars(funnel.filter((f) => f[1] || f[0] === 'Visited'), visits)}</div></div>
+      <div class="grid2" style="margin-top:14px"><div class="card"><h3>Top sharers</h3><p class="sub">Visitors who came from each person's shared result</p>
+        ${d.sharers.length ? d.sharers.map((x) => `<div class="trend"><div class="row"><span>${esc(x.name)}</span><span>${x.visits} visit${x.visits === 1 ? '' : 's'}</span></div></div>`).join('') : '<p class="empty">Nobody yet. Every shared result link carries the sharer.</p>'}</div>
+        <div class="card"><h3>Style trends</h3><p class="sub">Most-loved styles this week vs. last week</p><div class="trend" id="trend"></div></div></div>
+      <div class="grid2" style="margin-top:14px"><div class="card"><h3>Results</h3><p class="sub">StyleDNA types, 30 days</p>${bars(top(d.total.arch, 6))}</div>
+        <div class="card"><h3>Areas</h3><p class="sub">Picked in the quiz, 30 days</p>${bars(top(d.total.area, 8))}</div></div>
+      <h2>Health</h2>
+      <div class="card" id="health"></div>
+      <h2>Your short links</h2>
+      <div class="card links">Use these in posts so the scoreboard knows where people came from:<br>
+        <code>homestyledna.com/ig</code> Instagram · <code>homestyledna.com/fb</code> Facebook · <code>homestyledna.com/tt</code> TikTok · <code>homestyledna.com/li</code> LinkedIn<br>
+        <code>homestyledna.com/oh</code> open house QR · <code>homestyledna.com/qr</code> other print · <code>homestyledna.com/email</code> email · <code>homestyledna.com/text</code> texts</div>`;
+    $('c1').append(lineChart(s, 'visitors', 'Visitors'));
+    $('c2').append(lineChart(s, 'leads', 'Leads'));
+    const ppl = [...(rep.hot || []), ...(rep.warm || []).slice(0, 10)];
+    $('people').innerHTML = ppl.length ? ppl.map((p) => `<div class="p"><span class="name">${esc(p.name)}</span><span class="tier ${p.tier.toLowerCase()}">${p.tier} ${p.score}</span>
+      <div class="why">${esc(p.why.join(', '))}${p.range ? '. Browsing ' + esc(p.range) : ''}${p.board ? ' · ' + esc(p.board) : ''}${p.linked ? '' : ' · not in Lofty yet'}</div></div>`).join('')
+      : '<p class="empty">No hot or warm leads in the last morning check.</p>';
+    const now7 = d.last7.loved || {}, prev = d.prev7.loved || {};
+    const tr = top(now7, 8);
+    $('trend').innerHTML = tr.length ? tr.map(([k, n]) => { const p = prev[k] || 0, diff = n - p; return `<div class="row"><span>${esc(k)}</span><span class="${diff > 0 ? 'up' : 'down'}">${n} ${diff > 0 ? '▲ ' + diff : diff < 0 ? '▼ ' + Math.abs(diff) : ''}</span></div>`; }).join('') : '<p class="empty">No finished quizzes this week yet.</p>';
+    $('health').innerHTML = rep.at ? `<p style="margin:0 0 6px;font-size:14px;color:var(--silver)">Last morning check ${new Date(rep.at).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}. Boards ${rep.boards}, members ${rep.members}, linked to Lofty ${rep.linked}. Email alerts on ${rep.emailOn}, phone alerts on ${rep.pushOn}. Hearts this week ${rep.hearts7}.</p>${(rep.problems || []).map((x) => `<p class="problem">${esc(x)}</p>`).join('') || '<p style="margin:0;font-size:14px">Everything checked out.</p>'}` : '<p class="empty">The first morning check runs at 6 am.</p>';
+  }
+})();
+</script>
+</body>
+</html>

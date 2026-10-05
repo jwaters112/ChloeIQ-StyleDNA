@@ -6,6 +6,12 @@ const LOFTY_URL = 'https://api.lofty.com/v1.0/leads';
 const lofty = require('./_lib/lofty');
 const store = require('./_lib/boards');
 
+async function rememberSharer(sid, leadId, name) {
+  sid = String(sid || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
+  if (!sid || sid.length < 8 || !leadId) return;
+  try { await store.upsert('sharers', sid, (doc) => { doc.leadId = leadId; doc.name = name; }); } catch (e) {}
+}
+
 async function linkMember(mem, leadId) {
   mem = mem || {};
   if (!leadId || !store.validId(mem.id) || typeof mem.key !== 'string') return;
@@ -163,7 +169,13 @@ async function handle(req, res) {
   if (partnerArch) noteLines.push('Compared with: ' + (partnerName || 'a partner') + ' (' + partnerArch + ')');
   const boardId = clip(body.board, 24).replace(/[^A-Za-z0-9]/g, '');
   if (boardId) noteLines.push('Home board: https://homestyledna.com/board.html?id=' + boardId);
-  if (utmBits.length) noteLines.push('Came from: ' + utmBits.join(', '));
+  const srcLabel = clip(body.source, 120);
+  if (srcLabel) noteLines.push('Came from: ' + srcLabel);
+  else if (utmBits.length) noteLines.push('Came from: ' + utmBits.join(', '));
+  const referredBy = clip(body.referredBy, 16).replace(/[^A-Za-z0-9]/g, '');
+  if (referredBy) {
+    try { const sh = await store.readIn('sharers', referredBy); if (sh && sh.doc.name) noteLines.push('Shared to them by: ' + sh.doc.name + (sh.doc.leadId ? ' (Lofty lead ' + sh.doc.leadId + ')' : '')); } catch (e) {}
+  }
 
   const lead = {
     firstName: clip(firstName, 30),
@@ -199,6 +211,7 @@ async function handle(req, res) {
     await lofty.addNote(existing, ['StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
     recentEmails.set(email, now);
     await linkMember(body.member, existing);
+    await rememberSharer(body.sid, existing, name);
     return res.status(200).json({ ok: true, leadId: existing, existing: true, leadToken: lofty.leadToken(existing) });
   }
 
@@ -221,6 +234,7 @@ async function handle(req, res) {
     if (!leadId) leadId = await lofty.leadIdByEmail(email);
     // Already on a board in this browser: tie that board member to this Lofty lead.
     await linkMember(body.member, leadId);
+    await rememberSharer(body.sid, leadId, name);
     return res.status(200).json({ ok: true, leadId, leadToken: leadId ? lofty.leadToken(leadId) : '' });
   } catch (err) {
     console.error('Lofty request error', err && err.message);

@@ -230,7 +230,7 @@ async function writeNotes(report, only, onlyVisitor) {
       const u = { score: sc.score, tier: sc.tier };
       const lines = [...summarize(mine, myEv, since), ...loftyLines(la, since)];
       if (m.leadId && lines.length) {
-        if (m.home) lines.push(`Current home: ${m.home.address}${sc.range ? ' | browsing ' + sc.range : ''}`);
+        if (m.home) lines.push(`Current home: ${m.home.full || m.home.address}${sc.range ? ' | browsing ' + sc.range : ''}`);
         const ok = await lofty.addNote(m.leadId, [`StyleDNA activity, ${date} (${b.name}):`, ...lines.map((l) => '- ' + l), `StyleDNA score: ${sc.score} (${sc.tier})`, `Board: https://homestyledna.com/board.html?id=${b.id}`].join('\n'));
         if (ok) { u.notedAt = now; report.notes++; }
       }
@@ -251,7 +251,7 @@ async function writeNotes(report, only, onlyVisitor) {
     const lines = [...summarize(v.browse, [], since), ...loftyLines(la, since)];
     const u = { score: sc.score, tier: sc.tier };
     if (lines.length) {
-      if (v.home) lines.push(`Current home: ${v.home.address}${sc.range ? ' | browsing ' + sc.range : ''}`);
+      if (v.home) lines.push(`Current home: ${v.home.full || v.home.address}${sc.range ? ' | browsing ' + sc.range : ''}`);
       const ok = await lofty.addNote(v.leadId, [`StyleDNA activity, ${date}:`, ...lines.map((l) => '- ' + l), `StyleDNA score: ${sc.score} (${sc.tier})`].join('\n'));
       if (ok) { u.notedAt = now; report.notes++; }
     }
@@ -286,7 +286,7 @@ async function healthReport(report) {
   const body = [
     hot.length ? 'HOT' : '', ...hot.map(line), warm.length ? '' : null, warm.length ? 'WARM' : '', ...warm.slice(0, 8).map(line),
     '', `Listing updates sent: ${report.changes.length}${report.changes.length ? ' (' + report.changes.slice(0, 5).join(' ') + ')' : ''}`,
-    `Lofty notes written: ${report.notes}. Follow-up tasks created: ${report.tasks}.`,
+    `Lofty notes written: ${report.notes}. Follow-up tasks created: ${report.tasks}.${report.recaps ? ' Weekly recaps sent: ' + report.recaps + '.' : ''}${report.nudges ? ' Invite nudges sent: ' + report.nudges + '.' : ''}${report.backup ? ' Backup saved: ' + report.backup + '.' : ''}`,
     `Last 24 hours on joshwaters.com: ${views24} listing views and ${searches24} searches from ${active24.size} StyleDNA ${active24.size === 1 ? 'person' : 'people'}. Hearts this week: ${hearts7}.`,
     `Boards: ${boards}, members: ${members}, linked to Lofty: ${linked}. Email alerts on: ${emailOn}. Phone alerts on: ${pushOn}.`,
     problems.length ? '' : 'Everything checked out.', ...problems,
@@ -296,6 +296,57 @@ async function healthReport(report) {
   const sent = await hotLib.emailJosh(subject, body, 'https://homestyledna.com/');
   report.reportSent = sent;
   await store.upsert('stats', 'latest00', (doc) => { doc.report = { at: now, hot: hot.slice(0, 20), warm: warm.slice(0, 30), views24, searches24, active24: active24.size, hearts7, boards, members, linked, emailOn, pushOn, problems }; });
+}
+
+// ---- Monday recap: one short email per board member with email alerts on ----
+async function weeklyRecap(report, only) {
+  const now = Date.now(), wk = now - 7 * DAY;
+  for (const id of (only ? [only] : await store.listIds())) {
+    const cur = await store.read(id); if (!cur) continue;
+    const b = cur.doc;
+    if (!(b.emails || []).some((e) => e.confirmed)) continue;
+    const added = (b.homes || []).filter((h) => h.addedAt > wk);
+    const changed = (b.homes || []).filter((h) => (h.changes || []).some((c) => c.t > wk));
+    const opens = (b.homes || []).filter((h) => h.openHouse && ctTime(h.openHouse.end || h.openHouse.start) > now && ctTime(h.openHouse.start) < now + 7 * DAY && !/sold|off market/i.test(h.status || ''));
+    if (!added.length && !changed.length && !opens.length) continue;
+    const seen = new Set(), homes = [];
+    const push = (h, change, why) => { if (seen.has(h.id)) return; seen.add(h.id); homes.push({ url: h.url || '', address: h.address, office: h.office || '', change, price: h.price ? money(h.price) : '', why }); };
+    opens.forEach((h) => push(h, 'Open house', h.openHouse.text));
+    changed.forEach((h) => { const c = h.changes.find((x) => x.t > wk); push(h, (h.lastChange && h.lastChange.label) || 'Update', c.text); });
+    added.forEach((h) => push(h, h.source === 'josh' ? "Josh's pick" : 'New on your board', ''));
+    const bits = [added.length && `${added.length} new home${added.length === 1 ? '' : 's'}`, changed.length && `${changed.length} update${changed.length === 1 ? '' : 's'}`, opens.length && `${opens.length} open house${opens.length === 1 ? '' : 's'}`].filter(Boolean);
+    const sent = await mailer.alertBoard(b, null, { kind: 'update', homes: homes.slice(0, 8), reason: `Your week on ${b.name}: ${bits.join(', ')}.`, subject: `Your week: ${bits.join(', ')}` });
+    report.recaps += sent.length;
+  }
+}
+
+// ---- nudge a solo board owner to invite their partner (once, after 3 days) ----
+async function partnerNudge(report, only) {
+  const now = Date.now();
+  for (const id of (only ? [only] : await store.listIds())) {
+    const cur = await store.read(id); if (!cur) continue;
+    const b = cur.doc;
+    const people = (b.members || []).filter((m) => m.role !== 'agent');
+    if (people.length !== 1 || b.nudgedAt || now - (b.createdAt || now) < 3 * DAY) continue;
+    const owner = people[0];
+    const e = (b.emails || []).find((x) => x.pid === owner.pid && x.confirmed);
+    if (!e) continue;
+    const solo = Object.assign({}, b, { emails: [e] });
+    const sent = await mailer.alertBoard(solo, null, { kind: 'update', homes: [], subject: 'Shopping with someone?',
+      reason: 'Boards work best together. Invite the person you\'re buying with so you can both heart, pass and comment, and see the homes you both love. Open your board and tap Invite.' });
+    if (sent.length) { report.nudges++; await store.update(id, (doc) => { doc.nudgedAt = now; }); }
+  }
+}
+
+// ---- weekly backup of every board, visitor and sharer record ----
+async function backup(report) {
+  const data = { at: Date.now(), boards: [], visitors: [], sharers: [] };
+  for (const id of await store.listIds()) { const c = await store.read(id); if (c) data.boards.push(c.doc); }
+  for (const id of await store.listSpace('visitors')) { const c = await store.readIn('visitors', id); if (c) data.visitors.push(c.doc); }
+  for (const id of await store.listSpace('sharers')) { const c = await store.readIn('sharers', id); if (c) data.sharers.push(Object.assign({ sid: id }, c.doc)); }
+  const key = 'b' + new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' }).replace(/-/g, '');
+  await store.upsert('backups', key, (doc) => { doc.data = data; });
+  report.backup = `${data.boards.length} boards, ${data.visitors.length} visitors`;
 }
 
 module.exports = async (req, res) => {
@@ -311,10 +362,14 @@ module.exports = async (req, res) => {
   // Test runs on the test site can be limited to one board or one visitor.
   const only = process.env.VERCEL_ENV === 'production' ? null : (q.board || null);
   const onlyVisitor = process.env.VERCEL_ENV === 'production' ? null : (q.visitor || null);
-  const report = { part, changes: [], notes: 0, tasks: 0, people: [] };
+  const report = { part, changes: [], notes: 0, tasks: 0, people: [], recaps: 0, nudges: 0 };
   try {
     if (part === 'all' || part === 'listings') await checkListings(report, only);
     if (part === 'all' || part === 'notes') await writeNotes(report, only, onlyVisitor);
+    const dow = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'short' });
+    if ((part === 'all' && dow === 'Mon') || q.recap) await weeklyRecap(report, only);
+    if (part === 'all' || q.nudge) await partnerNudge(report, only);
+    if ((part === 'all' && dow === 'Sun') || q.backup) await backup(report);
     if (part === 'all' && (process.env.VERCEL_ENV === 'production' || q.report)) await healthReport(report);
   } catch (e) {
     console.error('daily job failed', e && e.message);

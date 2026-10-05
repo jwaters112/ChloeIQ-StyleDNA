@@ -98,6 +98,8 @@
         .badge.alert { color: var(--obsidian); background: var(--soft-white); padding: 3px 8px; border-radius: 999px; letter-spacing: 1px; }
         .badge.drop { color: var(--obsidian); background: var(--gold); padding: 3px 8px; border-radius: 999px; letter-spacing: 1px; }
         .was { text-decoration: line-through; opacity: .7; margin-left: 6px; }
+        .value-card { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); text-align: center; }
+        .value-card p { font-size: 15px; color: var(--silver); margin-bottom: 4px; } .value-card b { color: var(--soft-white); }
         .ask { background: none; border: 0; color: var(--gold); font-size: 14px; font-weight: 600; cursor: pointer; padding: 0 4px; }
         .courtesy { font-size: 12px; color: var(--silver); opacity: .8; margin-top: 4px; }
         .oh { font-size: 13px; color: var(--gold); margin-top: 6px; }
@@ -206,6 +208,10 @@
                     <button class="chip" data-f="loved">I loved</button>
                 </div>
                 <div id="homes"></div>
+                <div class="value-card" id="valueCard" hidden>
+                    <p><b>Own a home now?</b> See what it's worth before you buy.</p>
+                    <button class="btn btn-ghost" id="valueBtn">What's my home worth?</button>
+                </div>
             </section>
             <section id="activityTab" hidden><div id="events"></div></section>
         </div>
@@ -344,6 +350,7 @@
             return;
         }
         $('findBtn').href = findUrl();
+        $('valueCard').hidden = false;
         const anyOn = board.alerts.includes(me.pid) || (board.emailOn || []).includes(me.pid);
         $('alertBtn').classList.toggle('on', anyOn);
         $('alertLabel').textContent = anyOn ? 'Alerts on' : 'Get alerts';
@@ -578,6 +585,32 @@
             el('button', { class: 'link', style: 'display:block;margin:10px auto 0', onclick: () => bg.remove() }, 'Not now')));
         setTimeout(() => box.focus(), 50);
     }
+    function valueSheet() {
+        const known = !!myLead();
+        const hasEmail = (board.emailOn || []).includes(me.pid) || (board.emailPending || []).includes(me.pid);
+        const f = (ph, extra) => el('input', Object.assign({ class: 'field', placeholder: ph, style: 'margin-bottom:10px' }, extra || {}));
+        const street = f('Street address', { maxlength: '90', autocomplete: 'street-address' }), city = f('City', { maxlength: '40' }), zip = f('ZIP', { maxlength: '10', inputmode: 'numeric' });
+        const email = known || hasEmail ? null : f('Your email', { type: 'email', maxlength: '120', autocomplete: 'email' });
+        sheet("What's your home worth?", el('p', { style: 'margin-bottom:14px' }, 'Josh prepares a real value from recent sales near you and sends it over.'), (bg) => el('div', {}, street, city, zip, email,
+            el('button', { class: 'btn', onclick: async () => {
+                if (!street.value.trim() || (!city.value.trim() && !zip.value.trim())) { toast('Add the street and a city or ZIP'); return; }
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { toast('Add your email so Josh can send it'); return; }
+                bg.remove();
+                try {
+                    const r = await fetch('/api/home-value', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ street: street.value, city: city.value, zip: zip.value,
+                        name: me.name, email: email ? email.value : '', lead: myLead(), board: { id, key: me.key }, source: 'home board' }) });
+                    const j = await r.json().catch(() => ({}));
+                    if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
+                    if (j.leadId && j.leadToken && !myLead()) { try { localStorage.setItem('sdna_lead', JSON.stringify({ id: String(j.leadId), t: j.leadToken })); } catch (e) {} }
+                    track('value_requested', { from: 'board' });
+                    sheet('Got it', el('p', { style: 'margin-bottom:16px' }, "Josh is preparing your home's value and will reach out shortly. Want a quick estimate right now?"), (bg2) => el('div', {},
+                        el('a', { class: 'btn', style: 'display:block;text-align:center;text-decoration:none', href: 'https://joshwaters.com/evaluation' + frag(), target: '_blank', rel: 'noopener', onclick: () => bg2.remove() }, 'See an instant estimate'),
+                        el('button', { class: 'link', style: 'display:block;margin:10px auto 0', onclick: () => bg2.remove() }, 'Done')));
+                } catch (e) { toast(e.message === 'contact_required' ? 'Add your email so Josh can send it' : "Couldn't send that. Try again."); }
+            } }, "Get my home's value"),
+            el('button', { class: 'link', style: 'display:block;margin:10px auto 0', onclick: () => bg.remove() }, 'Not now')));
+    }
+    $('valueBtn').addEventListener('click', () => valueSheet());
     function alertsSheet(afterJoin) {
         if (!me) return;
         const pushOn = board.alerts.includes(me.pid);
