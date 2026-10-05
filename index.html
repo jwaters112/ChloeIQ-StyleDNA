@@ -1958,7 +1958,9 @@
         // The full city list for each county, from real listings (adds towns the short list misses).
         fetch('/api/address?cities=1').then(r => r.json()).then(j => {
             Object.entries((j && j.cities) || {}).forEach(([county, list]) => {
-                if (COUNTY_CITIES[county] && Array.isArray(list)) COUNTY_CITIES[county] = [...new Set(COUNTY_CITIES[county].concat(list))];
+                if (!COUNTY_CITIES[county] || !Array.isArray(list)) return;
+                const have = new Set(COUNTY_CITIES[county].map(c => c.toLowerCase()));
+                list.forEach(c => { if (!have.has(String(c).toLowerCase())) { have.add(String(c).toLowerCase()); COUNTY_CITIES[county].push(c); } });
             });
             if (document.getElementById('whereScreen').classList.contains('active')) renderWhere();
         }).catch(() => {});
