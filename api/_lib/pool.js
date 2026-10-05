@@ -54,6 +54,9 @@ async function buildCounty(county, tagBudget, ms, roomBudget) {
     roomRun = await rooms.sortAll(all.filter((l) => keptIds.has(l.id)), roomBudget, left - 15000).catch((e) => ({ error: e.message }));
   }
   await store.upsert('pool', county, (doc) => { doc.at = Date.now(); doc.v = 2; doc.homes = homes; doc.untagged = untagged; });
+  // The full photo lists, kept apart from the homes so the quiz never loads them; the room sorter reads these.
+  const picsDoc = {}; homes.forEach((h) => { const l = byId.get(h.id); if (l && l.pics) picsDoc[h.id] = l.pics; });
+  await store.upsert('pool', 'pics' + county, (doc) => { doc.at = Date.now(); doc.p = picsDoc; }).catch((e) => console.warn('pics save failed', e && e.message));
   mem.delete(county);
   return { county, found: all.length, read, kept: homes.length, untagged, doubtful, notUsable: all.filter((l) => tags[l.id] === 'NA').length, rooms: roomRun };
 }
@@ -118,4 +121,14 @@ async function cities() {
   return citiesMem.map;
 }
 
-module.exports = { buildCounty, load, BANDS, buildCities, cities };
+// Sort photos by room for one county's pool homes that haven't been sorted yet.
+async function sortCounty(county, budget, ms) {
+  const cur = await store.readIn('pool', 'pics' + county).catch(() => null);
+  const p = (cur && cur.doc && cur.doc.p) || {};
+  const list = Object.entries(p).map(([id, pics]) => ({ id, pics }));
+  const r = await rooms.sortAll(list, budget, ms);
+  const known = await rooms.loadAll();
+  return Object.assign({ county, homes: list.length, done: list.filter((l) => known[l.id]).length }, r);
+}
+
+module.exports = { buildCounty, load, BANDS, buildCities, cities, sortCounty };
