@@ -173,14 +173,14 @@
             <h2 id="joinTitle">Join this board</h2>
             <p id="joinText">Add your name to save homes, react and comment with everyone here.</p>
             <ul class="what" id="joinWhat">
-                <li><b>StyleDNA</b> is a 60-second quiz. Swipe through twelve rooms and it names your home style.</li>
+                <li><b>StyleDNA</b> is a two-minute quiz. Swipe through real homes for sale and it names your home style.</li>
                 <li><b>This board</b> is where you save homes together, heart or pass on them and leave comments.</li>
                 <li><b>Alerts</b> let you know when a new listing fits your style or someone adds a home.</li>
             </ul>
             <input class="field" id="joinName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
             <p class="err" id="joinErr"></p>
             <button class="btn" id="joinBtn">Join the board</button>
-            <a class="btn btn-ghost" id="quizFirst" href="/">Take the 60-second quiz first</a>
+            <a class="btn btn-ghost" id="quizFirst" href="/">Take the quiz first</a>
         </section>
 
         <div id="memberArea" hidden>
@@ -231,7 +231,9 @@
 
 <script>
 (function () {
-    const ARCH = { curator: 'The Curator', sanctuary: 'The Sanctuary Seeker', architect: 'The Experience Architect', custodian: 'The Heritage Custodian', visionary: 'The Visionary', authenticist: 'The Authenticist' };
+    const ARCH = { curator: 'The Curator', sanctuary: 'The Sanctuary Seeker', architect: 'The Experience Architect', custodian: 'The Heritage Custodian', visionary: 'The Visionary', authenticist: 'The Authenticist',
+        traditional: 'Traditional', transitional: 'Transitional', farmhouse: 'Modern Farmhouse', modern: 'Modern', craftsman: 'Craftsman', ranch: 'Ranch', midcentury: 'Mid-Century Modern',
+        tudor: 'Tudor', mediterranean: 'Mediterranean', french: 'French Country', colonial: 'Colonial', cottage: 'Cottage', hillcountry: 'Hill Country', barndo: 'Barndominium' };
     const id = new URLSearchParams(location.search).get('id') || '';
     const $ = (s) => document.getElementById(s);
     const track = (name, data) => { try { window.va('event', { name, data: data || {} }); } catch (e) {} };
@@ -256,6 +258,10 @@
     const STYLES = { curator: ['French','English','Contemporary/Modern','Mediterranean'], visionary: ['Contemporary/Modern','Mid-Century Modern','Loft'],
         architect: ['Mediterranean','Modern Farmhouse','Spanish','Contemporary/Modern'], sanctuary: ['Contemporary/Modern','Craftsman','Modern Farmhouse','Prairie'],
         custodian: ['Tudor','Craftsman','Colonial','Mid-Century Modern'], authenticist: ['Ranch','Barndominium','Modern Farmhouse','Southwestern'] };
+    // StyleDNA v2 styles: the same searches the quiz uses (MLS Style field, or words in the remarks).
+    const STYLE_Q = { traditional: { style: ['Traditional'] }, transitional: { keyword: ['transitional'] }, farmhouse: { keyword: ['modern farmhouse'] }, modern: { style: ['Contemporary/Modern'] },
+        craftsman: { style: ['Craftsman'] }, ranch: { style: ['Ranch'] }, midcentury: { style: ['Mid-Century Modern'] }, tudor: { style: ['Tudor'] }, mediterranean: { style: ['Mediterranean', 'Spanish'] },
+        french: { keyword: ['french country', 'french provincial', 'french chateau'] }, colonial: { style: ['Colonial'] }, cottage: { style: ['English'] }, hillcountry: { keyword: ['hill country'] }, barndo: { style: ['Barndominium'] } };
     const PRICES = { 0: ',300000', 1: '300000,500000', 2: '500000,750000', 3: '750000,1000000', 4: '1000000,' };
     const ZIPS = { 'Uptown': ['75201','75204'], 'Downtown Dallas': ['75201','75202'], 'Preston Hollow': ['75225','75229','75230'], 'Bishop Arts': ['75208'], 'Lakewood': ['75214'],
         'Lake Highlands': ['75238','75243'], 'M Streets': ['75206'], 'Oak Lawn': ['75219'], 'Oak Cliff': ['75208','75211','75224'], 'Deep Ellum': ['75226'], 'Knox-Henderson': ['75205','75206'],
@@ -266,9 +272,12 @@
         const c = board.criteria || {}, cond = { purchasetype: ['For Sale'] };
         const arch = c.archetype || ((board.members.find((m) => me && m.pid === me.pid) || {}).archetype);
         if (c.homeType) cond.propertytype = [c.homeType];
-        if (arch && STYLES[arch] && c.homeType !== 'Vacant Land') cond.style = STYLES[arch];
+        if (arch && STYLE_Q[arch]) Object.assign(cond, STYLE_Q[arch]);
+        else if (arch && STYLES[arch] && c.homeType !== 'Vacant Land') cond.style = STYLES[arch];
         const areas = (c.areas && c.areas.length ? c.areas : (c.area ? [c.area] : []));
-        if (areas.length) {
+        if (c.cities && c.cities.length) cond.location = { city: c.cities.map((x) => x + ', TX') };
+        else if (c.counties && c.counties.length) cond.location = { county: c.counties };
+        else if (areas.length) {
             if (areas.every((a) => ZIPS[a])) cond.location = { zipCode: [...new Set(areas.flatMap((a) => ZIPS[a]))] };
             else cond.location = { city: [...new Set(areas.map((a) => ZIPS[a] ? (a === 'Las Colinas' ? 'Irving' : FW.includes(a) ? 'Fort Worth' : 'Dallas') : a))].map((x) => x + ', TX') };
         }

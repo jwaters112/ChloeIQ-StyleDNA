@@ -42,7 +42,8 @@ async function streamToString(stream) {
 }
 
 async function read(id, space) {
-  if (!validId(id)) return null;
+  // Board ids come from the browser and are checked strictly; other spaces use our own short names (pool, tags).
+  if (space ? !/^[A-Za-z0-9]{3,40}$/.test(String(id)) : !validId(id)) return null;
   if (LOCAL_DIR) {
     const f = localFile(id, space);
     if (!fs.existsSync(f)) return null;

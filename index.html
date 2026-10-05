@@ -1158,8 +1158,9 @@
         .results-budget-note { background: none; border: 0; padding: 0; margin: 0 0 28px; font-size: 14px; color: var(--silver); order: 2; }
         .results-section:first-child { display: flex; flex-direction: column; }
         .results-section:first-child .results-description { order: 1; }
-        .results-section:first-child .welcome-cta { order: 3; }
-        .results-section:first-child .homes-picker { order: 4; }
+        .results-section:first-child .avail { order: 3; }
+        .results-section:first-child .avail-save { order: 4; }
+        .results-section:first-child .results-description { font-size: 17px; color: var(--soft-white); margin-bottom: 6px; }
         .results-section-title { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--silver); margin-bottom: 16px; }
         .results-section-title::after { content: none; }
 
@@ -1286,6 +1287,39 @@
         .swipe-undo:disabled { opacity: 0.25; cursor: default; }
         .swipe-undo:not(:disabled):hover { color: var(--soft-white); border-color: var(--line-strong); }
         .results-screen { position: relative; }
+        /* StyleDNA v2 */
+        .city-chips .chip, #countyChips .chip { padding: 9px 14px; font-size: 14px; }
+        #cityBlock { margin-top: -8px; }
+        .must-list { display: flex; flex-direction: column; margin-bottom: 28px; }
+        .must-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+        .must-row:first-child { border-top: 1px solid var(--line); }
+        .must-text { flex: 1; min-width: 0; text-align: left; }
+        .must-text b { display: block; font-size: 16px; font-weight: 600; color: var(--soft-white); }
+        .must-text small { display: block; font-size: 13px; color: var(--silver); margin-top: 2px; line-height: 1.4; }
+        .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+        .seg button { background: none; border: 0; color: var(--silver); font-size: 13px; font-weight: 600; padding: 8px 12px; cursor: pointer; }
+        .seg button + button { border-left: 1px solid var(--line-strong); }
+        .seg button.on { background: var(--gold); color: var(--obsidian); }
+        .pick-row { text-align: left; margin-bottom: 6px; }
+        .pick-row .chips { margin-bottom: 18px; }
+        .deck-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--silver); font-size: 15px; text-align: center; padding: 24px; }
+        .deck-loading .loading-ring { position: static; }
+        .swipe-card-style { font-size: 30px !important; letter-spacing: 0 !important; text-transform: none !important; font-weight: 600; font-style: italic; color: var(--soft-white) !important; margin-bottom: 4px !important; line-height: 1.1; }
+        .swipe-card-title { font-size: 14px !important; font-weight: 500; color: var(--gold); margin-bottom: 6px !important; }
+        .swipe-card-description { font-size: 14px; }
+        .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
+        .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(3,12,13,.8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
+        .style-lean { font-size: 16px; color: var(--silver); margin: 6px 0 0; }
+        .avail { margin: 4px 0 18px; text-align: left; }
+        .avail-line { font-size: 17px; line-height: 1.5; color: var(--soft-white); margin: 0 0 16px; }
+        .avail-line b { color: var(--gold); }
+        .avail-near { font-size: 15px; line-height: 1.5; color: var(--silver); margin: 14px 0 0; }
+        .avail-near a { color: var(--gold); }
+        a.avail-go { display: block; text-align: center; text-decoration: none; }
+        .avail-save { width: 100%; }
+        a.home-match-card { display: block; text-decoration: none; color: inherit; margin-bottom: 22px; }
+        .home-match-image { object-fit: cover; width: 100%; }
+        .home-match-credit { font-size: 11px; color: var(--silver); opacity: .75; margin-top: 4px; }
         .redo-links { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 0; }
         .redo-links .text-link { font-size: 14px; text-decoration: none; margin: 0; }
 
@@ -1321,17 +1355,17 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://homestyledna.com/">
     <meta property="og:title" content="Discover Your Home StyleDNA">
-    <meta property="og:description" content="Every home has a personality. So do you. Take the free 60-second quiz to find your StyleDNA.">
+    <meta property="og:description" content="Swipe real DFW homes for sale and find your home style. Free, about two minutes.">
     <meta property="og:site_name" content="Home StyleDNA">
-    <meta property="og:image" content="https://homestyledna.com/share-card.png?v=3">
+    <meta property="og:image" content="https://homestyledna.com/share-card.png?v=4">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Discover Your Home StyleDNA">
-    <meta name="twitter:description" content="Every home has a personality. So do you. Take the free 60-second quiz.">
-    <meta name="twitter:image" content="https://homestyledna.com/share-card.png?v=3">
+    <meta name="twitter:description" content="Swipe real DFW homes for sale and find your home style. Free, about two minutes.">
+    <meta name="twitter:image" content="https://homestyledna.com/share-card.png?v=4">
 
     <!-- Theme color for mobile browser chrome -->
     <meta name="theme-color" content="#030C0D">
@@ -1344,13 +1378,13 @@
                 <a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606"></a>
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
-                <p class="welcome-subheading">Every home has a personality. So do you. Swipe through twelve rooms, answer a few questions and find out yours.</p>
+                <p class="welcome-subheading">Swipe through about 20 real homes for sale where you want to live. We'll name the style that's yours and show you where to find it.</p>
                 <p class="partner-invite" id="partnerInvite" hidden></p>
                 <p class="partner-invite" id="boardInvite" hidden>You're invited to a home board. Take the quiz so your StyleDNA shows on it, then join.</p>
                 <button class="welcome-cta" id="startBtn" onclick="startQuiz()">Find my StyleDNA</button>
                 <button class="text-link" id="compareSavedBtn" hidden onclick="compareSaved()">Compare my saved result instead</button>
                 <button class="text-link" id="lastResultBtn" hidden onclick="compareSaved()">See my last result</button>
-                <p class="welcome-meta">About 60 seconds &middot; Powered by ChloeIQ</p>
+                <p class="welcome-meta">About 2 minutes &middot; Powered by ChloeIQ</p>
             </div>
             <footer class="welcome-footer">
                 <div class="legal">
@@ -1361,13 +1395,32 @@
             </footer>
         </div>
 
-        <!-- SEARCH SCREEN (last step: budget, home type, area) -->
+        <!-- WHERE: counties first, then cities if they want to narrow it -->
+        <div class="screen preference-screen" id="whereScreen">
+            <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
+            <div class="preference-content">
+                <h2 class="preference-headline">Where Are You Looking?</h2>
+                <p class="preference-subheading">Start with the county. Add cities if you want to narrow it down.</p>
+                <div class="progress-indicator">Step 1 of 4</div>
+                <p class="chip-label">Counties <span class="chip-hint">Pick as many as you like</span></p>
+                <div class="chips" id="countyChips"></div>
+                <div id="cityBlock" hidden>
+                    <p class="chip-label">Cities <span class="chip-hint">Optional</span></p>
+                    <div class="chips city-chips" id="cityChips"></div>
+                </div>
+                <p class="form-error" id="whereError" role="alert"></p>
+                <button class="pref-continue" onclick="finishWhere()">Continue</button>
+                <button class="text-link" type="button" onclick="anywhereDfw()">Not sure yet, show me all of DFW</button>
+            </div>
+        </div>
+
+        <!-- BUDGET AND HOME TYPE -->
         <div class="screen preference-screen" id="priceScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
-                <h2 class="preference-headline">Last Step: Your Search</h2>
-                <p class="preference-subheading">So we can point you to real homes that fit</p>
-                <div class="progress-indicator">Step 5 of 5</div>
+                <h2 class="preference-headline">Your Budget</h2>
+                <p class="preference-subheading">So every home you see is one you could actually buy</p>
+                <div class="progress-indicator">Step 2 of 4</div>
 
                 <p class="chip-label">Budget</p>
                 <div class="chips" id="budgetChips">
@@ -1383,137 +1436,36 @@
                     <button type="button" class="chip" onclick="selectHomeType('Single Family Home', 'Single family', this)">Single family</button>
                     <button type="button" class="chip" onclick="selectHomeType('Townhouse', 'Townhome', this)">Townhome</button>
                     <button type="button" class="chip" onclick="selectHomeType('Condo', 'Condo', this)">Condo</button>
-                    <button type="button" class="chip" onclick="selectHomeType('Vacant Land', 'Land', this)">Land</button>
                     <button type="button" class="chip active" onclick="selectHomeType('', 'Open to any', this)">Open to any</button>
                 </div>
 
-                <p class="chip-label"><label for="searchArea">Areas</label> <span class="chip-hint">Pick as many as you like</span></p>
-                <div class="chips area-chips" id="areaChips"></div>
-                <select class="form-select" id="searchArea" aria-label="Add an area" onchange="addArea(this.value)">
-                    <option value="">Anywhere in DFW</option>
-                </select>
-
                 <p class="form-error" id="searchError" role="alert"></p>
-                <button class="pref-continue search-continue" onclick="finishSearch()">See my StyleDNA</button>
+                <button class="pref-continue search-continue" onclick="finishSearch()">Continue</button>
             </div>
         </div>
 
-        <!-- FLOOR PLAN SCREEN -->
-        <div class="screen preference-screen" id="floorPlanScreen">
-            <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
-            <div class="preference-content">
-                <h2 class="preference-headline">Preferred Floor Plan</h2>
-                <p class="preference-subheading">How do you like your spaces organized?</p>
-                <div class="progress-indicator">Step 1 of 5</div>
-
-                <div class="pref-options">
-                    <button class="pref-option" onclick="selectFloorPlan('open', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Open concept<small>Flowing, connected spaces</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectFloorPlan('defined', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Defined spaces<small>Separate rooms, more formal</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectFloorPlan('balanced', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Balanced mix<small>Some open, some intimate</small></span>
-                    </button>
-                </div>
-
-                <button class="pref-continue" onclick="goToBackyard()">Continue</button>
-            </div>
-        </div>
-
-        <!-- BACKYARD SCREEN -->
-        <div class="screen preference-screen" id="backyardScreen">
+        <!-- MUST-HAVES -->
+        <div class="screen preference-screen" id="mustScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
-            <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="preference-content">
-                <h2 class="preference-headline">Outdoor Space</h2>
-                <p class="preference-subheading">What matters to you outside?</p>
-                <div class="progress-indicator">Step 2 of 5</div>
-
-                <div class="pref-options">
-                    <button class="pref-option" onclick="selectBackyard('large', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Large backyard<small>Room to entertain, pool-ready</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectBackyard('patio', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Patio or courtyard<small>Intimate outdoor space</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectBackyard('minimal', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Minimal outdoor<small>Urban, low maintenance</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectBackyard('na', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Not important</span>
-                    </button>
-                </div>
-
-                <button class="pref-continue" onclick="goToKitchen()">Continue</button>
+                <h2 class="preference-headline">What Does It Need?</h2>
+                <p class="preference-subheading">Tap Must or Nice. Leave the rest alone.</p>
+                <div class="progress-indicator">Step 3 of 4</div>
+                <div class="must-list" id="mustList"></div>
+                <button class="pref-continue" onclick="showScreen('picksScreen', true)">Continue</button>
             </div>
         </div>
 
-        <!-- KITCHEN SCREEN -->
-        <div class="screen preference-screen" id="kitchenScreen">
+        <!-- QUICK PICKS -->
+        <div class="screen preference-screen" id="picksScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
-            <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="preference-content">
-                <h2 class="preference-headline">Kitchen Style</h2>
-                <p class="preference-subheading">What's your kitchen personality?</p>
-                <div class="progress-indicator">Step 3 of 5</div>
-
-                <div class="pref-options">
-                    <button class="pref-option" onclick="selectKitchen('statement', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Statement kitchen<small>Chef's kitchen, center of the home</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectKitchen('modern', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Modern and efficient<small>Clean, functional</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectKitchen('cozy', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Cozy kitchen<small>Intimate gathering space</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectKitchen('na', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Not important</span>
-                    </button>
-                </div>
-
-                <button class="pref-continue" onclick="goToEntertaining()">Continue</button>
-            </div>
-        </div>
-
-        <!-- ENTERTAINING SCREEN -->
-        <div class="screen preference-screen" id="entertainingScreen">
-            <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
-            <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
-            <div class="preference-content">
-                <h2 class="preference-headline">Entertaining Preference</h2>
-                <p class="preference-subheading">How do you like to gather?</p>
-                <div class="progress-indicator">Step 4 of 5</div>
-
-                <div class="pref-options">
-                    <button class="pref-option" onclick="selectEntertaining('frequent', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Large gathering spaces<small>I host often</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectEntertaining('intimate', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Intimate entertaining<small>Small groups</small></span>
-                    </button>
-                    <button class="pref-option" onclick="selectEntertaining('na', this)">
-                        <div class="pref-checkbox"></div>
-                        <span>Not a priority</span>
-                    </button>
-                </div>
-
-                <button class="pref-continue" onclick="goToSearch()">Continue</button>
+                <h2 class="preference-headline">A Few Quick Picks</h2>
+                <p class="preference-subheading">Skip any you don't have a feel for yet</p>
+                <div class="progress-indicator">Step 4 of 4</div>
+                <div id="pickList"></div>
+                <p class="form-error" id="deckError" role="alert"></p>
+                <button class="pref-continue" id="startSwipeBtn" onclick="startSwiping()">Start swiping</button>
             </div>
         </div>
 
@@ -1559,8 +1511,8 @@
             <div class="results-sticky-header">
                 <div class="results-archetype">
                     <div class="archetype-kicker">Your StyleDNA</div>
-                    <h2 class="archetype-name" id="archetypeName">The Curator</h2>
-                    
+                    <h2 class="archetype-name" id="archetypeName">Craftsman</h2>
+                    <p class="style-lean" id="styleLean" hidden></p>
                 </div>
             </div>
 
@@ -1569,21 +1521,13 @@
                     <div class="results-budget-note" id="budgetNote">
                         Based on your budget and StyleDNA, here are your perfect matches
                     </div>
-                    <p class="results-description" id="archetypeDescription">
-                        A design-driven perfectionist who believes every home is a curated expression of taste.
-                    </p>
-                    <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
-                    <div class="homes-picker">
-                        <label class="form-label" for="homesArea">Browse homes for sale in</label>
-                        <select class="form-select" id="homesArea" aria-label="Area">
-                            <option value="">Anywhere in DFW</option>
-                        </select>
-                        <div class="homes-actions">
-                            <a class="homes-go" id="browseRangeLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'picker', true)">See homes in my style &rarr;</a>
-                            <a class="homes-all" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'picker', false)">All homes</a>
-                        </div>
-                        <p class="homes-note"><span id="homesNote">In your price range, on joshwaters.com</span></p>
+                    <p class="results-description" id="archetypeDescription"></p>
+                    <div class="avail" id="availBlock">
+                        <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
+                        <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See them on joshwaters.com</a>
+                        <p class="avail-near" id="availNear" hidden></p>
                     </div>
+                    <button class="btn-outline avail-save" onclick="captureEmail()">Send me homes that fit</button>
                 </div>
 
                 <div class="results-section board-return" id="boardReturn" hidden>
@@ -1603,15 +1547,24 @@
 
                 <div class="results-section">
                     <dl class="profile-list">
-                        <div class="profile-row"><dt>Aesthetic</dt><dd class="aesthetic-tags" id="aestheticTags"></dd></div>
-                        <div class="profile-row"><dt>Lifestyle</dt><dd class="lifestyle-text" id="lifestyleText"></dd></div>
+                        <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
+                        <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
+                        <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
+                        <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
+                        <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
                     </dl>
                 </div>
 
                 <div class="results-section">
-                    <h3 class="results-section-title" id="lovedTitle">Styles You Loved</h3>
-                    <p class="examples-note" id="examplesNote">Example photos from the quiz, not homes for sale.</p>
+                    <h3 class="results-section-title" id="lovedTitle">Homes You Loved</h3>
+                    <p class="examples-note" id="examplesNote">Real homes for sale right now. Tap one to see it.</p>
                     <div id="matchedHomes"></div>
+                </div>
+
+                <div class="results-section" id="moreSection" hidden>
+                    <h3 class="results-section-title" id="moreTitle">More Homes Like This</h3>
+                    <p class="examples-note">For sale now in your areas and range.</p>
+                    <div id="moreHomes"></div>
                 </div>
 
                 <div class="results-section results-cta">
@@ -1634,7 +1587,7 @@
                         <button class="btn-outline" onclick="openValue('results')">What's my home worth?</button>
                     </div>
                     <div class="redo-links">
-                        <button class="text-link" onclick="editSearch()">Change budget, home type or area</button>
+                        <button class="text-link" onclick="editSearch()">Change my areas or answers</button>
                         <button class="text-link" onclick="restartQuiz()">Retake the quiz</button>
                     </div>
                 </div>
@@ -1685,8 +1638,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="neighborhoodInput">Area you're interested in</label>
-                        <select class="form-select" id="neighborhoodInput" required onchange="handleNeighborhoodChange(this.value)">
+                        <label class="form-label" for="neighborhoodInput">Area you're most interested in <span class="form-optional">Optional</span></label>
+                        <select class="form-select" id="neighborhoodInput" onchange="handleNeighborhoodChange(this.value)">
                             <option value="">Select an area...</option>
                             <optgroup label="Dallas Neighborhoods">
                                 <option value="Uptown">Uptown</option>
@@ -1807,8 +1760,8 @@
                 <h2 class="activation-headline" id="activationHeadline">You're All Set</h2>
                 <p class="activation-text" id="activationText">Josh will be in touch with homes that fit your style.</p>
 
-                <a class="activation-cta" id="homesBtn" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'area', true)">See homes in my style</a>
-                <a class="activation-link" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, 'area', false)">See all homes for sale</a>
+                <a class="activation-cta" id="homesBtn" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, true)">See homes in my style</a>
+                <a class="activation-link" href="https://joshwaters.com/listing" target="_blank" rel="noopener" onclick="return openHomes(this, false)">See all homes for sale in my areas</a>
                 <button class="activation-link share-btn" onclick="shareResults()"><span>Share my StyleDNA</span></button>
                 <button class="activation-link" onclick="openValue('activation')">What's my home worth?</button>
                 <button class="activation-link activation-link-quiet" onclick="finalAction()">Back to my results</button>
@@ -1859,122 +1812,62 @@
             try { if (!sessionStorage.getItem('sdna_visit')) { sessionStorage.setItem('sdna_visit', '1'); window.sdnaStat('visit'); } } catch (e) { window.sdnaStat('visit'); }
         })();
 
-        // Generate a simple SVG image for a home style
-        function styleSlug(style) {
-            return style.toLowerCase()
-                .replace(/\s*\/\s*/g, '-')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-        }
-        const STYLE_IMAGE_MAP = {
-            'Modern Minimalist': 'minimalist.png',
-            'Modern Farmhouse': 'farmhouse-classic.png',
-            'Modern Japanese': 'japanese-zen.png',
-            'Farmhouse': 'farmhouse-classic.png',
-            'Mid-Century Modern': 'midcentury.png',
-            'Industrial Loft': 'industrial.png',
-            'Industrial Contemporary': 'industrial-sleek.png',
-            'Art Deco': 'artdeco.png',
-            'Bohemian / Eclectic': 'bohemian.png',
-            'Coastal Modern': 'coastal.png',
-            'Open-Concept Contemporary': 'luxury-contemporary.png',
-            'Cottage Core': 'cottage.png',
-            'Mediterranean': 'mediterranean.png',
-            'Maximalist': 'maximalist.png',
-            'Scandinavian': 'scandinavian.png',
-            'Traditional / Classic': 'traditional.png',
-            'Transitional': 'transitional.png',
-            'Rustic Modern': 'rustic.png',
-            'Luxury Contemporary': 'luxury.png'
+        // ===== StyleDNA v2: real homes, architectural styles =====
+        // Same list as the server (api/_lib/styles.js). A home's style comes from reading its photo.
+        const STYLE_INFO = {
+            traditional:  { label: 'Traditional', desc: 'Brick or stone, pitched roofs, classic front' },
+            transitional: { label: 'Transitional', desc: 'Light brick, black windows, simple lines' },
+            farmhouse:    { label: 'Modern Farmhouse', desc: 'Board and batten, black trim, gables' },
+            modern:       { label: 'Modern', desc: 'Clean lines, flat roofs, big glass' },
+            craftsman:    { label: 'Craftsman', desc: 'Front porch, tapered columns, wood trim' },
+            ranch:        { label: 'Ranch', desc: 'One story, long and low' },
+            midcentury:   { label: 'Mid-Century Modern', desc: 'Low roofline, wide overhangs, big windows' },
+            tudor:        { label: 'Tudor', desc: 'Steep gables, brick, stone and timber' },
+            mediterranean:{ label: 'Mediterranean', desc: 'Stucco, tile roof, arches' },
+            french:       { label: 'French Country', desc: 'Tall hip roof, stone, formal symmetry' },
+            colonial:     { label: 'Colonial', desc: 'Symmetrical two-story, columns, shutters' },
+            cottage:      { label: 'Cottage', desc: 'Smaller scale, painted brick, charm' },
+            hillcountry:  { label: 'Hill Country', desc: 'Limestone, metal roof, deep porches' },
+            barndo:       { label: 'Barndominium', desc: 'Metal barn-style home, wide open inside' }
         };
-
-        function styleImage(style) {
-            const file = STYLE_IMAGE_MAP[style];
-            return file ? './img/' + file.replace('.png', '.webp') : fallbackImage(style);
-        }
-        function fallbackImage(style) {
-            const palette = {
-                'Modern Minimalist':['#2A2A2A','#F5F5F3'],
-                'Open-Concept Contemporary':['#0E2926','#D4A574'],
-                'Transitional':['#0E2926','#8B7C6E'],
-                'Industrial Loft':['#696969','#F5F5F3'],
-                'Bohemian / Eclectic':['#CD853F','#F5DEB3'],
-                'Coastal Modern':['#213D37','#F5F5F3'],
-                'Scandinavian':['#D4D4D0','#F5F5F3'],
-                'Traditional / Classic':['#3E2723','#D2B48C'],
-                'Farmhouse':['#D4A574','#F5F5F3'],
-                'Mid-Century Modern':['#8B4513','#D4A574'],
-                'Mediterranean':['#C97B4A','#F5DEB3'],
-                'Rustic Modern':['#5D4037','#D2B48C'],
-                'Modern Farmhouse':['#2A2A2A','#D4A574'],
-                'Industrial Contemporary':['#4A4A4A','#D4A574'],
-                'Art Deco':['#0A0A0A','#D4A574'],
-                'Maximalist':['#5D2E46','#D4A574'],
-                'Modern Japanese':['#3E2723','#F5F5F3'],
-                'Luxury Contemporary':['#0E2926','#F5F5F3'],
-                'Cottage Core':['#A8C2A0','#F5F5F3']
-            };
-            const [c1,c2] = palette[style] || ['#8B7C6E','#F5F5F3'];
-            return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='${encodeURIComponent(c1)}'/%3E%3Crect y='150' width='400' height='450' fill='${encodeURIComponent(c2)}'/%3E%3Ctext x='200' y='300' font-size='28' font-weight='bold' fill='${encodeURIComponent(c1)}' text-anchor='middle' dominant-baseline='middle'%3E${encodeURIComponent(style)}%3C/text%3E%3C/svg%3E`;
-        }
-        function generateHomeImage(style) {
-            return styleImage(style);
-        }
-
-        // One card per style. Every quiz taker sees a balanced deck: 2 styles per archetype,
-        // picked at random from that archetype's pool, so budget never changes the result.
-        const STYLE_CARDS = {
-            // Curator
-            'Dark Luxe Kitchen':          {arch:'curator',      second:'architect',    title:'Statement Kitchen',      desc:'Marble, brass and drama', img:'marble-kitchen.webp'},
-            'Gallery Modern':             {arch:'curator',      second:'visionary',    title:'Collector\'s Home',      desc:'Walls made for art', img:'gallery-modern.webp'},
-            'Art Deco':                   {arch:'curator',      second:'visionary',    title:'Glamour Estate',         desc:'Dramatic and luxe'},
-            'Maximalist':                 {arch:'curator',      second:'authenticist', title:'Bold Statement',         desc:'Layered and unapologetic'},
-            // Visionary
-            'Modern Minimalist':          {arch:'visionary',    second:'curator',      title:'Pure Minimal',           desc:'Nothing extra, all intent'},
-            'Concrete Modern':            {arch:'visionary',    second:'curator',      title:'Glass and Concrete',     desc:'Architecture first', img:'concrete-modern.webp'},
-            'Organic Modern':             {arch:'visionary',    second:'sanctuary',    title:'Soft Curves',            desc:'Sculpted, warm and new', img:'organic-modern.webp'},
-            'Industrial Contemporary':    {arch:'visionary',    second:'architect',    title:'Modern Edge',            desc:'Steel, brick and city light'},
-            // Experience Architect
-            'Pool Great Room':            {arch:'architect',    second:'authenticist', title:'Indoor-Outdoor Living',  desc:'Walls open to the pool', img:'pool-great-room.webp'},
-            'Game Room and Bar':          {arch:'architect',    second:'visionary',    title:'The Game Room',          desc:'Bar, billiards and big nights', img:'game-room.webp'},
-            'Modern Farmhouse':           {arch:'architect',    second:'sanctuary',    title:'Gathering Kitchen',      desc:'Big island, room for everyone'},
-            'Mediterranean':              {arch:'architect',    second:'custodian',    title:'Courtyard Living',       desc:'Indoor-outdoor and made to host'},
-            // Sanctuary Seeker
-            'Spa Bath':                   {arch:'sanctuary',    second:'authenticist', title:'Spa Retreat',            desc:'Stone tub and garden light', img:'spa-bath.webp'},
-            'Sunroom':                    {arch:'sanctuary',    second:'custodian',    title:'The Sunroom',            desc:'Windows, green and quiet', img:'sunroom.webp'},
-            'Scandinavian':               {arch:'sanctuary',    second:'curator',      title:'Nordic Calm',            desc:'Light and serene'},
-            'Modern Japanese':            {arch:'sanctuary',    second:'authenticist', title:'Zen Retreat',            desc:'Quiet and balanced'},
-            // Heritage Custodian
-            'Tudor Library':              {arch:'custodian',    second:'curator',      title:'The Library',            desc:'Paneled, storied and warm', img:'tudor-library.webp'},
-            'Craftsman Bungalow':         {arch:'custodian',    second:'authenticist', title:'Classic Craftsman',      desc:'Original wood and built-ins', img:'craftsman.webp'},
-            'Traditional / Classic':      {arch:'custodian',    second:'sanctuary',    title:'Heritage Home',          desc:'Timeless character'},
-            'Mid-Century Modern':         {arch:'custodian',    second:'visionary',    title:'Designer Classic',       desc:'Iconic mid-century'},
-            'Cottage Core':               {arch:'custodian',    second:'sanctuary', title:'Storybook Cottage',      desc:'Charming and nostalgic'},
-            // Authenticist
-            'Hill Country Ranch':         {arch:'authenticist', second:'custodian',    title:'Limestone Ranch',        desc:'Texas stone, cedar and oaks', img:'hill-country-ranch.webp'},
-            'Modern Ranch':               {arch:'authenticist', second:'architect',    title:'Reclaimed Ranch',        desc:'Barnwood, steel and pasture', img:'reclaimed-ranch.webp'},
-            'Bohemian / Eclectic':        {arch:'authenticist', second:'custodian',    title:'Collected Living',       desc:'Personal and well-traveled'},
-            'Rustic Modern':              {arch:'authenticist', second:'architect',    title:'Natural Refinement',     desc:'Wood, stone and a big hearth'}
+        const STYLE_KEYS = Object.keys(STYLE_INFO);
+        const styleLabel = (k) => (STYLE_INFO[k] && STYLE_INFO[k].label) || '';
+        // Counties first, then the cities in them.
+        const COUNTY_CITIES = {
+            Collin: ['Allen','Anna','Celina','Fairview','Frisco','Lucas','McKinney','Melissa','Murphy','Parker','Plano','Princeton','Prosper','Wylie'],
+            Dallas: ['Dallas','Addison','Carrollton','Cedar Hill','Coppell','DeSoto','Garland','Grand Prairie','Highland Park','Irving','Mesquite','Richardson','Rowlett','Sachse','Sunnyvale','University Park'],
+            Denton: ['Argyle','Aubrey','Bartonville','Copper Canyon','Corinth','Denton','Double Oak','Flower Mound','Highland Village','Justin','Lantana','Lewisville','Little Elm','Northlake','Pilot Point','Roanoke','The Colony','Trophy Club'],
+            Tarrant: ['Arlington','Bedford','Benbrook','Burleson','Colleyville','Euless','Fort Worth','Grapevine','Haslet','Hurst','Keller','Mansfield','North Richland Hills','Southlake','Westlake'],
+            Rockwall: ['Rockwall','Heath','Fate','Royse City'],
+            Kaufman: ['Forney','Terrell','Kaufman','Crandall'],
+            Ellis: ['Waxahachie','Midlothian','Red Oak','Ennis'],
+            Johnson: ['Cleburne','Joshua','Godley','Burleson'],
+            Parker: ['Weatherford','Aledo','Willow Park','Hudson Oaks','Springtown'],
+            Wise: ['Decatur','Rhome','Boyd','Bridgeport'],
+            Hunt: ['Greenville','Caddo Mills','Quinlan'],
+            Grayson: ['Sherman','Denison','Van Alstyne','Gunter'],
+            Hood: ['Granbury']
         };
-        // One photo per look. Held out because their photos are near-copies of a card above:
-        // Industrial Loft, Open-Concept Contemporary, Luxury Contemporary, Farmhouse, Transitional.
-        // Coastal Modern is held out until it has a DFW-appropriate photo (current image shows an ocean view).
-        const CARDS_PER_ARCHETYPE = 2;
-        // Rooms that read alike never appear in the same quiz.
-        const LOOKALIKE = { 'Hill Country Ranch': 'stone-beam', 'Rustic Modern': 'stone-beam', 'Modern Minimalist': 'white-modern', 'Organic Modern': 'white-modern' };
+        const MUSTS = [
+            { k: 'pool', label: 'Pool', hint: 'Private pool in the backyard' },
+            { k: 'acres', label: 'An acre or more', hint: 'Room to spread out' },
+            { k: 'gameroom', label: 'Game or media room', hint: 'A second living area upstairs or down' },
+            { k: 'suite', label: 'Guest suite or in-law quarters', hint: 'A second living space with its own bath' },
+            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' }
+        ];
+        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features' };
+        const PICKS = [
+            { k: 'exterior', label: 'Exterior', opts: [['brick', 'Brick'], ['stone', 'Stone'], ['stucco', 'Stucco'], ['siding', 'Siding']] },
+            { k: 'layout', label: 'Layout', opts: [['open', 'Open concept'], ['separate', 'Separate rooms']] },
+            { k: 'condition', label: 'Condition', opts: [['ready', 'Move-in ready'], ['updates', 'Some updates OK'], ['project', 'Ready for a project']] },
+            { k: 'hoa', label: 'HOA', opts: [['no', 'No HOA'], ['yes', 'HOA is a plus']] },
+            { k: 'setting', label: 'Setting', opts: [['near', 'Close to shops and dining'], ['secluded', 'Secluded, more privacy']] }
+        ];
+        const PICK_LABEL = Object.fromEntries(PICKS.map(p => [p.k, Object.fromEntries(p.opts)]));
 
-        const archetypes = {
-            'curator': {name:'The Curator', desc:'Design-driven perfectionist. Every home is curated.', aesthetic:['Modern','Contemporary','Curated'], lifestyle:'Entertainer \u2022 Collector \u2022 Design-Forward'},
-            'sanctuary': {name:'The Sanctuary Seeker', desc:'Your home is a peaceful retreat from the world.', aesthetic:['Warm Modern','Transitional','Hygge'], lifestyle:'Home-Centered \u2022 Wellness \u2022 Quiet Entertainer'},
-            'architect': {name:'The Experience Architect', desc:'Your home is a stage for connection and togetherness.', aesthetic:['Open-Concept','Industrial','Contemporary'], lifestyle:'Host \u2022 Community-Builder \u2022 Social'},
-            'custodian': {name:'The Heritage Custodian', desc:'You respect the past and live with intention.', aesthetic:['Historic','Transitional','Eclectic'], lifestyle:'Storyteller \u2022 Traditionalist \u2022 Cultural'},
-            'visionary': {name:'The Visionary', desc:'Forward-thinking, unafraid of unconventional beauty.', aesthetic:['Modern','Brutalist','Avant-Garde'], lifestyle:'Innovator \u2022 Trendsetter \u2022 Creative'},
-            'authenticist': {name:'The Authenticist', desc:'Real beats perfect. Honest materials and character.', aesthetic:['Industrial','Rustic-Modern','Sustainable'], lifestyle:'Values-Driven \u2022 Eco-Conscious \u2022 Independent'}
-        };
-
-        let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = 'curator', selectedPrice = null, selectedPriceLabel = '';
-        let selectedHomeType = '', selectedHomeTypeLabel = 'Open to any', selectedAreas = [], partner = null;
-        let userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
+        let currentSwipeIndex = 0, loves = [], passes = [], userArchetype = '', styleNext = '', selectedPrice = null, selectedPriceLabel = '';
+        let selectedHomeType = '', selectedHomeTypeLabel = 'Open to any', partner = null;
+        let selectedCounties = [], selectedCities = [], must = {}, picks = {}, deckInfo = null, avail = null;
         let userData = null, isDragging = false, startX = 0, currentX = 0, startY = 0, currentY = 0, currentHomes = [];
         let screenHistory = [];
         const AUTO_ADVANCE_MS = 220;
@@ -2024,192 +1917,157 @@
             if (!window.__quizStart) window.__quizStart = Date.now();
             if (window.sdnaStat) sdnaStat('quiz_start');
             track('quiz_started', { source: (window.__utm && window.__utm.utm_medium) || 'direct', partner: partner ? 'yes' : 'no' });
-            loves = []; passes = [];
-            userPreferences = {floorPlan:null, backyard:null, kitchen:null, entertaining:null};
-            document.querySelectorAll('.pref-option.active, .chip.active').forEach(b => b.classList.remove('active'));
+            loves = []; passes = []; must = {}; picks = {}; deckInfo = null; avail = null; currentHomes = [];
+            selectedCounties = []; selectedCities = [];
+            document.querySelectorAll('.chip.active').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#typeChips .chip').forEach(b => { if (b.textContent === 'Open to any') b.classList.add('active'); });
-            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any'; selectedAreas = []; renderAreaChips();
-            showScreen('swipeScreen', true);
-            currentHomes = buildDeck();
-            initializeSwipe();
+            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any';
+            renderWhere(); renderMusts(); renderPicks();
+            showScreen('whereScreen', true);
         }
-        // After the last swipe: the four questions. History starts fresh so Back never returns to the empty deck.
-        function goToQuestions() { showScreen('floorPlanScreen', true); }
-        function goToSearch() { if (userPreferences.entertaining === null) return; showScreen('priceScreen', true); }
 
         function setActiveChip(groupId, btn) {
             document.querySelectorAll('#' + groupId + ' .chip').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
         }
+        function chip(label, on, onclick) {
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'chip' + (on ? ' active' : ''); b.textContent = label; b.onclick = onclick;
+            return b;
+        }
+
+        // ---- Step 1: where ----
+        function renderWhere() {
+            document.getElementById('countyChips').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, selectedCounties.includes(c), () => {
+                selectedCounties = selectedCounties.includes(c) ? selectedCounties.filter(x => x !== c) : selectedCounties.concat(c);
+                const keep = new Set(selectedCounties.flatMap(x => COUNTY_CITIES[x]));
+                selectedCities = selectedCities.filter(x => keep.has(x));
+                renderWhere();
+            })));
+            const cities = [...new Set(selectedCounties.flatMap(c => COUNTY_CITIES[c]))].sort();
+            document.getElementById('cityBlock').hidden = !cities.length;
+            document.getElementById('cityChips').replaceChildren(...cities.map(c => chip(c, selectedCities.includes(c), () => {
+                selectedCities = selectedCities.includes(c) ? selectedCities.filter(x => x !== c) : selectedCities.concat(c).slice(-12);
+                renderWhere();
+            })));
+            const err = document.getElementById('whereError'); err.textContent = ''; err.classList.remove('show');
+        }
+        function finishWhere() {
+            if (!selectedCounties.length) {
+                const err = document.getElementById('whereError');
+                err.textContent = 'Pick at least one county, or tap "show me all of DFW".'; err.classList.add('show');
+                return;
+            }
+            track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length });
+            showScreen('priceScreen', true);
+        }
+        function anywhereDfw() { selectedCounties = []; selectedCities = []; renderWhere(); track('where_set', { counties: 'all' }); showScreen('priceScreen', true); }
+        function whereLabel() {
+            if (selectedCities.length) return selectedCities.join(', ');
+            if (selectedCounties.length) return selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County');
+            return 'All of DFW';
+        }
+        function myAreas() { return selectedCities.length ? selectedCities.slice() : selectedCounties.map(c => c + ' County'); }
+
+        // ---- Step 2: budget and type ----
         function selectPrice(index, label, btn) {
-            selectedPrice = index;
-            selectedPriceLabel = label;
+            selectedPrice = index; selectedPriceLabel = label;
             setActiveChip('budgetChips', btn);
             const err = document.getElementById('searchError'); err.textContent = ''; err.classList.remove('show');
         }
-        function selectHomeType(value, label, btn) {
-            selectedHomeType = value;
-            selectedHomeTypeLabel = label;
-            setActiveChip('typeChips', btn);
-        }
-        // Areas: as many as they like (up to 6), shown as removable chips above the picker.
-        const MAX_AREAS = 6;
-        function renderAreaChips() {
-            const box = document.getElementById('areaChips');
-            box.replaceChildren(...selectedAreas.map(a => {
-                const b = document.createElement('button');
-                b.type = 'button'; b.className = 'chip area'; b.setAttribute('aria-label', 'Remove ' + a);
-                b.append(a, Object.assign(document.createElement('b'), { textContent: '\u00d7' }));
-                b.onclick = () => { selectedAreas = selectedAreas.filter(x => x !== a); renderAreaChips(); };
-                return b;
-            }));
-            const sel = document.getElementById('searchArea');
-            sel.options[0].textContent = selectedAreas.length ? (selectedAreas.length >= MAX_AREAS ? 'That\u2019s the most areas' : 'Add another area') : 'Anywhere in DFW';
-            sel.disabled = selectedAreas.length >= MAX_AREAS;
-        }
-        function addArea(v) {
-            const sel = document.getElementById('searchArea');
-            if (v && !selectedAreas.includes(v) && selectedAreas.length < MAX_AREAS) selectedAreas.push(v);
-            sel.value = '';
-            renderAreaChips();
-        }
+        function selectHomeType(value, label, btn) { selectedHomeType = value; selectedHomeTypeLabel = label; setActiveChip('typeChips', btn); }
         function finishSearch() {
             if (selectedPrice === null) {
                 const err = document.getElementById('searchError');
                 err.textContent = 'Pick a budget to continue.'; err.classList.add('show');
                 return;
             }
-            const first = selectedAreas.find(a => KNOWN_AREAS.has(a));
-            if (first) document.getElementById('neighborhoodInput').value = first;
-            track('search_set', { budget: selectedPriceLabel, type: selectedHomeTypeLabel, areas: selectedAreas.length ? selectedAreas.join('|') : 'all' });
-            goToLoading();
+            track('search_set', { budget: selectedPriceLabel, type: selectedHomeTypeLabel });
+            showScreen('mustScreen', true);
         }
 
-        function selectFloorPlan(value, btn) {
-            userPreferences.floorPlan = value;
-            setActiveOption('floorPlanScreen', btn);
-            setTimeout(()=>goToBackyard(), AUTO_ADVANCE_MS);
-        }
-        function goToBackyard() { if (userPreferences.floorPlan === null) return; showScreen('backyardScreen', true); }
-
-        function selectBackyard(value, btn) {
-            userPreferences.backyard = value;
-            setActiveOption('backyardScreen', btn);
-            setTimeout(()=>goToKitchen(), AUTO_ADVANCE_MS);
-        }
-        function goToKitchen() { if (userPreferences.backyard === null) return; showScreen('kitchenScreen', true); }
-
-        function selectKitchen(value, btn) {
-            userPreferences.kitchen = value;
-            setActiveOption('kitchenScreen', btn);
-            setTimeout(()=>goToEntertaining(), AUTO_ADVANCE_MS);
-        }
-        function goToEntertaining() { if (userPreferences.kitchen === null) return; showScreen('entertainingScreen', true); }
-
-        function selectEntertaining(value, btn) {
-            userPreferences.entertaining = value;
-            setActiveOption('entertainingScreen', btn);
-            setTimeout(()=>goToSearch(), AUTO_ADVANCE_MS);
-        }
-
-        function shuffle(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-            return a;
-        }
-
-        // 2 styles per archetype, shuffled so no two cards from the same archetype sit side by side.
-        function buildDeck() {
-            const byArch = {};
-            Object.entries(STYLE_CARDS).forEach(([style, c]) => { (byArch[c.arch] = byArch[c.arch] || []).push(style); });
-            let picks = [];
-            Object.values(byArch).forEach(styles => {
-                const chosen = [], groups = new Set();
-                shuffle(styles).forEach(st => {
-                    const g = LOOKALIKE[st] || st;
-                    if (chosen.length < CARDS_PER_ARCHETYPE && !groups.has(g)) { chosen.push(st); groups.add(g); }
+        // ---- Step 3: must-haves (Must / Nice, tap again to clear) ----
+        function renderMusts() {
+            document.getElementById('mustList').replaceChildren(...MUSTS.map(m => {
+                const row = document.createElement('div'); row.className = 'must-row';
+                const t = document.createElement('div'); t.className = 'must-text';
+                t.append(Object.assign(document.createElement('b'), { textContent: m.label }), Object.assign(document.createElement('small'), { textContent: m.hint }));
+                const seg = document.createElement('div'); seg.className = 'seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', m.label);
+                [['must', 'Must'], ['nice', 'Nice']].forEach(([v, l]) => {
+                    const b = document.createElement('button'); b.type = 'button'; b.textContent = l;
+                    b.className = must[m.k] === v ? 'on' : ''; b.setAttribute('aria-pressed', must[m.k] === v ? 'true' : 'false');
+                    b.onclick = () => { if (must[m.k] === v) delete must[m.k]; else must[m.k] = v; renderMusts(); };
+                    seg.append(b);
                 });
-                picks = picks.concat(chosen);
-            });
-            let deck = shuffle(picks);
-            for (let tries = 0; tries < 50; tries++) {
-                const clash = deck.some((s, i) => i > 0 && STYLE_CARDS[s].arch === STYLE_CARDS[deck[i - 1]].arch);
-                if (!clash) break;
-                deck = shuffle(picks);
-            }
-            return deck.map(style => { const c = STYLE_CARDS[style]; return { style, ...c, image: c.img ? './img/' + c.img : styleImage(style), fallback: fallbackImage(style) }; });
-        }
-
-        // Question answers: each archetype can earn the same maximum, so no archetype is favored by the questions.
-        const PREF_WEIGHTS = {
-            floorPlan: {
-                open:      {architect:3, visionary:2, curator:1},
-                defined:   {custodian:3, curator:2, authenticist:1},
-                balanced:  {sanctuary:3, authenticist:2, custodian:1}
-            },
-            backyard: {
-                large:     {architect:3, authenticist:2, custodian:1},
-                patio:     {sanctuary:3, custodian:2},
-                minimal:   {visionary:3, curator:2},
-                na:        {}
-            },
-            kitchen: {
-                statement: {curator:3, architect:1, visionary:1},
-                modern:    {visionary:3, sanctuary:1},
-                cozy:      {authenticist:3, custodian:2},
-                na:        {}
-            },
-            entertaining: {
-                frequent:  {architect:3, curator:2},
-                intimate:  {sanctuary:3, authenticist:2, custodian:1},
-                na:        {}
-            }
-        };
-        const ARCHES = ['curator','sanctuary','architect','custodian','visionary','authenticist'];
-        const PREF_MAX = (() => {
-            const max = Object.fromEntries(ARCHES.map(a => [a, 0]));
-            Object.values(PREF_WEIGHTS).forEach(q => ARCHES.forEach(a => {
-                max[a] += Math.max(0, ...Object.values(q).map(o => o[a] || 0));
+                row.append(t, seg);
+                return row;
             }));
-            return max;
-        })();
-        const PREF_SCALE = 4;   // questions are worth less than swipes: about the same as one loved card
-        const LOVE_PRIMARY = 4, LOVE_SECOND = 1.5, PASS_PRIMARY = 1.5;
-
-        function scoreArchetypes() {
-            const prefRaw = Object.fromEntries(ARCHES.map(a => [a, 0]));
-            ['floorPlan','backyard','kitchen','entertaining'].forEach(k => {
-                const w = (PREF_WEIGHTS[k] || {})[userPreferences[k]] || {};
-                Object.entries(w).forEach(([a, pts]) => { prefRaw[a] += pts; });
-            });
-            const pref = Object.fromEntries(ARCHES.map(a => [a, PREF_MAX[a] ? prefRaw[a] / PREF_MAX[a] * PREF_SCALE : 0]));
-            const swipe = Object.fromEntries(ARCHES.map(a => [a, 0]));
-            const lovedPrimary = Object.fromEntries(ARCHES.map(a => [a, 0]));
-            loves.forEach(h => { swipe[h.arch] += LOVE_PRIMARY; swipe[h.second] += LOVE_SECOND; lovedPrimary[h.arch]++; });
-            passes.forEach(h => { swipe[h.arch] -= PASS_PRIMARY; });
-            const total = Object.fromEntries(ARCHES.map(a => [a, pref[a] + swipe[a]]));
-            return { total, pref, lovedPrimary };
         }
 
+        // ---- Step 4: quick picks (one per row, tap again to clear) ----
+        function renderPicks() {
+            document.getElementById('pickList').replaceChildren(...PICKS.map(p => {
+                const row = document.createElement('div'); row.className = 'pick-row';
+                const lab = document.createElement('p'); lab.className = 'chip-label'; lab.textContent = p.label;
+                const box = document.createElement('div'); box.className = 'chips';
+                p.opts.forEach(([v, l]) => box.append(chip(l, picks[p.k] === v, () => { if (picks[p.k] === v) delete picks[p.k]; else picks[p.k] = v; renderPicks(); })));
+                row.append(lab, box);
+                return row;
+            }));
+        }
+
+        // ---- the deck: about 20 real homes for sale in their areas ----
+        function searchCriteria() {
+            return { counties: selectedCounties, cities: selectedCities, price: PRICE_RANGES[selectedPrice] || '', type: selectedHomeType, must, picks };
+        }
+        async function startSwiping() {
+            const btn = document.getElementById('startSwipeBtn'), err = document.getElementById('deckError');
+            err.textContent = ''; err.classList.remove('show');
+            btn.disabled = true; btn.textContent = 'Finding homes...';
+            track('deck_requested', { counties: selectedCounties.join('|') || 'all', musts: Object.keys(must).length, picks: Object.keys(picks).length });
+            try {
+                const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'deck' }, searchCriteria())) });
+                const j = await r.json();
+                if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
+                if (!j.cards || j.cards.length < 4) {
+                    err.textContent = j.cards && j.cards.length ? 'Only a few homes match so far. Try more counties or a wider budget.' : 'No homes match that yet. Try more counties or a wider budget.';
+                    err.classList.add('show');
+                    return;
+                }
+                deckInfo = j;
+                currentHomes = j.cards;
+                loves = []; passes = [];
+                showScreen('swipeScreen', true);
+                initializeSwipe();
+            } catch (e) {
+                err.textContent = "We couldn't load homes just now. Please try again in a moment."; err.classList.add('show');
+            } finally { btn.disabled = false; btn.textContent = 'Start swiping'; }
+        }
+
+        // ---- the result: the style they loved most, by real homes ----
         function computeArchetype() {
-            const { total, pref, lovedPrimary } = scoreArchetypes();
-            const ranked = ARCHES.slice().sort((a, b) =>
-                (total[b] - total[a]) || (lovedPrimary[b] - lovedPrimary[a]) || (pref[b] - pref[a]) || (Math.random() - 0.5));
-            return ranked[0];
+            const score = {}, loved = {}, shown = {};
+            currentHomes.forEach(h => { shown[h.k] = (shown[h.k] || 0) + 1; });
+            loves.forEach(h => { score[h.k] = (score[h.k] || 0) + 2; loved[h.k] = (loved[h.k] || 0) + 1; });
+            passes.forEach(h => { score[h.k] = (score[h.k] || 0) - 1; });
+            const keys = Object.keys(shown);
+            // Loved share first (so a style shown once and loved counts), then raw loves.
+            const rate = k => (loved[k] || 0) / (shown[k] || 1);
+            const ranked = keys.sort((a, b) => ((score[b] || 0) - (score[a] || 0)) || (rate(b) - rate(a)) || ((loved[b] || 0) - (loved[a] || 0)) || ((deckInfo && deckInfo.counts[b] || 0) - (deckInfo && deckInfo.counts[a] || 0)));
+            const top = ranked[0] || 'traditional';
+            styleNext = ranked.slice(1).find(k => loved[k]) || '';
+            return top;
         }
 
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function money(n) { n = Number(n) || 0; return n ? '$' + n.toLocaleString('en-US') : ''; }
         function buildSwipeCard(home) {
             const card = document.createElement('div');
             card.className = 'swipe-card';
-            card.innerHTML = `<img class="swipe-card-img" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"><div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${home.style}</div><div class="swipe-card-title">${home.title}</div><div class="swipe-card-description">${home.desc}</div></div>`;
+            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
             const img = card.querySelector('img');
-            let triedFallback = false;
-            img.addEventListener('error', () => {
-                if (triedFallback) return;
-                triedFallback = true;
-                img.src = home.fallback;
-            });
-            img.src = home.image;
+            img.alt = home.label + ' home in ' + (home.city || 'DFW');
+            img.src = home.photo;
             return card;
         }
 
@@ -2305,7 +2163,7 @@
         function nextCard() {
             currentSwipeIndex++;
             updateProgress();
-            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToQuestions(); return; }
+            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToLoading(); return; }
 
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
@@ -2384,122 +2242,113 @@
                 if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
                 userArchetype = computeArchetype();
                 showResults();
-            }, 2500);
+            }, 1800);
         }
 
+        function listText(arr) { return arr.length ? arr.join(', ') : ''; }
         function showResults() {
-            const arch = archetypes[userArchetype];
-            document.getElementById('archetypeName').textContent = arch.name;
-                        document.getElementById('archetypeDescription').textContent = arch.desc;
-            document.getElementById('aestheticTags').innerHTML = arch.aesthetic.map(t=>`<div class="tag">${t}</div>`).join('');
-            document.getElementById('lifestyleText').textContent = arch.lifestyle.split(/\s*[\u2022\u00b7]\s*/).join(', ');
+            const info = STYLE_INFO[userArchetype] || STYLE_INFO.traditional;
+            document.getElementById('archetypeName').textContent = info.label;
+            const lean = document.getElementById('styleLean');
+            lean.hidden = !styleNext; lean.textContent = styleNext ? 'with a lean toward ' + styleLabel(styleNext) : '';
+            document.getElementById('archetypeDescription').textContent = info.desc + '.';
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
-            document.getElementById('budgetNote').textContent = `Based on your ${nLove} and ${nPass}.`;
-            document.getElementById('homesNote').textContent = `${selectedPriceLabel}${selectedHomeType ? ' \u00b7 ' + selectedHomeTypeLabel : ''}, on joshwaters.com`;
-            setMyAreasOption();
-            document.getElementById('examplesNote').hidden = loves.length === 0;
+            document.getElementById('budgetNote').textContent = loves.length || passes.length ? `Based on ${currentHomes.length} real homes for sale: ${nLove} and ${nPass}.` : '';
+            document.getElementById('pWhere').textContent = whereLabel();
+            document.getElementById('pBudget').textContent = [selectedPriceLabel, selectedHomeType ? selectedHomeTypeLabel : ''].filter(Boolean).join(', ') || 'Open';
+            const musts = Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]);
+            const nices = Object.keys(must).filter(k => must[k] === 'nice').map(k => MUST_LABEL[k]);
+            const pk = Object.keys(picks).map(k => PICK_LABEL[k][picks[k]]).filter(Boolean);
+            document.getElementById('pMust').textContent = listText(musts); document.getElementById('pMustRow').hidden = !musts.length;
+            document.getElementById('pNice').textContent = listText(nices); document.getElementById('pNiceRow').hidden = !nices.length;
+            document.getElementById('pPicks').textContent = listText(pk); document.getElementById('pPicksRow').hidden = !pk.length;
             saveMyResult();
             renderCompare();
             renderBoardBits();
+            loadAvailability();
 
+            const box = document.getElementById('matchedHomes');
+            document.getElementById('examplesNote').hidden = loves.length === 0;
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
-                document.getElementById('matchedHomes').innerHTML = `<p class="results-empty">That tells us a lot too. Real homes often land differently than style photos, so save your StyleDNA and Josh will send a few real homes in your range to react to.</p>`;
+                box.innerHTML = `<p class="results-empty">That tells us a lot too. Save your StyleDNA and Josh will send a few homes in your range to react to, or retake it with more areas.</p>`;
             } else {
-                document.getElementById('lovedTitle').textContent = 'Styles You Loved';
-                document.getElementById('matchedHomes').innerHTML = loves.slice(0,3).map((h,i)=>`
-                <div class="home-match-card">
-                    <img class="home-match-image" data-match-idx="${i}" alt="${h.style} style example">
-                    <div class="home-match-info">
-                        <div class="home-match-name">${h.style}</div>
-                        <div class="home-match-location">${h.desc}</div>
-                    </div>
-                </div>
-            `).join('');
+                document.getElementById('lovedTitle').textContent = 'Homes You Loved';
+                box.innerHTML = loves.slice(0, 6).map(h => homeCard(h, 'loved')).join('');
             }
-            document.querySelectorAll('#matchedHomes img.home-match-image').forEach((img) => {
-                const idx = parseInt(img.dataset.matchIdx, 10);
-                const h = loves[idx];
-                if (!h) return;
-                let tried = false;
-                img.addEventListener('error', () => {
-                    if (tried) return;
-                    tried = true;
-                    img.src = h.fallback;
-                });
-                img.src = h.image;
-            });
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
-            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.style), passed: passes.map(h => h.style) });
+            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k) });
         }
 
+        // How many homes in their style are for sale in their search, or the closest city that has them.
+        async function loadAvailability() {
+            const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
+            const k = userArchetype, label = styleLabel(k);
+            line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; near.hidden = true; avail = null; document.getElementById('moreSection').hidden = true;
+            try {
+                const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, searchCriteria())) });
+                const j = await r.json();
+                if (!r.ok || !j.ok || k !== userArchetype) throw new Error('failed');
+                avail = j;
+                const where = whereLabel() === 'All of DFW' ? 'across DFW' : 'in ' + whereLabel();
+                renderMore(j);
+                const linkText = j.styled ? `See ${label} homes on joshwaters.com` : 'See homes for sale in your areas';
+                if (j.count >= 3) {
+                    line.innerHTML = `<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range.`;
+                    link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false;
+                } else {
+                    line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} in your range right now.` : `No ${label} homes are for sale ${where} in your range right now.`;
+                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = j.styled ? (j.count === 1 ? 'See it' : 'See them') : linkText; link.hidden = false; }
+                    if (j.nearest) {
+                        near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
+                        near.hidden = false;
+                    }
+                }
+            } catch (e) {
+                line.textContent = 'Homes in your style are on joshwaters.com.';
+                link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
+            }
+        }
 
-        // ===== Real listings: link into Josh's Lofty IDX search (joshwaters.com) =====
+        function homeCard(h, where) {
+            return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' })">
+                    <img class="home-match-image" src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + h.address)}" loading="lazy">
+                    <div class="home-match-info">
+                        <div class="home-match-name">${esc(h.label)} &middot; ${esc(money(h.price))}</div>
+                        <div class="home-match-location">${esc(h.address)}${h.hits && h.hits.length ? ' &middot; ' + esc(h.hits.join(', ')) : ''}</div>
+                        ${h.office ? `<div class="home-match-credit">Listing courtesy of ${esc(h.office)}</div>` : ''}
+                    </div>
+                </a>`;
+        }
+        function renderMore(j) {
+            const seen = new Set(loves.map(h => h.id));
+            const more = (j.homes || []).filter(h => !seen.has(h.id)).slice(0, 4);
+            document.getElementById('moreSection').hidden = !more.length;
+            document.getElementById('moreTitle').textContent = `More ${j.label} Homes`;
+            document.getElementById('moreHomes').innerHTML = more.map(h => homeCard(h, 'more')).join('');
+        }
+
+        // ===== Real listings on joshwaters.com =====
         const IDX_BASE = 'https://joshwaters.com/listing';
         const PRICE_RANGES = { 0: ',300000', 1: '300000,500000', 2: '500000,750000', 3: '750000,1000000', 4: '1000000,' };
-        // Neighborhoods that are not cities search by ZIP code. Everything else searches as "<Name>, TX".
-        const AREA_ZIPS = {
-            'Uptown': ['75201','75204'], 'Downtown Dallas': ['75201','75202'], 'Preston Hollow': ['75225','75229','75230'],
-            'Bishop Arts': ['75208'], 'Lakewood': ['75214'], 'Lake Highlands': ['75238','75243'], 'M Streets': ['75206'],
-            'Oak Lawn': ['75219'], 'Oak Cliff': ['75208','75211','75224'], 'Deep Ellum': ['75226'], 'Knox-Henderson': ['75205','75206'],
-            'Turtle Creek': ['75219'], 'Devonshire': ['75209'],
-            'TCU/West Cliff': ['76109','76110'], 'Tanglewood': ['76109'], 'Rivercrest': ['76107'], 'Cultural District': ['76107'],
-            'Near Southside': ['76104'], 'Mistletoe Heights': ['76104'], 'Downtown Fort Worth': ['76102'],
-            'Las Colinas': ['75038','75039','75063']
-        };
-        const KNOWN_AREAS = new Set([...document.querySelectorAll('#neighborhoodInput option')].map(o => o.value).filter(v => v && v !== '__other__'));
-        // Each archetype maps to the MLS "Style" values your joshwaters.com search can filter on.
-        // The site's Style list: Colonial, Contemporary/Modern, Craftsman, English, French, Mediterranean,
-        // Mid-Century Modern, Modern Farmhouse, Prairie, Ranch, Spanish, Traditional, Tudor, Victorian, and a few more.
-        const ARCH_MLS_STYLES = {
-            curator: ['French', 'English', 'Contemporary/Modern', 'Mediterranean'],
-            visionary: ['Contemporary/Modern', 'Mid-Century Modern', 'Loft'],
-            architect: ['Mediterranean', 'Modern Farmhouse', 'Spanish', 'Contemporary/Modern'],
-            sanctuary: ['Contemporary/Modern', 'Craftsman', 'Modern Farmhouse', 'Prairie'],
-            custodian: ['Tudor', 'Craftsman', 'Colonial', 'Mid-Century Modern'],
-            authenticist: ['Ranch', 'Barndominium', 'Modern Farmhouse', 'Southwestern']
-        };
-        // joshwaters.com takes a list of cities or a list of ZIPs, but not both at once. Neighborhoods
-        // are ZIPs, so a mix of neighborhoods and cities searches the neighborhoods' cities instead.
-        const PARENT_CITY = { 'Las Colinas': 'Irving' };
-        ['TCU/West Cliff', 'Tanglewood', 'Rivercrest', 'Cultural District', 'Near Southside', 'Mistletoe Heights', 'Downtown Fort Worth'].forEach(a => PARENT_CITY[a] = 'Fort Worth');
-        function locationFor(areas) {
-            const known = areas.filter(a => KNOWN_AREAS.has(a));
-            if (!known.length) return null;
-            if (known.every(a => AREA_ZIPS[a])) return { zipCode: [...new Set(known.flatMap(a => AREA_ZIPS[a]))] };
-            const cities = known.map(a => AREA_ZIPS[a] ? (PARENT_CITY[a] || 'Dallas') : a);
-            return { city: [...new Set(cities)].map(c => c + ', TX') };
-        }
-        function myAreas() {
-            const list = selectedAreas.slice();
-            if (userData && userData.neighborhood && !list.includes(userData.neighborhood)) list.unshift(userData.neighborhood);
-            return list;
-        }
-        function setMyAreasOption() {
-            const sel = document.getElementById('homesArea');
-            const old = sel.querySelector('option[value="__mine__"]'); if (old) old.remove();
-            const mine = myAreas().filter(a => KNOWN_AREAS.has(a));
-            if (mine.length > 1) {
-                const o = document.createElement('option');
-                o.value = '__mine__'; o.textContent = 'My areas (' + mine.join(', ') + ')';
-                sel.options[0].after(o);
-                sel.value = '__mine__';
-            } else if (mine.length === 1) sel.value = mine[0];
-            else sel.value = '';
-        }
-        function homesUrl(area, budgetIdx, styled) {
+        function homesUrl(styled) {
+            if (styled && avail && avail.url && avail.count) return avail.url + boardFragment();
             const cond = { purchasetype: ['For Sale'] };
             if (selectedHomeType) cond.propertytype = [selectedHomeType];
-            // Land has no architectural style, so the style filter would hide every lot.
-            if (styled && selectedHomeType !== 'Vacant Land' && ARCH_MLS_STYLES[userArchetype]) cond.style = ARCH_MLS_STYLES[userArchetype];
-            const loc = locationFor(Array.isArray(area) ? area : (area ? [area] : []));
-            if (loc) cond.location = loc;
-            if (PRICE_RANGES[budgetIdx] !== undefined) cond.price = PRICE_RANGES[budgetIdx];
+            if (selectedCities.length) cond.location = { city: selectedCities.map(c => c + ', TX') };
+            else if (selectedCounties.length) cond.location = { county: selectedCounties };
+            if (PRICE_RANGES[selectedPrice] !== undefined) cond.price = PRICE_RANGES[selectedPrice];
             const q = [['listingSource', 'all listings'], ['condition', JSON.stringify(cond)], ['page', '1'],
                 ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
             return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&') + boardFragment();
+        }
+        // The buttons are real links (in-app browsers often block pop-ups); this fills in the address as it's tapped.
+        function openHomes(el, styled) {
+            track('homes_clicked', { where: 'activation', styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, areas: myAreas().join('|') || 'all' });
+            el.href = homesUrl(styled);
+            return true;
         }
         // Carries their home board connection to joshwaters.com so the Save button there works in one tap.
         function boardFragment() {
@@ -2522,25 +2371,7 @@
                 return m && m.key ? { id, pid: m.pid, key: m.key } : null;
             } catch (e) { return null; }
         }
-        // Area picker on the results screen: same areas as the lead form, minus "Other".
-        (function fillHomesArea() {
-            ['homesArea', 'searchArea'].forEach(id => {
-                const target = document.getElementById(id);
-                document.querySelectorAll('#neighborhoodInput optgroup').forEach(g => {
-                    const copy = g.cloneNode(true);
-                    copy.querySelectorAll('option[value="__other__"]').forEach(o => o.remove());
-                    target.appendChild(copy);
-                });
-            });
-        })();
-        // The buttons are real links (in-app browsers often block pop-ups); this fills in the address as it's tapped.
-        function openHomes(el, where, styled) {
-            const pick = where === 'picker' ? document.getElementById('homesArea').value : '__mine__';
-            const area = pick === '__mine__' ? myAreas() : (pick || null);
-            track('homes_clicked', { where, styled: styled ? 'yes' : 'no', archetype: userArchetype, budget: selectedPriceLabel, type: selectedHomeTypeLabel, areas: Array.isArray(area) ? (area.join('|') || 'all') : (area || 'all') });
-            el.href = homesUrl(area, selectedPrice, styled);
-            return true;
-        }
+        const KNOWN_AREAS = new Set([...document.querySelectorAll('#neighborhoodInput option')].map(o => o.value).filter(v => v && v !== '__other__'));
 
         function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
         function skipDataCapture() { track('lead_skipped', { archetype: userArchetype }); finalAction(); }
@@ -2580,27 +2411,30 @@
             if (!name) return showFormError('Please add your name.', nameEl);
             if (!/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) return showFormError('Please check your email address.', emailEl);
             if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
-            if (!neighborhood) return showFormError('Please pick the area you are most interested in.', select.value === '__other__' ? document.getElementById('otherNeighborhoodInput') : select);
+            if (!neighborhood && select.value === '__other__') return showFormError('Please type the area you are most interested in.', document.getElementById('otherNeighborhoodInput'));
+            if (!neighborhood) neighborhood = selectedCities[0] || '';
             showFormError('');
 
             userData = { name, email, phone, neighborhood };
-            if (KNOWN_AREAS.has(neighborhood)) document.getElementById('homesArea').value = neighborhood;
             const payload = {
                 name, email, phone,
                 area: neighborhood,
-                areas: [...new Set([neighborhood, ...selectedAreas])].filter(Boolean).slice(0, 6),
+                areas: [...new Set([neighborhood, ...selectedCities])].filter(Boolean).slice(0, 6),
                 consent: document.getElementById('consentInput').checked,
                 website: document.getElementById('sdnaTrap').value,
                 homeType: selectedHomeType ? selectedHomeTypeLabel : '',
                 dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
-                partner: partner ? { name: partner.n || '', archetype: archetypes[partner.a].name } : null,
+                partner: partner ? { name: partner.n || '', archetype: styleLabel(partner.a) } : null,
                 board: boardParam || lastBoardId(),
                 member: myBoardMember(),
-                archetype: archetypes[userArchetype].name,
+                archetype: styleLabel(userArchetype),
+                style: userArchetype,
+                styleNext: styleLabel(styleNext),
                 budget: selectedPrice,
-                preferences: userPreferences,
-                loved: loves.map(h => h.style),
-                passed: passes.map(h => h.style),
+                search: searchCriteria(),
+                lovedHomes: loves.map(h => ({ label: h.label, address: h.address, url: h.url })),
+                loved: loves.map(h => h.label),
+                passed: passes.map(h => h.label),
                 utm: window.__utm || {},
                 source: window.__srcLabel || '', sid: window.__sid || '', referredBy: (window.__src && window.__src.r) || '',
                 elapsed: window.__quizStart ? Math.round((Date.now() - window.__quizStart) / 1000) : null
@@ -2630,14 +2464,12 @@
         }
 
         function showActivation(saved) {
-            const area = userData && userData.neighborhood;
+            const area = whereLabel() === 'All of DFW' ? '' : whereLabel();
             document.getElementById('activationHeadline').textContent = saved ? "You're All Set" : 'Your StyleDNA';
             document.getElementById('activationText').textContent = saved
-                ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with homes${area ? ' in ' + area : ''} that fit your ${archetypes[userArchetype].name.replace(/^The\s+/, '')} style.`
+                ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with ${styleLabel(userArchetype)} homes${area ? ' in ' + area : ''} that fit what you need.`
                 : 'Share your result and see how your taste compares with your friends.';
-            const area2 = userData && userData.neighborhood;
-            const allMine = myAreas().filter(a => KNOWN_AREAS.has(a));
-            document.getElementById('homesBtn').textContent = allMine.length > 1 ? 'See my style in my areas' : (allMine.length === 1 ? `See my style in ${allMine[0]}` : 'See homes in my style');
+            document.getElementById('homesBtn').textContent = `See ${styleLabel(userArchetype)} homes for sale`;
             showScreen('activationScreen', true);
         }
         // ---- What's my home worth: seller lead in Lofty + instant estimate on joshwaters.com ----
@@ -2683,9 +2515,9 @@
         }
         // From the results: jump back to the last step with every answer kept.
         function editSearch() {
-            const at = screenHistory.lastIndexOf('priceScreen');
+            const at = screenHistory.lastIndexOf('whereScreen');
             if (at >= 0) history.go(-(screenHistory.length - at));
-            else showScreen('priceScreen', true);
+            else { renderWhere(); renderMusts(); renderPicks(); showScreen('whereScreen', true); }
         }
         function restartQuiz() {
             track('quiz_restarted', { archetype: userArchetype });
@@ -2704,17 +2536,17 @@
             return `${STYLEDNA_BASE_URL}/s/${encodeURIComponent(userArchetype)}.html?m=${encodeURIComponent(medium || 'link')}${window.__sid ? '&r=' + window.__sid : ''}`;
         }
 
-        function archLabel() { return (archetypes[userArchetype].name || '').replace(/^The\s+/i, ''); }
+        function archLabel() { return styleLabel(userArchetype); }
         function withArticle(w) { return (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w; }
         // One share button: the phone's own share menu, with their result card as the link preview.
         function shareResults() {
-            const arch = archetypes[userArchetype];
+            const lab = styleLabel(userArchetype);
             const url = buildShareUrl('share');
-            const text = `I'm ${arch.name}. ${arch.desc} Find your home StyleDNA:`;
+            const text = `My home StyleDNA is ${lab}. Swipe real DFW homes and find yours:`;
             if (navigator.share) {
                 track('shared', { channel: 'native', archetype: userArchetype });
                 if (window.sdnaStat) sdnaStat('share', { channel: 'native' });
-                navigator.share({ title: `I'm ${arch.name}. Find your home StyleDNA.`, text, url }).catch(err => {
+                navigator.share({ title: `My home StyleDNA: ${lab}`, text, url }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
                 return;
@@ -2748,17 +2580,12 @@
         // An invite link carries the sender's result (archetype, loved styles, first name). The person who
         // opens it takes the quiz and sees where they overlap. Your own last result is kept on this device
         // so a link sent back can show the comparison without retaking the quiz.
-        const STYLE_KEYS = Object.keys(STYLE_CARDS);
-        function cardFor(style) {
-            const c = STYLE_CARDS[style];
-            return c ? { style, ...c, image: c.img ? './img/' + c.img : styleImage(style), fallback: fallbackImage(style) } : null;
-        }
         function firstName() {
             if (userData && userData.name) return userData.name.split(' ')[0];
             const m = loadMyResult(); return (m && m.n) || '';
         }
         function encodeResult() {
-            const idx = loves.map(h => STYLE_KEYS.indexOf(h.style)).filter(i => i >= 0);
+            const idx = [...new Set(loves.map(h => STYLE_KEYS.indexOf(h.k)).filter(i => i >= 0))];
             const q = new URLSearchParams({ m: 'compare', pa: userArchetype, pl: idx.join('-') });
             if (firstName()) q.set('pn', firstName());
             return `${STYLEDNA_BASE_URL}/s/${encodeURIComponent(userArchetype)}.html?${q.toString()}`;
@@ -2766,20 +2593,22 @@
         function saveMyResult() {
             try {
                 localStorage.setItem('sdna_me', JSON.stringify({
-                    a: userArchetype, l: loves.map(h => h.style), p: selectedPrice, pl: selectedPriceLabel,
-                    t: selectedHomeType, tl: selectedHomeTypeLabel, ar: selectedAreas[0] || '', areas: selectedAreas, prefs: userPreferences, n: firstName(), at: Date.now()
+                    v: 2, a: userArchetype, nx: styleNext, l: [...new Set(loves.map(h => h.k))], lh: loves.slice(0, 6), cards: currentHomes.length, np: passes.length,
+                    p: selectedPrice, pl: selectedPriceLabel, t: selectedHomeType, tl: selectedHomeTypeLabel,
+                    co: selectedCounties, ci: selectedCities, must, picks, n: firstName(), at: Date.now()
                 }));
             } catch (e) {}
         }
         function loadMyResult() {
-            try { const m = JSON.parse(localStorage.getItem('sdna_me') || 'null'); return m && archetypes[m.a] ? m : null; } catch (e) { return null; }
+            try { const m = JSON.parse(localStorage.getItem('sdna_me') || 'null'); return m && m.v === 2 && STYLE_INFO[m.a] ? m : null; } catch (e) { return null; }
         }
         function compareSaved() {
             const m = loadMyResult();
             if (!m) return startQuiz();
-            userArchetype = m.a; loves = (m.l || []).map(cardFor).filter(Boolean); passes = [];
+            userArchetype = m.a; styleNext = m.nx || ''; loves = Array.isArray(m.lh) ? m.lh : []; passes = new Array(m.np || 0).fill({});
+            currentHomes = new Array(m.cards || loves.length).fill({});
             selectedPrice = m.p; selectedPriceLabel = m.pl || ''; selectedHomeType = m.t || ''; selectedHomeTypeLabel = m.tl || 'Open to any';
-            selectedAreas = Array.isArray(m.areas) ? m.areas : (m.ar ? [m.ar] : []); renderAreaChips(); userPreferences = m.prefs || userPreferences;
+            selectedCounties = m.co || []; selectedCities = m.ci || []; must = m.must || {}; picks = m.picks || {};
             track('compare_saved', { archetype: userArchetype });
             showResults();
             showScreen('resultsScreen', false);
@@ -2788,18 +2617,17 @@
         function renderCompare() {
             const box = document.getElementById('compareResult');
             if (!partner) { box.hidden = true; return; }
-            const me = archetypes[userArchetype], them = archetypes[partner.a];
+            const me = styleLabel(userArchetype), them = styleLabel(partner.a);
             const who = partner.n || 'Your partner';
             document.getElementById('compareTitle').textContent = `You and ${partner.n || 'your partner'}`;
             document.getElementById('comparePartnerName').textContent = who;
-            document.getElementById('compareMe').textContent = me.name;
-            document.getElementById('compareThem').textContent = them.name;
-            const low = w => w.toLowerCase();
+            document.getElementById('compareMe').textContent = me;
+            document.getElementById('compareThem').textContent = them;
             document.getElementById('compareRead').textContent = userArchetype === partner.a
-                ? `Same StyleDNA. Look for homes that lean ${low(me.aesthetic[0])} and ${low(me.aesthetic[1])}.`
-                : `Different StyleDNA. Look for homes that blend ${low(me.aesthetic[0])} with ${low(them.aesthetic[0])}.`;
-            const mine = new Set(loves.map(h => h.style));
-            const both = (partner.l || []).filter(st => mine.has(st));
+                ? `Same style. Focus your search on ${me} homes.`
+                : `Different styles. Homes with a bit of both, ${me} and ${them}, are worth a look.`;
+            const mine = new Set(loves.map(h => h.k));
+            const both = (partner.l || []).filter(st => mine.has(st)).map(styleLabel);
             document.getElementById('compareOverlap').textContent = both.length
                 ? `Styles you both loved: ${both.join(', ')}.`
                 : 'No styles you both loved yet. Compare favorites before you tour.';
@@ -2817,10 +2645,10 @@
             copyShareLink(text + ' ' + url);
         }
         function invitePartner() {
-            shareLink('Compare our home styles', `I'm ${archetypes[userArchetype].name} on the StyleDNA quiz. Take it and see how our home styles compare:`, encodeResult(), 'invite');
+            shareLink('Compare our home styles', `My home StyleDNA is ${styleLabel(userArchetype)}. Take it and see how our styles compare:`, encodeResult(), 'invite');
         }
         function sendBack() {
-            shareLink('My StyleDNA', `I took it. I'm ${archetypes[userArchetype].name}. Open this to see how we compare:`, encodeResult(), 'send_back');
+            shareLink('My StyleDNA', `I took it. Mine is ${styleLabel(userArchetype)}. Open this to see how we compare:`, encodeResult(), 'send_back');
         }
         // ===== Home boards =====
         const boardParam = (new URLSearchParams(window.location.search).get('board') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
@@ -2845,8 +2673,8 @@
             try {
                 const r = await fetch('/api/board', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
                     action: 'create', name, lead: myLead(),
-                    profile: { archetype: userArchetype, loves: loves.map(h => h.style) },
-                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: myAreas()[0] || '', areas: myAreas() }
+                    profile: { archetype: userArchetype, loves: [...new Set(loves.map(h => h.k))] },
+                    criteria: { budget: selectedPrice, budgetLabel: selectedPriceLabel, homeType: selectedHomeType, homeTypeLabel: selectedHomeTypeLabel, area: myAreas()[0] || '', areas: myAreas(), counties: selectedCounties, cities: selectedCities, must, picks }
                 }) });
                 const j = await r.json();
                 if (!r.ok || !j.ok) throw new Error(j.error || 'failed');
@@ -2868,19 +2696,19 @@
             const m = loadMyResult();
             if (!m || new URLSearchParams(window.location.search).get('pa')) return;
             const btn = document.getElementById('lastResultBtn');
-            btn.textContent = `See my last result: ${archetypes[m.a].name}`;
+            btn.textContent = `See my last result: ${styleLabel(m.a)}`;
             btn.hidden = false;
         })();
         (function readPartnerLink() {
             try {
                 const q = new URLSearchParams(window.location.search);
                 const a = q.get('pa');
-                if (!a || !archetypes[a]) return;
+                if (!a || !STYLE_INFO[a]) return;
                 const l = (q.get('pl') || '').split('-').map(Number).filter(i => Number.isInteger(i) && STYLE_KEYS[i]).map(i => STYLE_KEYS[i]);
                 const n = (q.get('pn') || '').replace(/[^A-Za-z' .-]/g, '').slice(0, 24);
                 partner = { a, l, n };
                 const note = document.getElementById('partnerInvite');
-                note.textContent = `${n || 'A friend'} took the StyleDNA quiz and got ${archetypes[a].name}. Take it to see how your home styles compare.`;
+                note.textContent = `${n || 'A friend'} took the StyleDNA quiz. Their style is ${styleLabel(a)}. Take it to see how your styles compare.`;
                 note.hidden = false;
                 if (loadMyResult()) document.getElementById('compareSavedBtn').hidden = false;
             } catch (e) {}

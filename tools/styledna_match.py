@@ -45,9 +45,19 @@ def money(v):
     return float(n) if n else 0.0
 
 
+# StyleDNA v2 results are architectural styles (key or label); map each to the closest persona so
+# the persona-tagged listings still rank. Same mapping as api/_lib/styles.js "legacy".
+STYLE_TO_ARCH = {
+    'traditional': 'custodian', 'transitional': 'sanctuary', 'farmhouse': 'architect', 'modern farmhouse': 'architect',
+    'modern': 'visionary', 'craftsman': 'custodian', 'ranch': 'authenticist', 'midcentury': 'visionary', 'mid-century modern': 'visionary',
+    'tudor': 'custodian', 'mediterranean': 'architect', 'french': 'curator', 'french country': 'curator', 'colonial': 'custodian',
+    'cottage': 'custodian', 'hillcountry': 'authenticist', 'hill country': 'authenticist', 'barndo': 'authenticist', 'barndominium': 'authenticist',
+}
+
+
 def arch_key(v):
     v = str(v or '').strip().lower()
-    return ARCH_NAMES.get(v, v if v in ARCH_LABEL else '')
+    return ARCH_NAMES.get(v, v if v in ARCH_LABEL else STYLE_TO_ARCH.get(v, ''))
 
 
 def in_area(t, area):
