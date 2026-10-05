@@ -234,7 +234,7 @@ async function availability(input, k) {
     ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, liveTotal, liveRead: liveList.length, merged: all.length, fits: fits.length } } : {}),
     // For "browse more": the style search on joshwaters.com (it can't filter must-haves, so it's worded as browsing).
     url: idx.searchUrl(cond), areaUrl: idx.searchUrl(baseCond(c)), styled: true };
-  if (count < 3) {
+  if (count < 5) {
     const inArea = mine.filter((l) => inSearch(l, c, cities));
     const all = (await pool.load(Object.keys(COUNTIES))).filter((l) => l.k === k && inSearch(l, c, null) && !cities.has(String(l.city || '').toLowerCase()));
     const pts = inArea.filter((l) => l.lat && l.lng);

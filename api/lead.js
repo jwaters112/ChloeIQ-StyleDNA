@@ -164,6 +164,7 @@ async function handle(req, res) {
   crit.counties.forEach((c) => tags.push(clip('County: ' + c, 64)));
   musts.forEach((m) => tags.push(clip('Must have: ' + m, 64)));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
+  if (body.buildOpen === true) tags.push('Open to build or renovate');
   if (partnerArch) tags.push('Partner compare');
   if (clip(body.board, 24)) tags.push('Home board');
 
@@ -171,6 +172,7 @@ async function handle(req, res) {
     'StyleDNA quiz result',
     'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : '') + (clip(body.signature, 60) ? ' (' + clip(body.signature, 60) + ')' : ''),
     ...(clip(body.inside, 80) ? ['Inside they love: ' + clip(body.inside, 80)] : []),
+    ...(body.buildOpen === true ? ['Open to building new or renovating to be in: ' + (where || 'their area') + '. Connect with builders or contractors.'] : body.buildOpen === false ? ['Not open to building or renovating.'] : []),
     'Budget: ' + (budget ? budget.label : 'n/a'),
     'Looking in: ' + (where || areas.join(', ') || 'anywhere in DFW'),
     'Home type: ' + (homeType || 'open to any'),

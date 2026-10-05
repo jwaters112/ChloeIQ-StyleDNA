@@ -1338,6 +1338,39 @@
         .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
         .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
         .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(3,12,13,.72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
+        .hero-actions { display: flex; gap: 10px; margin: 18px 0 0; }
+        .hero-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
+        .hero-btn svg { width: 18px; height: 18px; flex: none; }
+        .hero-btn.on { border-color: var(--gold); color: var(--gold); }
+        .compare-panel { margin: 14px 0 0; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: left; }
+        .compare-panel .invite-block { margin: 0; padding: 0; border: 0; text-align: left; }
+        .compare-panel .welcome-cta { display: block; width: 100%; margin: 12px 0 14px; }
+        .compare-panel .board-start { margin-top: 4px; }
+        .area-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 0 10px; font-size: 14px; color: var(--silver); }
+        .area-now { min-width: 0; }
+        .area-change { background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; padding: 4px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; flex: none; }
+        .area-panel { margin: 0 0 18px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .area-panel .chip-label { margin-top: 0; }
+        .area-count { font-size: 16px; color: var(--soft-white); margin: 14px 0 12px; min-height: 22px; }
+        .area-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .area-panel .welcome-cta:disabled { opacity: .5; }
+        .area-panel .text-link { display: block; margin: 6px auto 0; }
+        .area-help { margin: 14px 0 0; }
+        .area-help .btn-outline { width: 100%; }
+        .build-ask { margin: 16px 0 0; padding: 16px; border-radius: 14px; background: rgba(255,255,255,.04); }
+        .build-row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+        .build-row .btn-outline { flex: 1; }
+        .build-yes { font-size: 14px; color: var(--silver); margin: 12px 0 0; }
+        .loved-strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+        .loved-strip .home-match-card { flex: 0 0 78%; scroll-snap-align: start; }
+        .loved-strip .home-match-image { height: 170px; }
+        .search-sum summary { display: flex; gap: 14px; align-items: baseline; cursor: pointer; list-style: none; }
+        .search-sum summary::-webkit-details-marker { display: none; }
+        .search-sum-k { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); flex: none; }
+        .search-sum-v { font-size: 15px; color: var(--soft-white); }
+        .search-sum[open] .search-sum-v { color: var(--silver); }
+        .search-sum .profile-list { margin-top: 14px; }
+        .value-card { padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: center; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1560,25 +1593,49 @@
                     <div class="archetype-kicker">Your StyleDNA</div>
                     <h2 class="archetype-name" id="archetypeName">Craftsman</h2>
                     <p class="style-lean" id="styleLean" hidden></p>
+                    <div class="hero-actions">
+                        <button type="button" class="hero-btn share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share</span></button>
+                        <button type="button" class="hero-btn" id="compareBtn" onclick="toggleCompare()" aria-expanded="false" aria-controls="comparePanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M3.5 19c.6-3 2.9-5 5.5-5s4.9 2 5.5 5"/><path d="M14.5 14.6c.6-.4 1.3-.6 2-.6 2.2 0 3.9 1.6 4.3 4"/></svg><span>Compare</span></button>
+                    </div>
+                    <div class="compare-panel" id="comparePanel" hidden>
+                        <div class="invite-block" id="inviteBlock">
+                            <p class="invite-title">House hunting with someone?</p>
+                            <p class="invite-text">Send them the quiz and see how your styles line up. Or start a home board to save homes, react and comment together.</p>
+                            <button class="welcome-cta" type="button" onclick="invitePartner()">Compare our styles</button>
+                            <div class="board-start" id="boardStart">
+                                <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
+                                <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board together</button>
+                                <p class="form-error" id="boardError" role="alert"></p>
+                            </div>
+                            <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="results-content">
                 <div class="results-section">
-                    <div class="results-budget-note" id="budgetNote">
-                        Based on your budget and StyleDNA, here are your perfect matches
-                    </div>
                     <p class="results-description" id="archetypeDescription"></p>
                     <div class="how-love" id="howLove" hidden></div>
+                    <div class="results-budget-note" id="budgetNote"></div>
                     <div class="avail" id="availBlock">
+                        <div class="area-line"><span class="area-now" id="areaNow"></span><button type="button" class="area-change" id="areaChangeBtn" onclick="openArea()" aria-expanded="false" aria-controls="areaPanel">Change</button></div>
+                        <div class="area-panel" id="areaPanel" hidden>
+                            <p class="chip-label">Counties</p>
+                            <div class="chips" id="areaCounties"></div>
+                            <div id="areaCityBlock" hidden><p class="chip-label">Cities <span class="chip-hint">Optional</span></p><div class="chips city-chips" id="areaCities"></div></div>
+                            <p class="area-count" id="areaCount" aria-live="polite"></p>
+                            <button type="button" class="welcome-cta" id="areaDone" onclick="applyArea()">Show homes here</button>
+                            <button type="button" class="text-link" onclick="closeArea()">Cancel</button>
+                        </div>
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
                         <button type="button" class="welcome-cta avail-go" id="availLink" hidden onclick="toggleHomeList()" aria-expanded="false" aria-controls="homeList">See homes for sale</button>
                         <div class="home-list" id="homeList" hidden></div>
                         <div class="loosen" id="loosenBox" hidden></div>
                         <p class="avail-near" id="availNear" hidden></p>
+                        <div class="area-help" id="areaHelp" hidden></div>
                     </div>
-                    <button class="btn-outline avail-save" onclick="captureEmail()">Send me homes that fit</button>
-                    <button class="text-link another-area" type="button" onclick="tryAnotherArea()">Try another area</button>
+                    <button class="btn-outline avail-save" onclick="captureEmail()">Send me new homes that fit</button>
                 </div>
 
                 <div class="results-section board-return" id="boardReturn" hidden>
@@ -1597,48 +1654,37 @@
                 </div>
 
                 <div class="results-section">
-                    <dl class="profile-list">
-                        <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
-                        <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
-                        <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
-                        <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
-                        <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
-                    </dl>
-                </div>
-
-                <div class="results-section">
                     <h3 class="results-section-title" id="lovedTitle">Homes You Loved</h3>
-                    <p class="examples-note" id="examplesNote">Real homes for sale right now. Tap one to see it.</p>
-                    <div id="matchedHomes"></div>
+                    <p class="examples-note" id="examplesNote">For sale right now. Swipe across, tap one to see it.</p>
+                    <div id="matchedHomes" class="loved-strip"></div>
                 </div>
 
                 <div class="results-section" id="moreSection" hidden>
                     <h3 class="results-section-title" id="moreTitle">More Homes Like This</h3>
-                    <p class="examples-note">For sale now in your areas and range.</p>
                     <div id="moreHomes"></div>
                 </div>
 
-                <div class="results-section results-cta">
-                    <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
-                    <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
-                    <div class="invite-block" id="inviteBlock">
-                        <p class="invite-title">House hunting with someone?</p>
-                        <p class="invite-text">Start a home board. Save homes, react and comment together, and get an alert when a new listing fits your style.</p>
-                        <div class="board-start" id="boardStart">
-                            <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
-                            <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board</button>
-                            <p class="form-error" id="boardError" role="alert"></p>
-                        </div>
-                        <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
-                        <button class="text-link" onclick="invitePartner()">Or just compare styles with someone</button>
-                    </div>
-                    <div class="invite-block value-block">
+                <div class="results-section">
+                    <details class="search-sum">
+                        <summary><span class="search-sum-k">Your search</span><span class="search-sum-v" id="searchLine"></span></summary>
+                        <dl class="profile-list">
+                            <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
+                            <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
+                            <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
+                            <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
+                            <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
+                        </dl>
+                        <button class="text-link" onclick="editSearch()">Edit my search</button>
+                    </details>
+                </div>
+
+                <div class="results-section results-foot">
+                    <div class="value-card">
                         <p class="invite-title">Own a home now?</p>
                         <p class="invite-text">See what it's worth before you buy. Josh sends you a real number, not a guess.</p>
                         <button class="btn-outline" onclick="openValue('results')">What's my home worth?</button>
                     </div>
                     <div class="redo-links">
-                        <button class="text-link" onclick="editSearch()">Change my areas or answers</button>
                         <button class="text-link" onclick="restartQuiz()">Retake the quiz</button>
                     </div>
                 </div>
@@ -2665,8 +2711,8 @@
             if (selectedCounties.length) return selectedCounties.length <= 2 ? 'in ' + selectedCounties.join(' and ') + (selectedCounties.length > 1 ? ' counties' : ' County') : 'in your areas';
             return 'across DFW';
         }
-        function availFetch(k, mustOver) {
-            const c = searchCriteria(); if (mustOver) c.must = mustOver;
+        function availFetch(k, mustOver, areaOver) {
+            const c = searchCriteria(); if (mustOver) c.must = mustOver; if (areaOver) { c.counties = areaOver.counties; c.cities = areaOver.cities; }
             return fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, c)) })
                 .then(r => r.json().then(j => { if (!r.ok || !j.ok) throw new Error('failed'); return j; }));
         }
@@ -2688,6 +2734,7 @@
         function renderAvail(j, note) {
             const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
             const label = styleLabel(userArchetype), where = shortWhere();
+            document.getElementById('areaNow').textContent = areaName();
             const wasOpen = !document.getElementById('homeList').hidden;
             avail = j;
             const n = j.count.toLocaleString('en-US');
@@ -2696,7 +2743,9 @@
             else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} right now, in your price range${withMust}.` : `No ${label} homes are for sale ${where} right now, in your price range${withMust}.`;
             link.hidden = !(j.homes && j.homes.length);
             renderHomeList(j, wasOpen);
-            near.hidden = !(j.count < 3 && j.nearest);
+            renderAreaHelp(j);
+            updateSearchLine();
+            near.hidden = !(j.count < 5 && j.nearest);
             if (!near.hidden) near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
             offerLoosen(userArchetype, note);
         }
@@ -2738,6 +2787,98 @@
             if (open) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         function showMoreHomes() { listShown += LIST_STEP; renderHomeList(avail, true); }
+
+        // ---- Change the area right on the results: their current picks, a live count, then apply ----
+        function areaName() {
+            if (selectedCities.length) return selectedCities.length <= 3 ? selectedCities.join(', ') : selectedCities.slice(0, 2).join(', ') + ' and ' + (selectedCities.length - 2) + ' more';
+            if (selectedCounties.length) return selectedCounties.length <= 3 ? selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County') : selectedCounties.slice(0, 2).join(', ') + ' and ' + (selectedCounties.length - 2) + ' more counties';
+            return 'All of DFW';
+        }
+        let draft = null, draftTimer = null, draftResult = null;
+        function openArea() {
+            const panel = document.getElementById('areaPanel');
+            if (!panel.hidden) return closeArea();
+            mergeCities();
+            draft = { counties: selectedCounties.slice(), cities: selectedCities.slice() };
+            panel.hidden = false; document.getElementById('areaChangeBtn').setAttribute('aria-expanded', 'true');
+            document.getElementById('areaChangeBtn').textContent = 'Close';
+            renderDraft(); countDraft();
+            track('area_change_opened', { archetype: userArchetype });
+        }
+        function closeArea() {
+            document.getElementById('areaPanel').hidden = true; draft = null;
+            const b = document.getElementById('areaChangeBtn'); b.setAttribute('aria-expanded', 'false'); b.textContent = 'Change';
+        }
+        function renderDraft() {
+            document.getElementById('areaCounties').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, draft.counties.includes(c), () => {
+                draft.counties = draft.counties.includes(c) ? draft.counties.filter(x => x !== c) : draft.counties.concat(c);
+                const keep = new Set(draft.counties.flatMap(x => COUNTY_CITIES[x]));
+                draft.cities = draft.cities.filter(x => keep.has(x));
+                renderDraft(); countDraft();
+            })));
+            const cities = [...new Set(draft.counties.flatMap(c => COUNTY_CITIES[c]))].sort();
+            document.getElementById('areaCityBlock').hidden = !cities.length;
+            document.getElementById('areaCities').replaceChildren(...cities.map(c => chip(c, draft.cities.includes(c), () => {
+                draft.cities = draft.cities.includes(c) ? draft.cities.filter(x => x !== c) : draft.cities.concat(c).slice(-12);
+                renderDraft(); countDraft();
+            })));
+        }
+        function countDraft() {
+            const out = document.getElementById('areaCount'), done = document.getElementById('areaDone');
+            out.textContent = 'Counting homes in your style...'; draftResult = null; done.disabled = true;
+            clearTimeout(draftTimer);
+            const k = userArchetype, area = { counties: draft.counties.slice(), cities: draft.cities.slice() };
+            draftTimer = setTimeout(() => availFetch(k, null, area).then(j => {
+                if (!draft || JSON.stringify(area) !== JSON.stringify({ counties: draft.counties, cities: draft.cities })) return;
+                draftResult = j; done.disabled = false;
+                const label = styleLabel(k), n = j.count;
+                out.innerHTML = n >= 5 ? `<b>${n.toLocaleString('en-US')}</b> ${esc(label)} homes here in your price range.` : n ? `Only <b>${n}</b> ${esc(label)} ${n === 1 ? 'home' : 'homes'} here in your price range right now.` : `No ${esc(label)} homes here in your price range right now.`;
+                done.textContent = n ? 'Show these homes' : 'Use this area';
+            }).catch(() => { out.textContent = "Couldn't count homes just now."; done.disabled = false; done.textContent = 'Use this area'; }), 450);
+        }
+        function applyArea() {
+            if (!draft) return;
+            selectedCounties = draft.counties.slice(); selectedCities = draft.cities.slice();
+            const j = draftResult;
+            track('area_changed', { counties: selectedCounties.join('|') || 'all', cities: selectedCities.length, count: j ? j.count : -1 });
+            closeArea();
+            document.getElementById('pWhere').textContent = whereLabel();
+            if (j) renderAvail(j); else loadAvailability(true);
+        }
+        // Few homes here: say so, offer a short swipe of what is here, the closest area with their style,
+        // and if there are none, ask whether building new or renovating would be on the table.
+        let buildOpen = null;
+        function renderAreaHelp(j) {
+            const box = document.getElementById('areaHelp');
+            const small = j.count < 5 && (selectedCounties.length || selectedCities.length);
+            if (!small) { box.hidden = true; box.innerHTML = ''; return; }
+            let html = `<button type="button" class="btn-outline" onclick="swipeHere()">Swipe a few homes here</button>`;
+            const alreadyOpen = picks.condition === 'project' || buildOpen !== null;
+            if (j.count === 0 && !alreadyOpen) html += `<div class="build-ask"><p class="invite-title">Set on this area?</p><p class="invite-text">If nothing here fits your style today, building new or renovating can get you there. Would you consider either?</p><div class="build-row"><button type="button" class="btn-outline" onclick="answerBuild(true)">Yes, show me how</button><button type="button" class="text-link" onclick="answerBuild(false)">Not for me</button></div></div>`;
+            if (buildOpen) html += `<p class="build-yes">Josh works with builders, renovation contractors and lot sellers here. He'll include those options when he sends homes.</p>`;
+            box.innerHTML = html; box.hidden = false;
+        }
+        function answerBuild(yes) {
+            buildOpen = !!yes;
+            track('build_or_renovate', { open: yes ? 'yes' : 'no', area: areaName(), archetype: userArchetype });
+            if (avail) renderAreaHelp(avail);
+            if (yes) captureEmail();
+        }
+        function swipeHere() {
+            reswipe = { loves: loves.slice(), passes: passes.slice(), shown: currentHomes.slice(), counties: selectedCounties.slice(), cities: selectedCities.slice() };
+            track('another_area_opened', { archetype: userArchetype, from: 'results' });
+            const btn = document.querySelector('#areaHelp .btn-outline');
+            startSwiping(btn, document.getElementById('areaHelp'));
+        }
+        function updateSearchLine() {
+            const bits = [areaName(), selectedPriceLabel || '', selectedHomeType ? selectedHomeTypeLabel : ''].concat(Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]));
+            document.getElementById('searchLine').textContent = bits.filter(Boolean).join(' · ');
+        }
+        function toggleCompare() {
+            const p = document.getElementById('comparePanel'), b = document.getElementById('compareBtn'), open = p.hidden;
+            p.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); b.classList.toggle('on', open);
+            if (open) track('compare_opened', { archetype: userArchetype });
+        }
 
         // Few homes: for each must-have, how many more homes they'd see without requiring it.
         // The offer shows the exact result they'll get, so the number never changes after the tap.
@@ -2890,6 +3031,7 @@
                 style: userArchetype,
                 styleNext: styleLabel(styleNext),
                 signature: signature(userArchetype).name,
+                buildOpen: buildOpen,
                 inside: insideLine(),
                 budget: selectedPrice,
                 search: searchCriteria(),
@@ -3003,7 +3145,7 @@
         function shareResults() {
             const lab = styleLabel(userArchetype);
             const url = buildShareUrl('share');
-            const text = `My home StyleDNA is ${lab}. Swipe real DFW homes and find yours:`;
+            const text = `My home StyleDNA: ${signature(userArchetype).name}. Swipe real DFW homes and find yours:`;
             if (navigator.share) {
                 track('shared', { channel: 'native', archetype: userArchetype });
                 if (window.sdnaStat) sdnaStat('share', { channel: 'native' });
@@ -3106,7 +3248,7 @@
             copyShareLink(text + ' ' + url);
         }
         function invitePartner() {
-            shareLink('Compare our home styles', `My home StyleDNA is ${styleLabel(userArchetype)}. Take it and see how our styles compare:`, encodeResult(), 'invite');
+            shareLink('Compare our home styles', `My home StyleDNA: ${signature(userArchetype).name}. Take it and see how our styles compare:`, encodeResult(), 'invite');
         }
         function sendBack() {
             shareLink('My StyleDNA', `I took it. Mine is ${styleLabel(userArchetype)}. Open this to see how we compare:`, encodeResult(), 'send_back');
