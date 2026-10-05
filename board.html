@@ -76,7 +76,14 @@
         .chip { background: none; border: 1px solid var(--line-strong); color: var(--soft-white); border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer; }
         .chip.active { border-color: var(--gold); color: var(--gold); }
 
-        .add { display: flex; gap: 8px; margin-bottom: 22px; }
+        .add { display: flex; gap: 8px; margin-bottom: 22px; position: relative; }
+        .sugg { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; background: var(--deep-ink); border: 1px solid var(--line-strong); border-radius: 18px; overflow: hidden; box-shadow: 0 14px 34px rgba(0,0,0,.45); }
+        .sugg button { display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--soft-white); padding: 13px 16px; font: inherit; font-size: 15px; cursor: pointer; }
+        .sugg button:last-child { border-bottom: 0; }
+        .sugg button.on, .sugg button:hover { background: var(--emerald); }
+        .sugg button svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--gold); }
+        .sugg button small { color: var(--silver); font-size: 13px; }
+        .sugg .hint { padding: 12px 16px; font-size: 13px; color: var(--silver); }
         .add input { flex: 1; background: none; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--soft-white); padding: 12px 16px; font-size: 15px; min-width: 0; }
         .add input:focus { outline: none; border-color: var(--gold); }
         .add button { background: var(--gold); color: var(--obsidian); border: 0; border-radius: 999px; padding: 0 18px; font-weight: 600; font-size: 15px; cursor: pointer; }
@@ -188,7 +195,8 @@
 
             <section id="homesTab">
                 <form class="add" id="addForm">
-                    <input id="addInput" placeholder="Paste a joshwaters.com link or an address" autocomplete="off">
+                    <input id="addInput" placeholder="Type an address or paste a link" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="go" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugg">
+                    <div class="sugg" id="sugg" role="listbox" hidden></div>
                     <button type="submit" id="addBtn">Add</button>
                 </form>
                 <div class="filters" id="filters">
@@ -431,12 +439,56 @@
     $('quizFirst').href = '/?board=' + encodeURIComponent(id);
     $('quizLink').href = '/?board=' + encodeURIComponent(id);
 
+    // ---- address autocomplete: every home on the market, as they type ----
+    const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+    let suggTimer = null, suggSeq = 0, suggItems = [], suggOn = -1;
+    function closeSugg() { $('sugg').hidden = true; $('sugg').innerHTML = ''; suggItems = []; suggOn = -1; $('addInput').setAttribute('aria-expanded', 'false'); }
+    function showSugg(list, q) {
+        const box = $('sugg'); box.innerHTML = ''; suggItems = list; suggOn = -1;
+        list.forEach((a, i) => {
+            const [street, ...rest] = a.split(',');
+            const b = el('button', { type: 'button', role: 'option' });
+            b.innerHTML = PIN; b.append(el('span', null, street + ' ', el('small', null, rest.join(',').trim())));
+            b.addEventListener('mousedown', (e) => e.preventDefault());
+            b.addEventListener('click', () => pickSugg(i));
+            box.append(b);
+        });
+        if (!list.length && /^\d+\s+\S{3,}/.test(q)) box.append(el('div', { class: 'hint' }, "Not on the market right now? Tap Add and we'll save it anyway."));
+        box.hidden = !box.children.length;
+        $('addInput').setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
+    }
+    function pickSugg(i) { const a = suggItems[i]; if (!a) return; $('addInput').value = a; closeSugg(); $('addForm').requestSubmit ? $('addForm').requestSubmit() : $('addBtn').click(); }
+    $('addInput').addEventListener('input', () => {
+        const q = $('addInput').value.trim();
+        clearTimeout(suggTimer);
+        if (q.length < 3 || /^https?:\/\//i.test(q)) { closeSugg(); return; }
+        suggTimer = setTimeout(async () => {
+            const seq = ++suggSeq;
+            try {
+                const j = await fetch('/api/address?q=' + encodeURIComponent(q)).then((r) => r.json());
+                if (seq === suggSeq && $('addInput').value.trim() === q) showSugg(j.list || [], q);
+            } catch (e) {}
+        }, 220);
+    });
+    $('addInput').addEventListener('keydown', (e) => {
+        const btns = [...$('sugg').querySelectorAll('button')];
+        if (!btns.length) { if (e.key === 'Escape') closeSugg(); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            suggOn = (suggOn + (e.key === 'ArrowDown' ? 1 : -1) + btns.length) % btns.length;
+            btns.forEach((b, i) => b.classList.toggle('on', i === suggOn));
+        } else if (e.key === 'Enter' && suggOn >= 0) { e.preventDefault(); pickSugg(suggOn); }
+        else if (e.key === 'Escape') closeSugg();
+    });
+    $('addInput').addEventListener('blur', () => setTimeout(closeSugg, 150));
+
     // ---- add a home ----
     $('addForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const v = $('addInput').value.trim();
         if (!v || busy) return;
         const isLink = /^https?:\/\//i.test(v);
+        closeSugg(); clearTimeout(suggTimer); suggSeq++;
         busy = true; $('addBtn').disabled = true; $('addBtn').textContent = '...';
         try {
             await api(Object.assign({ action: 'add-home' }, isLink ? { url: v } : { address: v }));
