@@ -174,28 +174,48 @@ async function buildDeck(input) {
   return { ok: true, cards: cardsOut, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
 }
 
-// How many homes in this style fit their search, the best of them, and if few, the closest city that has them.
-// Counts come from homes whose photo shows the style (the pool), with the MLS search as a floor.
+// The homes in this style that fit their search, as an exact list they can open one by one.
+// Two sources, merged: homes whose photo was read as this style (the nightly pool), and the live
+// joshwaters.com search for the style. A live home whose photo was read as a different style is left out.
+// Must-haves the site search can't filter on (pool, game room...) are checked on each home's own details.
+const LIST_PAGES = 3, PAGE = 100, LIST_MAX = 60;
 async function availability(input, k) {
   const c = criteria(input); const s = BY_KEY[k];
   if (!s) return { ok: false };
   const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
-  const [here, mine] = await Promise.all([idx.search(Object.assign({}, baseCond(c), s.q), 1), pool.load(counties)]);
-  const inArea = mine.filter((l) => inSearch(l, c, cities));
-  // Must-haves the MLS search can't filter on (pool, game room...) only count homes that have them.
-  // The live count is scaled by how many homes in their area have them, so it stays an honest estimate.
-  const hard = Object.keys(c.must).filter((m) => c.must[m] === 'must' && m !== 'acres' && has[m]);
+  const cond = Object.assign({}, baseCond(c), s.q);
+  const [first, mine, tags] = await Promise.all([idx.search(cond, PAGE, 1), pool.load(counties), phototag.loadAll().catch(() => ({}))]);
+  const liveTotal = first ? first.count : 0;
+  const pages = [first];
+  if (first && liveTotal > PAGE) {
+    const more = await Promise.all(Array.from({ length: Math.min(LIST_PAGES, Math.ceil(liveTotal / PAGE)) - 1 }, (_, i) => idx.search(cond, PAGE, i + 2)));
+    pages.push(...more);
+  }
+  const liveList = []; pages.forEach((r) => (r ? r.list : []).forEach((l) => liveList.push(l)));
+  const hard = Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m]);
   const ok = (l) => hard.every((m) => has[m](l));
-  const verified = inArea.filter((l) => l.k === k && ok(l));
-  let live = here ? here.count : 0, est = false;
-  if (hard.length && live) { const share = inArea.length >= 10 ? inArea.filter(ok).length / inArea.length : 0; live = Math.round(live * share); est = true; }
-  const count = Math.max(verified.length, live);
-  const homes = verified.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
-  const out = { ok: true, k, label: s.label, count, est: est && live > verified.length, homes, ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, inArea: inArea.length, verified: verified.length, live } } : {}),
-    // The MLS search finds this style by its label, which misses many homes; when the photos found more, link the area instead.
-    url: live >= verified.length ? idx.searchUrl(Object.assign({}, baseCond(c), s.q)) : idx.searchUrl(baseCond(c)), styled: live >= verified.length };
+  const byId = new Map();
+  mine.filter((l) => l.k === k && inSearch(l, c, cities)).forEach((l) => byId.set(l.id, l));
+  liveList.forEach((l) => {
+    if (byId.has(l.id) || !inSearch(l, c, cities)) return;
+    const t = phototag.parse(tags[l.id]);
+    if (t && t.k !== k) return;
+    byId.set(l.id, l);
+  });
+  const all = [...byId.values()];
+  const fits = all.filter(ok);
+  // The live search can return more homes than we read; only then is the count an estimate.
+  const unread = Math.max(0, liveTotal - liveList.length);
+  const est = unread > 0 && hard.length > 0;
+  const count = fits.length + (unread ? Math.round(unread * (all.length ? fits.length / all.length : 0)) : 0);
+  const homes = fits.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => (b.f.score - a.f.score) || ((a.l.price || 0) - (b.l.price || 0))).slice(0, LIST_MAX).map((x) => card(x.l, s, c));
+  const out = { ok: true, k, label: s.label, count, est, homes, listed: homes.length,
+    ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, liveTotal, liveRead: liveList.length, merged: all.length, fits: fits.length } } : {}),
+    // For "browse more": the style search on joshwaters.com (it can't filter must-haves, so it's worded as browsing).
+    url: idx.searchUrl(cond), areaUrl: idx.searchUrl(baseCond(c)), styled: true };
   if (count < 3) {
+    const inArea = mine.filter((l) => inSearch(l, c, cities));
     const all = (await pool.load(Object.keys(COUNTIES))).filter((l) => l.k === k && inSearch(l, c, null) && !cities.has(String(l.city || '').toLowerCase()));
     const pts = inArea.filter((l) => l.lat && l.lng);
     const center = pts.length ? [pts.reduce((t, l) => t + l.lat, 0) / pts.length, pts.reduce((t, l) => t + l.lng, 0) / pts.length] : areaCenter(c);

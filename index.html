@@ -1325,6 +1325,18 @@
         .inside-pic.on::after { box-shadow: inset 0 0 0 3px var(--gold); }
         .inside-pic .tick { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(3,12,13,.6); color: #fff; font-size: 14px; line-height: 24px; text-align: center; }
         .inside-pic.on .tick { background: var(--gold); color: #030c0d; }
+        .avail-go { display: block; width: 100%; border: 0; cursor: pointer; font: inherit; }
+        .home-list { margin: 14px 0 4px; }
+        .hl-head { font-size: 13px; color: var(--silver); margin: 0 0 4px; }
+        .hl-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.1); text-decoration: none; color: inherit; }
+        .hl-row img { width: 104px; height: 78px; object-fit: cover; border-radius: 8px; flex: none; background: var(--surface); }
+        .hl-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .hl-price { font-size: 16px; font-weight: 600; color: var(--soft-white); }
+        .hl-sub { font-size: 13px; color: var(--silver); }
+        .hl-has { font-size: 12px; color: var(--gold); }
+        .hl-credit { font-size: 11px; color: #7d8382; }
+        .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
+        .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1559,7 +1571,8 @@
                     <div class="how-love" id="howLove" hidden></div>
                     <div class="avail" id="availBlock">
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
-                        <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See homes for sale</a>
+                        <button type="button" class="welcome-cta avail-go" id="availLink" hidden onclick="toggleHomeList()" aria-expanded="false" aria-controls="homeList">See homes for sale</button>
+                        <div class="home-list" id="homeList" hidden></div>
                         <div class="loosen" id="loosenBox" hidden></div>
                         <p class="avail-near" id="availNear" hidden></p>
                     </div>
@@ -2631,31 +2644,69 @@
             const line = document.getElementById('availLine'), link = document.getElementById('availLink');
             const k = userArchetype;
             document.getElementById('loosenBox').hidden = true;
-            if (!soft) { line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; document.getElementById('availNear').hidden = true; avail = null; document.getElementById('moreSection').hidden = true; }
+            if (!soft) { line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; document.getElementById('homeList').hidden = true; document.getElementById('availNear').hidden = true; avail = null; document.getElementById('moreSection').hidden = true; }
             try {
                 const j = await availFetch(k);
                 if (k !== userArchetype) return;
                 renderAvail(j);
             } catch (e) {
-                line.textContent = 'Homes in your style are for sale now.';
-                link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
+                line.innerHTML = `Homes in your style are for sale now. <a href="${esc(homesUrl(false))}" target="_blank" rel="noopener">See homes for sale</a>`;
+                link.hidden = true;
             }
         }
         function renderAvail(j, note) {
             const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
             const label = styleLabel(userArchetype), where = shortWhere();
+            const wasOpen = !document.getElementById('homeList').hidden;
             avail = j;
-            renderMore(j);
             const n = j.count.toLocaleString('en-US');
-            link.textContent = j.styled && !j.est ? `See ${n} ${j.count === 1 ? 'home' : 'homes'} for sale` : 'See homes for sale';
-            link.href = j.url + boardFragment(); link.hidden = !j.count;
             const withMust = Object.values(must).includes('must') ? ' and with your must-haves' : '';
             if (j.count >= 3) line.innerHTML = `${j.est ? 'About ' : ''}<b>${n}</b> ${esc(label)} homes for sale ${esc(where)}, in your price range${withMust}.`;
             else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} right now, in your price range${withMust}.` : `No ${label} homes are for sale ${where} right now, in your price range${withMust}.`;
+            link.hidden = !(j.homes && j.homes.length);
+            renderHomeList(j, wasOpen);
             near.hidden = !(j.count < 3 && j.nearest);
             if (!near.hidden) near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
             offerLoosen(userArchetype, note);
         }
+        // The exact homes behind the count, right on the results page. Each opens its own page on joshwaters.com.
+        const LIST_STEP = 12;
+        let listShown = LIST_STEP;
+        function listButtonText(open) {
+            const j = avail || {}, listed = (j.homes || []).length;
+            if (open) return 'Hide these homes';
+            if (!j.est && j.count <= listed) return `See ${j.count === 1 ? 'this home' : 'these ' + j.count.toLocaleString('en-US') + ' homes'}`;
+            return `See the best ${listed}`;
+        }
+        function renderHomeList(j, open) {
+            const box = document.getElementById('homeList'), link = document.getElementById('availLink');
+            const homes = j.homes || [];
+            listShown = open ? Math.max(listShown, LIST_STEP) : LIST_STEP;
+            const row = (h) => `<a class="hl-row" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('list_home_clicked', { style: '${esc(h.k)}' })">
+                    <img src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + (h.address || ''))}" loading="lazy">
+                    <span class="hl-main">
+                        <span class="hl-price">${esc(money(h.price))}</span>
+                        <span class="hl-sub">${esc([h.city, h.beds && h.beds + ' bd', h.baths && h.baths + ' ba', h.sqft && Number(h.sqft).toLocaleString('en-US') + ' sq ft'].filter(Boolean).join(' · '))}</span>
+                        ${h.hits && h.hits.length ? `<span class="hl-has">${esc('Has ' + h.hits.join(', ').toLowerCase())}</span>` : ''}
+                        ${h.office ? `<span class="hl-credit">Listing courtesy of ${esc(h.office)}</span>` : ''}
+                    </span>
+                </a>`;
+            const more = homes.length > listShown ? `<button type="button" class="hl-more" onclick="showMoreHomes()">Show more</button>` : '';
+            const head = j.count > homes.length ? `<p class="hl-head">The best ${homes.length} of ${j.est ? 'about ' : ''}${j.count.toLocaleString('en-US')}, closest fit first.</p>` : '';
+            box.innerHTML = head + homes.slice(0, listShown).map(row).join('') + more +
+                `<a class="hl-browse" href="${esc(j.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('homes_clicked', { where: 'list_browse', archetype: userArchetype })">Browse more homes on joshwaters.com</a>`;
+            box.hidden = !open;
+            link.setAttribute('aria-expanded', open ? 'true' : 'false');
+            link.textContent = listButtonText(open);
+        }
+        function toggleHomeList() {
+            const box = document.getElementById('homeList'), open = box.hidden;
+            if (!avail) return;
+            if (open) track('homes_clicked', { where: 'results_list', count: avail.count, archetype: userArchetype });
+            renderHomeList(avail, open);
+            if (open) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        function showMoreHomes() { listShown += LIST_STEP; renderHomeList(avail, true); }
 
         // Few homes: for each must-have, how many more homes they'd see without requiring it.
         // The offer shows the exact result they'll get, so the number never changes after the tap.
@@ -2699,6 +2750,7 @@
                 </a>`;
         }
         function renderMore(j) {
+            return; // replaced by the exact list under the count
             const seen = new Set(loves.map(h => h.id));
             const more = (j.homes || []).filter(h => !seen.has(h.id)).slice(0, 4);
             document.getElementById('moreSection').hidden = !more.length;
