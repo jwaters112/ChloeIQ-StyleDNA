@@ -25,9 +25,11 @@ async function buildCounty(county, tagBudget, ms) {
   const byId = new Map();
   results.forEach((r) => (r ? r.list : []).forEach((l) => { if (!byId.has(l.id)) byId.set(l.id, l); }));
   const all = [...byId.values()];
+  const prev = await store.readIn('pool', county).catch(() => null);
+  const prior = {}; ((prev && prev.doc && prev.doc.homes) || []).forEach((h) => { if (phototag.STYLE_CODE[h.k]) prior[h.id] = phototag.STYLE_CODE[h.k]; });
   const before = Object.keys(await phototag.loadAll()).length;
-  const tags = await phototag.tagAll(all, tagBudget, ms);
-  const read = Object.keys(await phototag.loadAll()).length - before;
+  const tags = await phototag.tagAll(all, tagBudget, ms, prior);
+  const read = Math.max(0, Object.keys(await phototag.loadAll()).length - before - Object.keys(prior).length);
   const homes = all.filter((l) => tags[l.id] && tags[l.id] !== 'NA' && phototag.CODE_STYLE[tags[l.id]])
     .map((l) => Object.assign(Object.fromEntries(KEEP.map((k) => [k, l[k]])), { k: phototag.CODE_STYLE[tags[l.id]] }));
   const untagged = all.filter((l) => !tags[l.id]).length;

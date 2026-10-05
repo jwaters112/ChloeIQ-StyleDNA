@@ -79,8 +79,10 @@ async function readOne(url) {
 
 // listings: [{ id, photo }]. Reads the ones not seen before (up to `budget`), within `ms`.
 // Returns { id: code } for everything known afterwards.
-async function tagAll(listings, budget, ms) {
+async function tagAll(listings, budget, ms, prior) {
   const known = await loadAll();
+  // Styles already worked out earlier (kept in the pool) count as read, so they are never paid for twice.
+  if (prior) { const add = {}; Object.entries(prior).forEach(([id, code]) => { if (!known[id]) add[id] = code; }); if (Object.keys(add).length) { await save(add); Object.assign(known, add); } }
   const todo = [], seen = new Set();
   listings.forEach((l) => { if (l && l.id && l.photo && !known[l.id] && !seen.has(l.id)) { seen.add(l.id); todo.push(l); } });
   const queue = todo.slice(0, budget || 0), fresh = {};
@@ -93,4 +95,5 @@ async function tagAll(listings, budget, ms) {
   return Object.assign({}, known, fresh);
 }
 
-module.exports = { tagAll, loadAll, readOne, CODE_STYLE, MODEL };
+const STYLE_CODE = Object.fromEntries(Object.entries(CODE_STYLE).map(([c, k]) => [k, c]));
+module.exports = { tagAll, loadAll, readOne, CODE_STYLE, STYLE_CODE, MODEL };
