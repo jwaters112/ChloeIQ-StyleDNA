@@ -182,6 +182,7 @@ async function handle(req, res) {
     'StyleDNA quiz result',
     'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : '') + (clip(body.signature, 60) ? ' (' + clip(body.signature, 60) + ')' : ''),
     ...(clip(body.inside, 80) ? ['Inside they love: ' + clip(body.inside, 80)] : []),
+    ...(clip(body.browse, 160) ? ['How they browse: ' + clip(body.browse, 160)] : []),
     ...(body.buildOpen === true ? ['Open to building new or renovating to be in: ' + (where || 'their area') + '. Connect with builders or contractors.'] : body.buildOpen === false ? ['Not open to building or renovating.'] : []),
     'Budget: ' + (budget ? budget.label : 'n/a'),
     'Looking in: ' + (where || areas.join(', ') || 'anywhere in DFW'),

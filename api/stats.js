@@ -27,12 +27,15 @@ function addEvent(doc, e) {
     (e.areas || []).forEach((x) => bump(doc.area, x));
     bump(doc.budget, e.budget); bump(doc.htype, e.homeType || 'Any');
     doc.musts = doc.musts || {}; (e.musts || []).forEach((x) => bump(doc.musts, x));
+    // How people decide: from the curb or once inside, and which rooms win them over or turn them off.
+    ['decide', 'wins', 'bails'].forEach((k) => { doc[k] = doc[k] || {}; });
+    bump(doc.decide, e.decide); (e.wins || []).forEach((x) => bump(doc.wins, x)); (e.bails || []).forEach((x) => bump(doc.bails, x));
   }
   if (e.type === 'share') { doc.shareCh = doc.shareCh || {}; bump(doc.shareCh, e.channel || 'native'); }
 }
 
 function merge(into, doc) {
-  ['c', 'src', 'ref', 'arch', 'loved', 'passed', 'area', 'budget', 'htype', 'shareCh', 'musts'].forEach((k) => {
+  ['c', 'src', 'ref', 'arch', 'loved', 'passed', 'area', 'budget', 'htype', 'shareCh', 'musts', 'decide', 'wins', 'bails'].forEach((k) => {
     into[k] = into[k] || {}; Object.entries(doc[k] || {}).forEach(([x, n]) => bump(into[k], x, n));
   });
 }
@@ -56,6 +59,9 @@ module.exports = async (req, res) => {
       loved: (Array.isArray(b.loved) ? b.loved : []).slice(0, 12).map((x) => clip(x, 40)), passed: (Array.isArray(b.passed) ? b.passed : []).slice(0, 12).map((x) => clip(x, 40)),
       areas: (Array.isArray(b.areas) ? b.areas : []).slice(0, 6).map((x) => clip(x, 60)),
       musts: (Array.isArray(b.musts) ? b.musts : []).slice(0, 12).map((x) => clip(x, 20).replace(/[^a-z0-9]/g, '')).filter(Boolean),
+      decide: ['curb', 'inside', 'mixed'].includes(b.decide) ? b.decide : '',
+      wins: (Array.isArray(b.wins) ? b.wins : []).slice(0, 4).map((x) => clip(x, 20).replace(/[^a-z_]/g, '')).filter(Boolean),
+      bails: (Array.isArray(b.bails) ? b.bails : []).slice(0, 4).map((x) => clip(x, 20).replace(/[^a-z_]/g, '')).filter(Boolean),
     };
     try { await store.upsert('stats', dayKey(now), (doc) => addEvent(doc, e)); } catch (err) { console.warn('stats write failed', err && err.message); }
     return res.status(204).end();

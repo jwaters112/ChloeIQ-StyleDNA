@@ -2066,6 +2066,13 @@
             const il = insideLine();
             if (il) rows.push(['Inside, you love', il]);
             if (longest && longest._ms >= 2500) rows.push(['You lingered on', `a ${styleLabel(longest.k)} in ${longest.city || 'DFW'}`]);
+            const br = browseRead(6);
+            if (br) {
+                if (br.mode === 'curb') rows.push(['You decide', 'From the curb. The front photo told you most of what you needed.']);
+                else if (br.mode === 'inside') rows.push(['You decide', 'Once you see inside. You look past the front before you choose.']);
+                if (br.win.length) rows.push(['Won over by', roomList(br.win).replace(/^./, c => c.toUpperCase())]);
+                if (br.bail.length) rows.push(['Hardest to please on', roomList(br.bail).replace(/^./, c => c.toUpperCase())]);
+            }
             return rows;
         }
         const styleLabel = (k) => (STYLE_INFO[k] && STYLE_INFO[k].label) || '';
@@ -2395,13 +2402,83 @@
 
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
         function money(n) { n = Number(n) || 0; return n ? '$' + n.toLocaleString('en-US') : ''; }
-        // Photos in the order the server set (front, living room, kitchen, primary bath, their features), with labels.
+        // ---- how they browse each card ----
+        // Every card notes how long they stayed on each photo and which photo they were on when they swiped.
+        // Across cards that shows whether they decide from the curb or once inside, and which rooms
+        // win them over or turn them off. The cards then adapt: fewer photos for curb deciders, more
+        // for people who look through everything, and the rooms they stop on come first.
+        const ROOM_NAME = { front: 'Front', living: 'Living room', kitchen: 'Kitchen', primary_bath: 'Primary bath', primary_bed: 'Primary bedroom', dining: 'Dining room', pool: 'Pool', rear: 'Outdoor living', aerial: 'From above', game: 'Game room', office: 'Office' };
+        const ROOM_WORD = { living: 'living rooms', kitchen: 'kitchens', primary_bath: 'primary baths', primary_bed: 'primary bedrooms', dining: 'dining rooms', pool: 'pools', rear: 'outdoor living', aerial: 'the lot from above', game: 'game rooms', office: 'home offices' };
+        const LABEL_CODE = Object.fromEntries(Object.entries(ROOM_NAME).map(([k, v]) => [v, k]));
+        const BASE_ROOMS = ['living', 'kitchen', 'primary_bath'];
+        const hashOf = (x) => { let n = 7; String(x).split('').forEach(ch => { n = (n * 31 + ch.charCodeAt(0)) % 100003; }); return n; };
+        let view = null;
+        function startView(card) { view = { card, at: Date.now(), seen: {}, wrap: false }; }
+        function creditView() {
+            if (!view || !view.card) return;
+            const code = ((view.card._pics || {}).codes || [])[view.card._pic || 0] || 'front';
+            view.seen[code] = (view.seen[code] || 0) + Math.min(20000, Date.now() - view.at);
+            view.at = Date.now();
+        }
+        const rankKeys = (o, min) => Object.keys(o).filter(k => o[k] >= min).sort((a, b) => o[b] - o[a]);
+        // The room they stayed on longest on one card (not the front), when it was a real look.
+        function topRoom(h) {
+            const r = Object.entries(h._seen || {}).filter(([k, ms]) => k !== 'front' && ms >= 1200).sort((a, b) => b[1] - a[1])[0];
+            return r ? r[0] : (h._dec && h._dec !== 'front' ? h._dec : '');
+        }
+        // A read on how they decide, once enough cards repeat the same pattern.
+        function browseRead(minCards) {
+            const all = loves.concat(passes).filter(h => h._seen);
+            if (all.length < (minCards || 6)) return null;
+            const looked = (h) => Object.keys(h._seen).filter(k => k !== 'front').length > 0;
+            const curb = all.filter(h => h._dec === 'front' && !looked(h)).length / all.length;
+            const inside = all.filter(looked).length / all.length;
+            const roomMs = {}; all.forEach(h => Object.entries(h._seen).forEach(([k, ms]) => { if (k !== 'front') roomMs[k] = (roomMs[k] || 0) + ms; }));
+            const win = {}, bail = {};
+            loves.forEach(h => { const t = h._seen && topRoom(h); if (t) win[t] = (win[t] || 0) + 1; });
+            passes.forEach(h => { if (h._seen && h._dec && h._dec !== 'front') bail[h._dec] = (bail[h._dec] || 0) + 1; });
+            const needMore = all.filter(h => h._wrap).length;
+            const mode = curb >= 0.6 ? 'curb' : inside >= 0.5 ? 'inside' : 'mixed';
+            return { n: all.length, mode, roomMs, win: rankKeys(win, 2), bail: rankKeys(bail, 2).filter(k => !rankKeys(win, 2).slice(0, 1).includes(k)), needMore };
+        }
+        const roomList = (ks) => { const w = ks.slice(0, 2).map(k => ROOM_WORD[k]).filter(Boolean); return w.length > 1 ? w.join(' and ') : (w[0] || ''); };
+        // One line for Josh's note in Lofty.
+        function browseText() {
+            const r = browseRead(6);
+            if (!r) return '';
+            const parts = [r.mode === 'curb' ? 'Decides from the curb (most swipes on the front photo)' : r.mode === 'inside' ? 'Looks inside before deciding' : 'Mix of curb and inside decisions'];
+            if (r.win.length) parts.push('won over by ' + roomList(r.win));
+            if (r.bail.length) parts.push('passed after seeing ' + roomList(r.bail));
+            if (r.needMore >= 2) parts.push('often looked through every photo');
+            return parts.join('; ');
+        }
+        // Which photos a card shows, and in what order. Before there is a read, the inside rooms rotate
+        // from card to card so no room gets extra attention just for coming first.
+        function adaptCodes(home, codes, rm) {
+            const base = codes.filter(c => c !== 'front');
+            const feature = base.filter(c => !BASE_ROOMS.includes(c));
+            const r = browseRead(4);
+            if (!r) { const core = BASE_ROOMS.filter(c => base.includes(c) || rm[c]), k = core.length ? hashOf(home.id) % core.length : 0; return ['front'].concat(core.slice(k), core.slice(0, k), feature); }
+            const score = (c) => (r.roomMs[c] || 0) + (r.win.includes(c) ? 4000 : 0) + (BASE_ROOMS.includes(c) ? 900 : 0) + (base.includes(c) ? 300 : 0) + hashOf(home.id + c) % 100;
+            const pool = [...new Set(base.concat(Object.keys(rm)))].sort((a, b) => score(b) - score(a));
+            let n = r.mode === 'curb' ? 2 : r.mode === 'inside' ? 5 : 3;
+            if (r.needMore >= 2) n = Math.max(n, 5);
+            const pick = pool.slice(0, n);
+            feature.forEach(c => { if (!pick.includes(c)) pick.push(c); });
+            return ['front'].concat(pick.slice(0, 6));
+        }
+        // Photos for a card, with labels and room codes.
         function cardPhotos(home) {
             const list = (home.photos && home.photos[0] === home.photo) ? home.photos.slice() : [home.photo].concat(home.photos || []);
             const labels = (home.photos && home.photos[0] === home.photo) ? (home.plabels || []) : [''].concat(home.plabels || []);
-            const seen = new Set(), pics = [], lab = [];
-            list.forEach((u, i) => { if (u && !seen.has(u) && pics.length < 7) { seen.add(u); pics.push(u); lab.push(labels[i] || ''); } });
-            pics.labels = lab;
+            const urls = {}, used = new Set();
+            let codes = [];
+            list.forEach((u, i) => { const c = i === 0 ? 'front' : (LABEL_CODE[labels[i]] || 'p' + i); if (u && !urls[c] && !used.has(u)) { used.add(u); urls[c] = u; codes.push(c); } });
+            const rm = home.rm || {};
+            if (Object.keys(rm).length) { codes = adaptCodes(home, codes, rm); codes.forEach(c => { if (!urls[c] && rm[c] && !used.has(rm[c])) { used.add(rm[c]); urls[c] = rm[c]; } }); codes = codes.filter(c => urls[c]); }
+            const pics = codes.map(c => urls[c]).slice(0, 7);
+            pics.codes = codes.slice(0, 7);
+            pics.labels = pics.codes.map(c => c === 'front' ? 'Front' : (ROOM_NAME[c] || ''));
             return pics;
         }
         function buildSwipeCard(home) {
@@ -2422,7 +2499,9 @@
             if (pics.length < 2) return;
             if (Date.now() - (card._flipAt || 0) < 250) return;
             card._flipAt = Date.now();
+            if (view && view.card === card) creditView();
             card._pic = (card._pic + 1) % pics.length;
+            if (!card._pic && view && view.card === card) view.wrap = true;
             card.querySelector('.swipe-card-img').src = pics[card._pic];
             card.querySelectorAll('.swipe-dots i').forEach((d, i) => d.classList.toggle('on', i === card._pic));
             const lab = card.querySelector('.swipe-room'), t = (pics.labels || [])[card._pic];
@@ -2519,6 +2598,7 @@
                 const active = buildSwipeCard(activeHome);
                 active.classList.add('active');
                 container.appendChild(active);
+                startView(active);
             }
             shownAt = Date.now();
         }
@@ -2616,6 +2696,12 @@
             const h = currentHomes[currentSwipeIndex];
             if (!h) return;
             h._ms = Math.min(60000, Date.now() - shownAt);
+            if (view && view.card) {
+                creditView();
+                h._seen = view.seen; h._wrap = view.wrap;
+                h._dec = ((view.card._pics || {}).codes || [])[view.card._pic || 0] || 'front';
+                view = null;
+            }
             (love ? loves : passes).push(h);
             const n = currentSwipeIndex + 1;
             const nextHome = love ? branch.love : branch.pass;
@@ -2663,6 +2749,7 @@
                     peek.style.transition = '';
                     swipeLocked = false;
                     shownAt = Date.now();
+                    startView(peek);
                     setupSwipeListeners();
                 }, 400);
             } else { renderCardStack(); swipeLocked = false; setupSwipeListeners(); }
@@ -2852,7 +2939,7 @@
             }
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
-            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k), musts: Object.keys(must) });
+            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k), musts: Object.keys(must), ...(() => { const r = browseRead(6); return r ? { decide: r.mode, wins: r.win.slice(0, 2), bails: r.bail.slice(0, 2) } : {}; })() });
         }
 
         // How many homes in their style are for sale in their search, or the closest city that has them.
@@ -3306,6 +3393,7 @@
                 signature: signature(userArchetype).name,
                 buildOpen: buildOpen,
                 inside: insideLine(),
+                browse: browseText(),
                 budget: selectedPrice,
                 budgets: [...selPrices],
                 search: searchCriteria(),
