@@ -53,17 +53,27 @@ async function readOne(url) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key || !/^https:\/\//.test(url)) return null;
   try {
+    // Download the (small, 600px) photo ourselves; Claude's own URL fetching is rate limited.
+    const img = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!img.ok) return null;
+    const media = (img.headers.get('content-type') || 'image/jpeg').split(';')[0];
+    if (!/^image\/(jpeg|png|webp|gif)$/.test(media)) return null;
+    const data = Buffer.from(await img.arrayBuffer()).toString('base64');
+    for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({ model: MODEL, max_tokens: 30, messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'url', url } }, { type: 'text', text: PROMPT }] }] }),
-      signal: AbortSignal.timeout(12000),
+        { type: 'image', source: { type: 'base64', media_type: media, data } }, { type: 'text', text: PROMPT }] }] }),
+      signal: AbortSignal.timeout(15000),
     });
     const j = await r.json().catch(() => ({}));
+    if (r.status === 429 || r.status === 529) { await new Promise((ok) => setTimeout(ok, 1500 * (attempt + 1))); continue; }
     if (!r.ok) { console.warn('photo read failed', r.status, j && j.error && j.error.message); return null; }
     const m = ((j.content || []).map((c) => c.text || '').join('')).match(/"ext"\s*:\s*"([A-Z]{2})"/);
     return m && CODES.has(m[1]) ? m[1] : null;
+    }
+    return null;
   } catch (e) { return null; }
 }
 
