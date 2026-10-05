@@ -16,11 +16,11 @@ office, other (hallway, laundry, garage, closet, close-up detail, floor plan, ma
 Also mark good=1 when the photo is clear, bright and shows the space well, good=0 when it is dark, blurry, a tight close-up or awkwardly cropped.
 Answer with JSON only, one entry per photo in order: [[photoNumber,"code",good],...]`;
 
-const shardOf = (id) => 'r' + (Number(String(id).replace(/\D/g, '').slice(-3)) % SHARDS || 0);
+const shardOf = (id) => 'room' + (Number(String(id).replace(/\D/g, '').slice(-3)) % SHARDS || 0);
 const mem = { at: 0, rooms: {} };
 async function loadAll() {
   if (Date.now() - mem.at < 5 * 60000) return mem.rooms;
-  const docs = await Promise.all(Array.from({ length: SHARDS }, (_, i) => store.readIn(SPACE, 'r' + i).catch(() => null)));
+  const docs = await Promise.all(Array.from({ length: SHARDS }, (_, i) => store.readIn(SPACE, 'room' + i).catch(() => null)));
   const rooms = {};
   docs.forEach((d) => Object.assign(rooms, (d && d.doc && d.doc.r) || {}));
   mem.at = Date.now(); mem.rooms = rooms;
