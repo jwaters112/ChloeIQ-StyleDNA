@@ -71,6 +71,9 @@ async function load(counties) {
 const SPELL = { 'Desoto': 'DeSoto', 'Mclendon Chisholm': 'McLendon-Chisholm', 'Mclendon-Chisholm': 'McLendon-Chisholm' };
 const titleCase = (x) => { const t = String(x || '').toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).trim(); return SPELL[t] || t.replace(/\bMc([a-z])/g, (m, a) => 'Mc' + a.toUpperCase()); };
 const CITY_SHARE = 0.15;
+// Mailing towns whose actual city limits sit outside that county (checked by hand), plus listing placeholders.
+const NOT_IN = { _: ['No City'], Hunt: ['Wills Point', 'Leonard', 'Cumby', 'Ladonia'], Kaufman: ['Wills Point'], Collin: ['Leonard'], Parker: ['Perrin'], Hood: ['Bluff Dale'], Wise: ['Sunset'] };
+const notIn = (county, c) => NOT_IN._.includes(c) || (NOT_IN[county] || []).includes(c);
 async function buildCities() {
   const jobs = [];
   Object.keys(COUNTIES).forEach((county) => BANDS.forEach((price) => [1, 2].forEach((page) => jobs.push(() => idx.search({ price, location: { county: [county] } }, 100, page).then((r) => ({ county, price, r }))))));
@@ -91,7 +94,7 @@ async function buildCities() {
   });
   const map = {}, share = {};
   Object.entries(w).forEach(([county, t]) => {
-    map[county] = Object.keys(t).filter((c) => t[c] / total[c] >= CITY_SHARE).sort();
+    map[county] = Object.keys(t).filter((c) => t[c] / total[c] >= CITY_SHARE && !notIn(county, c)).sort();
     share[county] = Object.fromEntries(Object.keys(t).map((c) => [c, Math.round(t[c] / total[c] * 100)]));
   });
   if (Object.keys(map).length >= 8) await store.upsert('pool', 'cities', (doc) => { doc.at = Date.now(); doc.v = 2; doc.map = map; doc.share = share; });
