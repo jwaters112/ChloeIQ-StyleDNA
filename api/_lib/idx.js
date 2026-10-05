@@ -11,8 +11,10 @@ async function getJson(url, ms) {
   try {
     const r = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(ms || 5000) });
     last = r.status + ' ' + (r.headers.get('content-type') || '');
-    if (!r.ok) { last += ' ' + (await r.text()).slice(0, 200); return null; }
-    const v = await r.json();
+    const text = await r.text();
+    if (!r.ok) { last += ' ' + text.slice(0, 200); console.warn('idx lookup failed', last); return null; }
+    let v; try { v = JSON.parse(text); } catch (e) { last += ' not json: ' + text.slice(0, 200); console.warn('idx lookup not json', last); return null; }
+    if (!Array.isArray(v) && !(v && v.listings)) { console.warn('idx lookup odd', text.slice(0, 300)); return v; }
     if (cache.size > 500) cache.clear();
     cache.set(url, { t: Date.now(), v });
     return v;
