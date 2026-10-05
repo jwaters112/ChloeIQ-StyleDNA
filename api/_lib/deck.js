@@ -82,10 +82,18 @@ function stylesFor(c) {
   return STYLES.filter((s) => !(c.type && c.type !== 'Single Family Home' && ['barndo', 'hillcountry'].includes(s.k)));
 }
 const factsLine = (l) => [l.city, l.beds && l.beds + ' bd', l.baths && l.baths + ' ba', l.acres >= 1 ? l.acres.toFixed(1).replace(/\.0$/, '') + ' acres' : '', l.pool ? 'Pool' : ''].filter(Boolean).join(' · ');
+// Traits the quiz learns from as people swipe, beyond the style itself.
+function traits(l) {
+  const m = String(l.materials || '').toLowerCase();
+  const mat = /stone|rock/.test(m) ? 'stone' : /stucco/.test(m) ? 'stucco' : /brick/.test(m) ? 'brick' : /siding|hardi|wood|vinyl|cement/.test(m) ? 'siding' : '';
+  const st = /^(one|1)$/i.test(String(l.stories || '')) ? 'one' : /two|three|2|3/i.test(String(l.stories || '')) ? 'two' : '';
+  const year = new Date().getFullYear();
+  return { mat, st, lot: l.acres >= 1 ? 'big' : '', era: l.built ? (l.built >= year - 8 ? 'new' : l.built < 1975 ? 'classic' : 'est') : '', pool: l.pool ? 'yes' : '' };
+}
 function card(l, s, c, near) {
   const f = fit(l, c);
-  return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, url: l.url, address: l.address, city: l.city, county: l.county,
-    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near };
+  return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, photos: (l.photos || []).slice(0, 5), url: l.url, address: l.address, city: l.city, county: l.county,
+    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, t: traits(l) };
 }
 
 const DECK_SIZE = 20;
@@ -97,23 +105,6 @@ function inSearch(l, c, cities) {
   if (c.must.acres === 'must' && !(l.acres >= 1)) return false;
   return true;
 }
-// Deal up to 20 cards: one of each style first (biggest first), then more rounds.
-function deal(styles, cands, sizes) {
-  const avail = styles.filter((s) => cands[s.k] && cands[s.k].length).sort((a, b) => (sizes[b.k] || 0) - (sizes[a.k] || 0));
-  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 5 : 8;
-  const chosen = [];
-  for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
-    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
-  }
-  // Still short (few styles in their area): keep dealing, so they always get a full deck when homes exist.
-  for (let round = maxPer; chosen.length < DECK_SIZE && avail.some((s) => cands[s.k][round]); round++) {
-    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
-  }
-  let deck = shuffle(chosen);
-  for (let t = 0; t < 60 && deck.some((d, i) => i && d.k === deck[i - 1].k); t++) deck = shuffle(chosen);
-  return deck;
-}
-
 async function buildDeck(input) {
   const c = criteria(input);
   const styles = stylesFor(c);
@@ -164,8 +155,23 @@ async function buildDeck(input) {
     const extra = Object.keys(COUNTIES).filter((k) => !counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
     addNear((await pool.load(extra)).filter((l) => inSearch(l, c, null)));
   }
-  const deck = deal(styles, cands, sizes).map((x) => { delete x._f; return x; });
-  return { ok: true, cards: deck, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
+  // A few "Nearby" probes: styles their area doesn't have, so a surprise love can point them somewhere new.
+  const center = areaCenter(c);
+  const neighbors = Object.keys(COUNTIES).filter((k) => !counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
+  const probes = [];
+  if (source === 'pool') {
+    const around = pick((await pool.load(neighbors)).filter((l) => inSearch(l, c, null)), true);
+    shuffle(Object.keys(around).filter((k) => !sizes[k])).slice(0, 3).forEach((k) => { const x = around[k][0]; if (x) probes.push(Object.assign(x, { probe: true })); });
+  }
+  // The phone picks each next card from these as they swipe (up to 8 per style, best fits first).
+  // When only a few styles exist in their area, send more of each so there is still room to learn.
+  const nStyles = styles.filter((st) => cands[st.k] && cands[st.k].length).length || 1;
+  const per = Math.max(8, Math.ceil(28 / nStyles));
+  const cardsOut = [];
+  styles.forEach((st) => (cands[st.k] || []).slice(0, per).forEach((x) => cardsOut.push(x)));
+  probes.forEach((x) => cardsOut.push(x));
+  cardsOut.forEach((x) => { delete x._f; });
+  return { ok: true, cards: cardsOut, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
 }
 
 // How many homes in this style fit their search, the best of them, and if few, the closest city that has them.

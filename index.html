@@ -1308,6 +1308,11 @@
         .swipe-card-title { font-size: 14px !important; font-weight: 500; color: var(--gold); margin-bottom: 6px !important; }
         .swipe-card-description { font-size: 14px; }
         .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
+        .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
+        .swipe-lean.show { opacity: 1; }
+        .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
+        .swipe-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); }
+        .swipe-dots i.on { background: #fff; }
         .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(3,12,13,.8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
         .style-lean { font-size: 16px; color: var(--silver); margin: 6px 0 0; }
         .avail { margin: 4px 0 18px; text-align: left; }
@@ -1478,6 +1483,7 @@
                 </div>
                 <div class="progress-text" id="progressText"></div>
             </div>
+            <div class="swipe-lean" id="swipeLean" aria-live="polite"></div>
 
             <div class="swipe-container" id="swipeContainer">
                 <div class="swipe-indicators">
@@ -2035,7 +2041,7 @@
                     return;
                 }
                 deckInfo = j;
-                currentHomes = j.cards;
+                cands = j.cards;
                 loves = []; passes = [];
                 showScreen('swipeScreen', true);
                 initializeSwipe();
@@ -2061,23 +2067,107 @@
 
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
         function money(n) { n = Number(n) || 0; return n ? '$' + n.toLocaleString('en-US') : ''; }
+        function cardPhotos(home) { return [...new Set([home.photo].concat(home.photos || []).filter(Boolean))].slice(0, 5); }
         function buildSwipeCard(home) {
             const card = document.createElement('div');
             card.className = 'swipe-card';
-            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
+            const pics = cardPhotos(home);
+            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
             const img = card.querySelector('img');
             img.alt = home.label + ' home in ' + (home.city || 'DFW');
             img.src = home.photo;
+            card._pics = pics; card._pic = 0;
             return card;
+        }
+        // Tap the photo: right side for the next photo, left side to go back.
+        function flipPhoto(card, back) {
+            const pics = card._pics || [];
+            if (pics.length < 2) return;
+            card._pic = (card._pic + (back ? pics.length - 1 : 1)) % pics.length;
+            card.querySelector('.swipe-card-img').src = pics[card._pic];
+            card.querySelectorAll('.swipe-dots i').forEach((d, i) => d.classList.toggle('on', i === card._pic));
+            const h = currentHomes[currentSwipeIndex]; if (h) h._flips = (h._flips || 0) + 1;
+            const nx = pics[(card._pic + 1) % pics.length]; if (nx) new Image().src = nx;
+        }
+        const preload = (h) => { if (h && h.photo) new Image().src = h.photo; };
+
+        // ---- the learning deck ----
+        // The server sends candidate homes; the phone picks each next card from the swipes so far.
+        // First cards explore every style, then it narrows toward what they love, keeping about
+        // 1 card in 5 as a surprise. It ends between 12 and 20 cards, earlier when the read is clear.
+        const MIN_CARDS = 12, MAX_CARDS = 20, TRAITS = ['mat', 'st', 'lot', 'era'];
+        let cands = [], deckTarget = MAX_CARDS, branch = { love: null, pass: null }, shownAt = 0, endedEarly = false, dragT = 0;
+        function weights(L, P) {
+            const w = { k: {} }; TRAITS.forEach(f => { w[f] = {}; });
+            const add = (h, s, s2) => { w.k[h.k] = (w.k[h.k] || 0) + s; const t = h.t || {}; TRAITS.forEach(f => { if (t[f]) w[f][t[f]] = (w[f][t[f]] || 0) + s2; }); };
+            L.forEach(h => add(h, 2, 1)); P.forEach(h => add(h, -1, -0.5));
+            return w;
+        }
+        // The card that would come after `shown`, given these loves and passes.
+        function pickNext(shown, L, P) {
+            const used = new Set(shown.map(h => h.id));
+            const pool = cands.filter(h => !used.has(h.id));
+            if (!pool.length) return null;
+            const n = shown.length, seen = {};
+            shown.forEach(h => { seen[h.k] = (seen[h.k] || 0) + 1; });
+            const probes = shown.filter(h => h.probe).length;
+            const l2 = shown.slice(-2).map(h => h.k);
+            let ok = pool.filter(h => (seen[h.k] || 0) < 5 && !(l2.length === 2 && l2[0] === h.k && l2[1] === h.k) && !(h.probe && (n < 4 || probes >= 2)));
+            if (!ok.length) ok = pool.filter(h => !(h.probe && probes >= 2));
+            if (!ok.length) ok = pool;
+            if (n < 6 || Math.random() < 0.2) {
+                const min = Math.min(...ok.map(h => seen[h.k] || 0));
+                const c = ok.filter(h => (seen[h.k] || 0) === min);
+                const local = c.filter(h => !h.near);
+                const from = local.length && Math.random() < 0.8 ? local : c;
+                return from[Math.floor(Math.random() * from.length)];
+            }
+            const w = weights(L, P);
+            let best = null, bs = -1e9;
+            ok.forEach(h => {
+                const t = h.t || {};
+                const sc = (w.k[h.k] || 0) + TRAITS.reduce((s, f) => s + (t[f] ? (w[f][t[f]] || 0) * 0.5 : 0), 0) - (h.near ? 0.4 : 0) + Math.random() * 1.2;
+                if (sc > bs) { bs = sc; best = h; }
+            });
+            return best;
+        }
+        // Work out both possible next cards now, so the next photo is ready whichever way they swipe.
+        function prepareBranches() {
+            const shown = currentHomes.slice(0, currentSwipeIndex + 1), h = currentHomes[currentSwipeIndex];
+            branch = h ? { love: pickNext(shown, loves.concat([h]), passes), pass: pickNext(shown, loves, passes.concat([h])) } : { love: null, pass: null };
+            preload(branch.love); if (branch.pass !== branch.love) preload(branch.pass);
+            if (h && h.photos && h.photos[0]) new Image().src = h.photos[0];
+        }
+        function clearRead() {
+            const n = currentSwipeIndex;
+            if (n < MIN_CARDS || n < Math.min(MIN_CARDS, deckTarget)) return false;
+            const lk = {}; loves.forEach(h => { lk[h.k] = (lk[h.k] || 0) + 1; });
+            const top = Math.max(0, ...Object.values(lk));
+            return top >= 4 && top >= 0.6 * loves.length;
+        }
+        const TRAIT_WORD = { mat: { stone: 'stone', stucco: 'stucco', brick: 'brick', siding: 'siding' }, st: { one: 'one story', two: 'two story' }, lot: { big: 'big lot' } };
+        function updateLean() {
+            const el = document.getElementById('swipeLean'); if (!el) return;
+            let text = '';
+            if (currentSwipeIndex >= 4 && loves.length >= 2) {
+                const w = weights(loves, passes);
+                const k = Object.keys(w.k).sort((a, b) => w.k[b] - w.k[a])[0];
+                if (k && loves.filter(h => h.k === k).length >= 2) {
+                    const extra = ['mat', 'st', 'lot'].map(f => { const top = Object.keys(w[f]).sort((a, b) => w[f][b] - w[f][a])[0]; return top && w[f][top] >= 1.5 && TRAIT_WORD[f][top]; }).filter(Boolean);
+                    text = 'Leaning: ' + [styleLabel(k)].concat(extra).join(' · ');
+                }
+            } else if (currentSwipeIndex < 2) {
+                const h = currentHomes[currentSwipeIndex];
+                if (h && cardPhotos(h).length > 1) text = 'Tap the photo for more';
+            }
+            el.textContent = text; el.classList.toggle('show', !!text);
         }
 
         function renderCardStack() {
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card').forEach(c => c.remove());
-
             const activeHome = currentHomes[currentSwipeIndex];
-            const peekHome = currentHomes[currentSwipeIndex + 1];
-
+            const peekHome = branch.love || branch.pass;
             if (peekHome) {
                 const peek = buildSwipeCard(peekHome);
                 peek.classList.add('peek');
@@ -2088,13 +2178,19 @@
                 active.classList.add('active');
                 container.appendChild(active);
             }
+            shownAt = Date.now();
         }
 
         function initializeSwipe() {
             const container = document.getElementById('swipeContainer');
-            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665\uFE0E</span></div>';
+            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥︎</span></div>';
             currentSwipeIndex = 0;
-            swipeLocked = false;
+            swipeLocked = false; endedEarly = false;
+            deckTarget = Math.min(MAX_CARDS, cands.length);
+            currentHomes = [];
+            const first = pickNext([], [], []);
+            if (first) currentHomes.push(first);
+            prepareBranches();
             renderCardStack();
             updateProgress();
             setupSwipeListeners();
@@ -2119,6 +2215,7 @@
             startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             currentX = startX;
             currentY = startY;
+            dragT = Date.now();
             card.style.transition = 'none';
         }
 
@@ -2129,6 +2226,7 @@
             currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             const diffX = currentX - startX, diffY = currentY - startY, angle = Math.atan2(diffY,diffX)*(180/Math.PI);
+            if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8) return;
             card.style.transform = `translate(${diffX}px,${diffY}px) rotate(${angle*0.1}deg)`;
             document.getElementById('indicatorLeft').style.opacity = diffX < -50 ? Math.abs(diffX)/150 : 0;
             document.getElementById('indicatorRight').style.opacity = diffX > 50 ? diffX/150 : 0;
@@ -2139,19 +2237,25 @@
             isDragging=false;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
-            const diffX = currentX - startX;
+            const diffX = currentX - startX, diffY = currentY - startY;
             document.getElementById('indicatorLeft').style.opacity = 0;
             document.getElementById('indicatorRight').style.opacity = 0;
+            if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8 && Date.now() - dragT < 350) {
+                card.style.transform = '';
+                const r = card.getBoundingClientRect();
+                flipPhoto(card, startX < r.left + r.width / 3);
+                return;
+            }
             if(Math.abs(diffX)>100) {
                 if (swipeLocked) return;
                 lockSwipe(card);
                 card.style.transition = 'all 0.5s ease-out';
                 if(diffX<0) {
-                    card.style.transform = `translate(-500px,${currentY-startY}px) rotate(-20deg)`;
-                    passes.push(currentHomes[currentSwipeIndex]);
+                    card.style.transform = `translate(-500px,${diffY}px) rotate(-20deg)`;
+                    record(false);
                 } else {
-                    card.style.transform = `translate(500px,${currentY-startY}px) rotate(20deg)`;
-                    loves.push(currentHomes[currentSwipeIndex]);
+                    card.style.transform = `translate(500px,${diffY}px) rotate(20deg)`;
+                    record(true);
                 }
                 setTimeout(()=>nextCard(),420);
             } else {
@@ -2160,10 +2264,35 @@
             }
         }
 
+        // Save the swipe, then line up the next card from the branch that matches it.
+        function record(love) {
+            const h = currentHomes[currentSwipeIndex];
+            if (!h) return;
+            h._ms = Math.min(60000, Date.now() - shownAt);
+            (love ? loves : passes).push(h);
+            const n = currentSwipeIndex + 1;
+            const nextHome = love ? branch.love : branch.pass;
+            currentHomes.length = n;
+            if (nextHome && n < deckTarget) currentHomes.push(nextHome);
+            // Swap the card waiting underneath if this swipe changed which home comes next.
+            const peek = document.querySelector('.swipe-card.peek');
+            if (peek && nextHome && nextHome !== (branch.love || branch.pass)) {
+                const fresh = buildSwipeCard(nextHome); fresh.className = peek.className;
+                peek.replaceWith(fresh);
+            }
+        }
+
         function nextCard() {
             currentSwipeIndex++;
+            const done = currentSwipeIndex >= currentHomes.length || clearRead();
+            if (done) {
+                endedEarly = currentSwipeIndex < deckTarget && currentSwipeIndex < currentHomes.length;
+                currentHomes.length = currentSwipeIndex;
+                updateProgress(true);
+                swipeLocked = false; goToLoading(); return;
+            }
+            prepareBranches();
             updateProgress();
-            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToLoading(); return; }
 
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
@@ -2179,12 +2308,13 @@
                     peek.style.opacity = '';
                     peek.style.transition = '';
                     swipeLocked = false;
+                    shownAt = Date.now();
                     setupSwipeListeners();
                 }, 400);
-            }
+            } else { renderCardStack(); swipeLocked = false; setupSwipeListeners(); }
 
-            const nextPeekHome = currentHomes[currentSwipeIndex + 1];
-            if (nextPeekHome) {
+            const nextPeekHome = branch.love || branch.pass;
+            if (nextPeekHome && currentSwipeIndex + 1 < deckTarget) {
                 const newPeek = buildSwipeCard(nextPeekHome);
                 newPeek.classList.add('peek');
                 container.insertBefore(newPeek, container.querySelector('.swipe-card.promoting') || container.querySelector('.swipe-card.active'));
@@ -2199,6 +2329,9 @@
             const h = currentHomes[currentSwipeIndex];
             const li = loves.lastIndexOf(h), pi = passes.lastIndexOf(h);
             if (li >= 0) loves.splice(li, 1); else if (pi >= 0) passes.splice(pi, 1);
+            currentHomes.length = currentSwipeIndex + 1;
+            endedEarly = false;
+            prepareBranches();
             renderCardStack();
             updateProgress();
             setupSwipeListeners();
@@ -2214,7 +2347,7 @@
             lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(-500px,0) rotate(-20deg)';
-            passes.push(currentHomes[currentSwipeIndex]);
+            record(false);
             setTimeout(()=>nextCard(),420);
         }
 
@@ -2225,18 +2358,21 @@
             lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(500px,0) rotate(20deg)';
-            loves.push(currentHomes[currentSwipeIndex]);
+            record(true);
             setTimeout(()=>nextCard(),420);
         }
 
-        function updateProgress() {
-            const progress = (currentSwipeIndex/currentHomes.length)*100;
-            document.getElementById('progressFill').style.width = progress+'%';
-            document.getElementById('progressText').textContent = `${currentSwipeIndex}/${currentHomes.length}`;
+        function updateProgress(finished) {
+            const total = finished ? currentSwipeIndex : deckTarget;
+            document.getElementById('progressFill').style.width = (total ? Math.min(100, currentSwipeIndex / total * 100) : 0) + '%';
+            document.getElementById('progressText').textContent = `${currentSwipeIndex}/${total}`;
             updateUndo();
+            updateLean();
         }
 
         function goToLoading() {
+            const lt = document.querySelector('#loadingScreen .loading-text');
+            if (lt) lt.textContent = endedEarly ? "We've got a clear read on you." : 'This is where the magic happens.';
             showScreen('loadingScreen', true);
             setTimeout(()=>{
                 if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
