@@ -67,13 +67,13 @@
     "@font-face{font-family:'SdnaM';font-weight:600;font-display:swap;src:url(" + APP + "/fonts/montserrat-latin-600-normal.woff2) format('woff2')}",
     "@font-face{font-family:'SdnaM';font-weight:600;font-style:italic;font-display:swap;src:url(" + APP + "/fonts/montserrat-latin-600-italic.woff2) format('woff2')}",
     ".sdna-root,.sdna-root *{box-sizing:border-box;font-family:'SdnaM',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:normal;text-transform:none;line-height:1.4}",
-    ".sdna-dock{position:fixed;left:50%;transform:translateX(-50%);max-width:calc(100vw - 120px);white-space:nowrap;z-index:2147483000;display:flex;align-items:center;gap:0;background:rgba(3,12,13,.94);border:1px solid rgba(224,178,77,.55);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:hidden;transition:transform .25s ease,opacity .25s ease}",
+    ".sdna-dock{position:fixed;left:50%;transform:translate3d(-50%,0,0);-webkit-backface-visibility:hidden;backface-visibility:hidden;will-change:transform;max-width:calc(100vw - 120px);white-space:nowrap;z-index:2147483000;display:flex;align-items:center;gap:0;background:rgba(3,12,13,.94);border:1px solid rgba(224,178,77,.55);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:hidden;transition:transform .25s ease,opacity .25s ease}",
     ".sdna-dock button{background:none;border:0;color:#F5F5F3;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:15px;font-weight:600}",
     ".sdna-dock button svg{width:18px;height:18px;flex-shrink:0}",
     ".sdna-dock .sdna-save svg{color:#E0B24D}",
     ".sdna-dock .sdna-save.done svg{fill:#E0B24D}",
     ".sdna-dock .sdna-board{border-left:1px solid rgba(163,167,166,.25);padding:12px 14px;color:#A3A7A6}",
-    ".sdna-dock.hide{transform:translate(-50%,120px);opacity:0;pointer-events:none}",
+    ".sdna-dock.hide{transform:translate3d(-50%,120px,0);visibility:hidden;opacity:0;pointer-events:none}",
     ".sdna-veil{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s ease}",
     ".sdna-veil.on{opacity:1}",
     ".sdna-sheet{position:fixed;left:0;right:0;bottom:0;z-index:2147483002;margin:0 auto;max-width:520px;color:#F5F5F3;border-radius:22px 22px 0 0;border-top:1px solid rgba(163,167,166,.3);padding:12px 22px calc(26px + env(safe-area-inset-bottom));background:radial-gradient(ellipse 90% 70% at 0% 0%,#213D37 0%,#0E2926 35%,#030C0D 75%);transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}",
@@ -120,7 +120,13 @@
     }
     return lift;
   }
-  function placeDock() { if (dock) dock.style.bottom = 'calc(' + (bottomOffset() + 16) + 'px + env(safe-area-inset-bottom))'; }
+  function placeDock() {
+    if (!dock) return;
+    var b = 'calc(' + (bottomOffset() + 16) + 'px + env(safe-area-inset-bottom))';
+    if (dock.style.bottom !== b) dock.style.bottom = b;
+  }
+  var placeTimer = null;
+  function placeSoon() { clearTimeout(placeTimer); placeTimer = setTimeout(placeDock, 200); }
 
   function render() {
     if (!root) {
@@ -139,22 +145,34 @@
       shadow.appendChild(st);
       root = document.createElement('div'); root.className = 'sdna-root'; shadow.appendChild(root);
     }
+    // Exactly one button on the page, built once and updated in place. iPhone Safari can leave a
+    // ghost copy behind when a floating element is removed and redrawn, so we never redraw it.
+    if (!document.body.contains(host)) document.body.appendChild(host);
+    var extra = document.querySelectorAll('#sdna-host');
+    for (var i = 0; i < extra.length; i++) if (extra[i] !== host) extra[i].remove();
     var c = readConn();
     var listing = isListing();
-    if (!listing && !c) { if (dock) { dock.remove(); dock = null; } return; }
-    if (dock) dock.remove();
-    dock = document.createElement('div');
-    dock.className = 'sdna-dock' + (sheet ? ' hide' : '');
+    if (!dock) {
+      dock = document.createElement('div');
+      dock.className = 'sdna-dock hide';
+      root.appendChild(dock);
+      dock.addEventListener('click', function (e) {
+        var cc = readConn();
+        if (e.target.closest('.sdna-save')) { cc ? save(cc) : connectSheet(); }
+        else if (e.target.closest('.sdna-board') && cc) location.href = boardUrl(cc);
+      });
+    }
     var url = listingUrl();
     var isSaved = !!saved[url];
     var html = '';
     if (listing) html += '<button class="sdna-save' + (isSaved ? ' done' : '') + '" type="button">' + svg(HEART) + '<span>' + (isSaved ? 'Saved' : (c ? 'Save to board' : 'Save to a home board')) + '</span></button>';
     if (c) html += '<button class="sdna-board" type="button" aria-label="Open my home board">' + svg(GRID) + (listing ? '' : '<span style="color:#F5F5F3">My home board</span>') + '</button>';
-    dock.innerHTML = html;
-    root.appendChild(dock);
-    var sv = dock.querySelector('.sdna-save'); if (sv) sv.onclick = function () { c ? save(c) : connectSheet(); };
-    var bd = dock.querySelector('.sdna-board'); if (bd) bd.onclick = function () { location.href = boardUrl(c); };
+    if (dock.__html !== html) { dock.innerHTML = html; dock.__html = html; }
+    var show = !!html && !sheet;
     placeDock();
+    // Show only once it sits in its final spot.
+    if (show) { if (!dock.__placed) { dock.__placed = true; setTimeout(function () { placeDock(); if (!sheet && dock.__html) dock.classList.remove('hide'); }, 300); } else dock.classList.remove('hide'); }
+    else dock.classList.add('hide');
   }
 
   // ---------- sheet ----------
@@ -164,7 +182,7 @@
     sheet.classList.remove('on'); veil.classList.remove('on');
     var s = sheet, v = veil; sheet = veil = null;
     setTimeout(function () { s.remove(); v.remove(); }, 320);
-    if (dock) dock.classList.remove('hide');
+    if (dock && dock.__html) dock.classList.remove('hide');
   }
   function openSheet(inner) {
     closeSheet();
@@ -328,6 +346,12 @@
         if (link) { heartClicked(link.href); return; }
       }
       var btn = t.closest('button, a');
+      // joshwaters.com/evaluation: the address they're valuing (their current home).
+      if (btn && /\/evaluation/.test(location.pathname) && /next|get|value|estimate/i.test(btn.innerText || '')) {
+        var inp = document.querySelector('input[placeholder*="address" i]');
+        var addr = inp && inp.value.trim();
+        if (addr && addr.length > 5 && addr !== (window.__sdnaVal || '')) { window.__sdnaVal = addr; send([{ k: 'value', a: addr }]); }
+      }
       if (btn) {
         var label = (btn.innerText || '').trim();
         if (btn.classList.contains('gotour') || /schedule a (free )?tour|request (a )?showing|book a tour/i.test(label)) send([{ k: 'tour', lid: lidFrom(location.pathname), a: isListing() ? details().address : '' }]);
@@ -349,7 +373,7 @@
     setInterval(function () {
       if (location.href !== last) { last = location.href; takeConnFromHash(); closeSheet(); render(); pageSeen(); }
     }, 600);
-    window.addEventListener('resize', placeDock);
+    window.addEventListener('resize', placeSoon);
     setTimeout(placeDock, 1500); setTimeout(placeDock, 4000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
