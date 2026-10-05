@@ -103,7 +103,9 @@
   function money(n) { n = Number(n); return n ? '$' + n.toLocaleString('en-US') : ''; }
   function track(name, data) { try { if (window.gtag) window.gtag('event', name, data || {}); } catch (e) {} }
 
-  var root, host, dock, saved = {};
+  var root, host, dock, saved = {}, tapped = 0, openedAt = 0;
+  // A real click that arrives right after a tap we already handled is the same tap; skip it.
+  function echo(e) { return e.isTrusted && Date.now() - tapped < 700; }
   function boardUrl(c) { return APP + '/board.html?id=' + encodeURIComponent(c.id); }
 
   // Keep the dock above Lofty's own fixed bottom bar (Request Showing) instead of covering it.
@@ -144,6 +146,19 @@
         '.sdna-root p{margin-left:0;margin-right:0;padding:0}.sdna-root a{text-decoration:none}';
       shadow.appendChild(st);
       root = document.createElement('div'); root.className = 'sdna-root'; shadow.appendChild(root);
+      // iPhone: the website's own touch scripts can swallow the tap before it becomes a click, so
+      // our buttons and links act on the finger lifting, and the browser's late click is ignored.
+      var t0 = null;
+      root.addEventListener('touchstart', function (e) { var p = e.touches[0]; t0 = { x: p.clientX, y: p.clientY }; }, { passive: true });
+      root.addEventListener('touchend', function (e) {
+        var p = e.changedTouches[0], start = t0; t0 = null;
+        if (!start || Math.abs(p.clientX - start.x) > 10 || Math.abs(p.clientY - start.y) > 10) return;
+        var el = e.target && e.target.closest && e.target.closest('a,button');
+        if (!el || !root.contains(el)) return;
+        e.preventDefault();
+        tapped = Date.now();
+        el.click();
+      }, { passive: false });
     }
     // Exactly one button on the page, built once and updated in place. iPhone Safari can leave a
     // ghost copy behind when a floating element is removed and redrawn, so we never redraw it.
@@ -157,6 +172,7 @@
       dock.className = 'sdna-dock hide';
       root.appendChild(dock);
       dock.addEventListener('click', function (e) {
+        if (echo(e)) return;
         var cc = readConn();
         if (e.target.closest('.sdna-save')) { cc ? save(cc) : connectSheet(); }
         else if (e.target.closest('.sdna-board') && cc) location.href = boardUrl(cc);
@@ -190,7 +206,8 @@
     sheet = document.createElement('div'); sheet.className = 'sdna-sheet'; sheet.setAttribute('role', 'dialog');
     sheet.innerHTML = '<div class="sdna-grab"></div>' + inner + '<div class="sdna-brand">StyleDNA by Dallas Collective Group</div>';
     root.appendChild(veil); root.appendChild(sheet);
-    veil.onclick = closeSheet;
+    openedAt = Date.now();
+    veil.onclick = function (e) { if (echo(e) || Date.now() - openedAt < 600) return; closeSheet(); };
     var y0 = null;
     sheet.addEventListener('touchstart', function (e) { y0 = e.touches[0].clientY; }, { passive: true });
     sheet.addEventListener('touchend', function (e) { if (y0 !== null && e.changedTouches[0].clientY - y0 > 70) closeSheet(); y0 = null; });
@@ -229,7 +246,7 @@
         '<a class="sdna-btn" href="' + boardUrl(c) + '">Open my board</a>' +
         '<button class="sdna-link" type="button">Keep browsing</button>' +
         '<div class="sdna-brand">StyleDNA by Dallas Collective Group</div>';
-      s.querySelector('.sdna-link').onclick = closeSheet;
+      s.querySelector('.sdna-link').onclick = function (e) { if (!echo(e)) closeSheet(); };
       s.querySelector('form').onsubmit = function (e) {
         e.preventDefault();
         var inp = s.querySelector('input'), text = inp.value.trim(), note = s.querySelector('.sdna-note');
