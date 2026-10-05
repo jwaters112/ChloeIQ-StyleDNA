@@ -105,6 +105,10 @@ function deal(styles, cands, sizes) {
   for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
     for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
   }
+  // Still short (few styles in their area): keep dealing, so they always get a full deck when homes exist.
+  for (let round = maxPer; chosen.length < DECK_SIZE && avail.some((s) => cands[s.k][round]); round++) {
+    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
+  }
   let deck = shuffle(chosen);
   for (let t = 0; t < 60 && deck.some((d, i) => i && d.k === deck[i - 1].k); t++) deck = shuffle(chosen);
   return deck;
@@ -144,7 +148,7 @@ async function buildDeck(input) {
     total += Object.values(add).reduce((n, a) => n + a.length, 0);
   };
   // Short of a full deck: the rest of their counties first, then the nearest neighboring counties, marked "Nearby".
-  if (total < DECK_SIZE && source === 'pool' && cities.size) addNear((await pool.load(counties)).filter((l) => inSearch(l, c, null)));
+  if (total < DECK_SIZE + 4 && source === 'pool' && cities.size) addNear((await pool.load(counties)).filter((l) => inSearch(l, c, null)));
   if (total < DECK_SIZE && source === 'pool') {
     const center = areaCenter(c);
     const extra = Object.keys(COUNTIES).filter((k) => !counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
