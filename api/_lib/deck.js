@@ -148,11 +148,17 @@ async function buildDeck(input) {
   const styles = stylesFor(c);
   const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
+  // Swipe cards need photos to flip through: a card needs the front plus at least two more views
+  // (living, kitchen, bath...). One-photo listings, often new builds with a single rendering, stay
+  // out of the deck; they still count and show in the results list.
+  let minPhotos = 3;
   const pick = (homes, near) => {
     const cands = {}, seen = new Set();
     homes.forEach((l) => {
       if (seen.has(l.id) || !BY_KEY[l.k] || !styles.some((s) => s.k === l.k)) return; seen.add(l.id);
-      (cands[l.k] = cands[l.k] || []).push(Object.assign(card(l, BY_KEY[l.k], c, near, rooms), { _f: fit(l, c).score + Math.random() * 0.6 + (rooms[l.id] ? 0.5 : 0) }));
+      const cd = card(l, BY_KEY[l.k], c, near, rooms);
+      if (cd.photos.length < minPhotos) return;
+      (cands[l.k] = cands[l.k] || []).push(Object.assign(cd, { _f: fit(l, c).score + Math.random() * 0.6 }));
     });
     Object.values(cands).forEach((a) => a.sort((x, y) => y._f - x._f));
     return cands;
@@ -166,6 +172,8 @@ async function buildDeck(input) {
     const all = []; results.forEach((r) => (r ? r.list : []).forEach((l) => all.push(l)));
     const tags = await phototag.tagAll(all, 60, 7000);
     homes = all.map((l) => { const t = phototag.parse(tags[l.id]); return t && t.sure ? Object.assign({}, l, { k: t.k }) : null; }).filter(Boolean);
+    await roomsLib.sortAll(homes, 16, 6000).catch(() => null);
+    Object.assign(rooms, await roomsLib.loadAll().catch(() => ({})));
   }
   // Narrow city picks the nightly sample doesn't cover well: look those cities up live and read any new photos now.
   if (source === 'pool' && cities.size && homes.length < DECK_SIZE) {
@@ -174,10 +182,19 @@ async function buildDeck(input) {
     results.forEach((r) => (r ? r.list : []).forEach((l) => { if (!have.has(l.id)) { have.add(l.id); fresh.push(l); } }));
     if (fresh.length) {
       const tags = await phototag.tagAll(fresh, 40, 5000);
-      fresh.forEach((l) => { const t = phototag.parse(tags[l.id]); if (t && t.sure) homes.push(Object.assign({}, l, { k: t.k })); });
+      const kept = [];
+      fresh.forEach((l) => { const t = phototag.parse(tags[l.id]); if (t && t.sure) kept.push(Object.assign({}, l, { k: t.k })); });
+      // Sort these homes' photos now too, so they can show inside photos on their cards.
+      await roomsLib.sortAll(kept, 16, 6000).catch(() => null);
+      Object.assign(rooms, await roomsLib.loadAll().catch(() => ({})));
+      kept.forEach((l) => homes.push(l));
     }
   }
-  const cands = pick(homes, false);
+  let cands = pick(homes, false);
+  // Very thin area: allow two-photo cards rather than an empty deck. One-photo cards never show.
+  if (Object.values(cands).flat().length < 12) { minPhotos = 2; cands = pick(homes, false); }
+  // Emergency only (the nightly pool is missing): a quiz with front photos beats no quiz.
+  if (!Object.values(cands).flat().length) { minPhotos = 1; cands = pick(homes, false); }
   const sizes = Object.fromEntries(Object.entries(cands).map(([k, a]) => [k, a.length]));
   let total = homes.length;
   const addNear = (more) => {
