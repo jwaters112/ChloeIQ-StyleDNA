@@ -1150,7 +1150,7 @@
         .results-sticky-header { position: static; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 56px 24px 0; }
         .results-archetype { max-width: 440px; margin: 0 auto; text-align: left; }
         .archetype-kicker { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--silver); margin-bottom: 10px; }
-        .archetype-name { font-size: 40px; line-height: 1.1; color: var(--gold); margin: 0; }
+        .archetype-name { font-size: 34px; line-height: 1.12; color: var(--gold); margin: 0; text-wrap: balance; }
         .results-content { max-width: 440px; margin: 0 auto; padding: 16px 24px 40px; }
         .results-section { margin-bottom: 0; padding: 32px 0; border-top: 1px solid var(--line); }
         .results-section:first-child { border-top: 0; padding-top: 0; }
@@ -1308,6 +1308,149 @@
         .swipe-card-title { font-size: 14px !important; font-weight: 500; color: var(--gold); margin-bottom: 6px !important; }
         .swipe-card-description { font-size: 14px; }
         .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
+        .loosen { margin: 14px 0 0; }
+        .loosen-q { font-size: 14px; color: var(--silver); margin: 4px 0 8px; }
+        .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
+        .loosen-chip .loosen-gain { color: var(--gold); font-size: 14px; white-space: nowrap; }
+        .loosen-done { font-size: 14px; color: var(--silver); margin: 0 0 10px; }
+        .another-area { display: block; margin: 10px auto 0; order: 5; }
+        .how-love { order: 1; margin: 6px 0 18px; border-top: 1px solid rgba(255,255,255,.1); }
+        .how-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 14px; }
+        .how-row span { color: var(--silver); white-space: nowrap; }
+        .how-row b { font-weight: 500; color: var(--soft-white); text-align: right; }
+        .inside-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 22px; }
+        .inside-pic { position: relative; padding: 0; border: 0; background: var(--surface); border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; cursor: pointer; }
+        .inside-pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s ease; }
+        .inside-pic::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 0 var(--gold); transition: box-shadow .15s ease; }
+        .inside-pic.on::after { box-shadow: inset 0 0 0 3px var(--gold); }
+        .inside-pic .tick { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(3,12,13,.6); color: #fff; font-size: 14px; line-height: 24px; text-align: center; }
+        .inside-pic.on .tick { background: var(--gold); color: #030c0d; }
+        .avail-go { display: block; width: 100%; border: 0; cursor: pointer; font: inherit; }
+        .home-list { margin: 14px 0 4px; }
+        .hl-head { font-size: 13px; color: var(--silver); margin: 0 0 4px; }
+        .hl-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.1); text-decoration: none; color: inherit; }
+        .hl-row img { width: 104px; height: 78px; object-fit: cover; border-radius: 8px; flex: none; background: var(--surface); }
+        .hl-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .hl-price { font-size: 16px; font-weight: 600; color: var(--soft-white); }
+        .hl-sub { font-size: 13px; color: var(--silver); }
+        .hl-has { font-size: 12px; color: var(--gold); }
+        .hl-credit { font-size: 11px; color: #7d8382; }
+        .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
+        .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
+        .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(3,12,13,.72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
+        .hero-actions { display: flex; gap: 10px; margin: 18px 0 0; }
+        .hero-actions { align-items: stretch; }
+        .hero-btn { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; padding: 14px 10px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--soft-white); font: inherit; cursor: pointer; text-align: center; margin: 0; }
+        .hero-btn svg { width: 22px; height: 22px; flex: none; margin-bottom: 2px; }
+        .hb-t { font-size: 15px; font-weight: 600; line-height: 1.2; }
+        .hb-s { font-size: 12px; color: var(--silver); line-height: 1.3; }
+        .hero-btn.on { border-color: var(--gold); color: var(--gold); }
+        .compare-panel { margin: 14px 0 0; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: left; }
+        .compare-panel .invite-block { margin: 0; padding: 0; border: 0; text-align: left; }
+        .compare-panel .welcome-cta { display: block; width: 100%; margin: 12px 0 14px; }
+        .compare-panel .board-start { margin-top: 4px; }
+        .area-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 0 10px; font-size: 14px; color: var(--silver); }
+        .area-now { min-width: 0; }
+        .area-change { background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; padding: 4px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; flex: none; }
+        .area-panel { margin: 0 0 18px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .area-panel .chip-label { margin-top: 0; }
+        .area-count { font-size: 16px; color: var(--soft-white); margin: 14px 0 12px; min-height: 22px; }
+        .area-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .area-panel .welcome-cta:disabled { opacity: .5; }
+        .area-panel .text-link { display: block; margin: 6px auto 0; }
+        .area-help { margin: 14px 0 0; }
+        .area-help .btn-outline { width: 100%; }
+        .build-ask { margin: 16px 0 0; padding: 16px; border-radius: 14px; background: rgba(255,255,255,.04); }
+        .build-row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+        .build-row .btn-outline { flex: 1; }
+        .build-yes { font-size: 14px; color: var(--silver); margin: 12px 0 0; }
+        .loved-strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+        .loved-strip .home-match-card { flex: 0 0 78%; scroll-snap-align: start; }
+        .loved-strip .home-match-image { height: 170px; }
+        .search-sum summary { display: flex; gap: 14px; align-items: baseline; cursor: pointer; list-style: none; }
+        .search-sum summary::-webkit-details-marker { display: none; }
+        .search-sum-k { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); flex: none; }
+        .search-sum-v { font-size: 15px; color: var(--soft-white); }
+        .search-sum[open] .search-sum-v { color: var(--silver); }
+        .search-sum .profile-list { margin-top: 14px; }
+        .value-card { padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: center; }
+        .search-row { order: 1; margin: 0 0 18px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .search-row .search-sum summary { justify-content: space-between; font-size: 14px; }
+        .search-row .search-sum-k { font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+        .search-row .search-sum-v { text-align: right; font-size: 14px; }
+        .search-row .search-sum-v::after { content: ' Edit'; color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+        .search-row .search-sum[open] .search-sum-v::after { content: ' Close'; }
+        .loved-section { text-align: center; }
+        .loved-pill { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        #lovedBox { text-align: left; margin-top: 18px; }
+        .how-love { margin-bottom: 0; }
+        .form-carry { font-size: 14px; color: var(--silver); margin: 4px 0 18px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; }
+        .hv { position: fixed; inset: 0; z-index: 9000; background: #030c0d; color: var(--soft-white); display: flex; flex-direction: column; overflow-y: auto; }
+        .hv[hidden] { display: none; }
+        .hv-top { display: flex; justify-content: space-between; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px 10px; }
+        .hv-close { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: #fff; font-size: 18px; cursor: pointer; }
+        .hv-count { font-size: 13px; color: var(--silver); }
+        .hv-strip { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 0; flex: none; }
+        .hv-strip img { flex: 0 0 100%; width: 100%; height: min(62vh, 420px); object-fit: cover; scroll-snap-align: center; background: #0b1617; }
+        .hv-tag { text-align: center; font-size: 13px; color: var(--silver); margin: 10px 0 0; min-height: 18px; }
+        .hv-info { padding: 14px 20px max(24px, env(safe-area-inset-bottom)); }
+        .hv-price { font-size: 26px; font-weight: 600; margin: 0 0 4px; }
+        .hv-sub { font-size: 15px; color: var(--silver); margin: 0 0 6px; }
+        .hv-has { font-size: 14px; color: var(--gold); margin: 0 0 6px; }
+        .hv-credit { font-size: 12px; color: #7d8382; margin: 0 0 18px; }
+        .hv-info .welcome-cta { display: block; text-align: center; text-decoration: none; }
+        .hv-info .text-link { display: block; margin: 8px auto 0; }
+        .must-more { display: block; margin: 14px auto 0; }
+        .results-sticky-header { position: relative; overflow: hidden; }
+        .hero-bg { position: absolute; left: 0; right: 0; top: 0; height: 420px; overflow: hidden; pointer-events: none; display: none; }
+        .has-hero .hero-bg { display: block; }
+        .hero-img { position: absolute; inset: 0; background-size: cover; background-position: center; transform-origin: 50% 60%; animation: heroZoom 22s ease-out forwards; }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,12,13,.35) 0%, rgba(3,12,13,.25) 35%, rgba(3,12,13,.85) 78%, #030c0d 100%); }
+        @keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+        .has-hero { padding-top: 190px !important; }
+        .results-archetype { position: relative; z-index: 1; }
+        .has-hero .archetype-kicker { color: rgba(255,255,255,.85); }
+        @media (prefers-reduced-motion: reduce) { .hero-img { animation: none; } }
+        .reveal { position: fixed; inset: 0; z-index: 8500; background: #030c0d; display: flex; align-items: center; justify-content: center; transition: opacity .6s ease; }
+        .reveal[hidden] { display: none; }
+        .reveal.out { opacity: 0; }
+        .reveal-img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.08); transition: opacity 1.2s ease, transform 3s ease-out; }
+        .reveal-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(3,12,13,.55) 0%, rgba(3,12,13,.88) 70%); }
+        .reveal.show-img .reveal-img { opacity: 1; transform: scale(1); }
+        .reveal-in { position: relative; text-align: center; padding: 0 28px; max-width: 440px; }
+        .reveal-line { display: block; height: 1px; width: 0; margin: 0 auto 22px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width .7s ease; }
+        .reveal.go .reveal-line { width: 160px; }
+        .reveal-kicker { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.8); margin: 0 0 14px; opacity: 0; transition: opacity .5s ease .35s; }
+        .reveal.go .reveal-kicker { opacity: 1; }
+        .reveal-name { font-size: 36px; line-height: 1.15; color: var(--gold); font-weight: 700; font-style: italic; margin: 0; }
+        .reveal-name span { display: inline-block; opacity: 0; transform: translateY(10px); filter: blur(4px); transition: opacity .5s ease, transform .5s ease, filter .5s ease; }
+        .reveal-name span.on { opacity: 1; transform: none; filter: none; }
+        .reveal-name.shine { background: linear-gradient(100deg, var(--gold) 40%, #fff3c4 50%, var(--gold) 60%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: revealShine 1.2s ease forwards; }
+        .reveal-name.shine span { color: transparent; }
+        @keyframes revealShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+        .cta-card { padding: 20px; border: 1px solid rgba(201,162,74,.45); border-radius: 18px; background: linear-gradient(160deg, rgba(201,162,74,.08), rgba(255,255,255,.02)); }
+        .cta-h { font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--soft-white); margin: 0 0 12px; }
+        .cta-list { list-style: none; padding: 0; margin: 0 0 16px; }
+        .cta-list li { position: relative; padding: 0 0 0 20px; margin: 0 0 8px; font-size: 14px; color: var(--silver); line-height: 1.45; }
+        .cta-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+        .cta-card .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .sx { margin: 12px 0 0; }
+        .sx-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "k c" "v c"; gap: 2px 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); align-items: center; }
+        .sx-k { grid-area: k; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--silver); }
+        .sx-v { grid-area: v; font-size: 15px; color: var(--soft-white); min-width: 0; }
+        .sx-c { grid-area: c; background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; }
+        .sx-row.on .sx-c { visibility: hidden; }
+        .sx-panel { margin: 0 0 12px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .sx-panel .chip-label { margin-top: 4px; }
+        .sx-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
+        .sx-panel .welcome-cta:disabled { opacity: .5; }
+        .sx-panel .text-link { display: block; margin: 6px auto 0; }
+        .sx-panel .must-row { padding: 8px 0; }
+        .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
+        .swipe-lean.show { opacity: 1; }
+        .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
+        .swipe-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); }
+        .swipe-dots i.on { background: #fff; }
         .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(3,12,13,.8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
         .style-lean { font-size: 16px; color: var(--silver); margin: 6px 0 0; }
         .avail { margin: 4px 0 18px; text-align: left; }
@@ -1399,9 +1542,9 @@
         <div class="screen preference-screen" id="whereScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
-                <h2 class="preference-headline">Where Are You Looking?</h2>
-                <p class="preference-subheading">Start with the county. Add cities if you want to narrow it down.</p>
-                <div class="progress-indicator">Step 1 of 4</div>
+                <h2 class="preference-headline" id="whereHead">Where Are You Looking?</h2>
+                <p class="preference-subheading" id="whereSub">Start with the county. Add cities if you want to narrow it down.</p>
+                <div class="progress-indicator" id="whereStep">Step 1 of 4</div>
                 <p class="chip-label">Counties <span class="chip-hint">Pick as many as you like</span></p>
                 <div class="chips" id="countyChips"></div>
                 <div id="cityBlock" hidden>
@@ -1409,8 +1552,8 @@
                     <div class="chips city-chips" id="cityChips"></div>
                 </div>
                 <p class="form-error" id="whereError" role="alert"></p>
-                <button class="pref-continue" onclick="finishWhere()">Continue</button>
-                <button class="text-link" type="button" onclick="anywhereDfw()">Not sure yet, show me all of DFW</button>
+                <button class="pref-continue" id="whereGo" onclick="finishWhere()">Continue</button>
+                <button class="text-link" id="whereAll" type="button" onclick="anywhereDfw()">Not sure yet, show me all of DFW</button>
             </div>
         </div>
 
@@ -1422,7 +1565,7 @@
                 <p class="preference-subheading">So every home you see is one you could actually buy</p>
                 <div class="progress-indicator">Step 2 of 4</div>
 
-                <p class="chip-label">Budget</p>
+                <p class="chip-label">Budget <span class="chip-hint">Pick all that work</span></p>
                 <div class="chips" id="budgetChips">
                     <button type="button" class="chip" onclick="selectPrice(0, 'Under $300K', this)">Under $300K</button>
                     <button type="button" class="chip" onclick="selectPrice(1, '$300K to $500K', this)">$300K to $500K</button>
@@ -1431,12 +1574,12 @@
                     <button type="button" class="chip" onclick="selectPrice(4, '$1M+', this)">$1M+</button>
                 </div>
 
-                <p class="chip-label">Home type</p>
+                <p class="chip-label">Home type <span class="chip-hint">Pick all that work</span></p>
                 <div class="chips" id="typeChips">
-                    <button type="button" class="chip" onclick="selectHomeType('Single Family Home', 'Single family', this)">Single family</button>
-                    <button type="button" class="chip" onclick="selectHomeType('Townhouse', 'Townhome', this)">Townhome</button>
-                    <button type="button" class="chip" onclick="selectHomeType('Condo', 'Condo', this)">Condo</button>
-                    <button type="button" class="chip active" onclick="selectHomeType('', 'Open to any', this)">Open to any</button>
+                    <button type="button" class="chip" data-type="Single Family Home" onclick="selectHomeType('Single Family Home', 'Single family', this)">Single family</button>
+                    <button type="button" class="chip" data-type="Townhouse" onclick="selectHomeType('Townhouse', 'Townhome', this)">Townhome</button>
+                    <button type="button" class="chip" data-type="Condo" onclick="selectHomeType('Condo', 'Condo', this)">Condo</button>
+                    <button type="button" class="chip active" data-type="" onclick="selectHomeType('', 'Open to any', this)">Open to any</button>
                 </div>
 
                 <p class="form-error" id="searchError" role="alert"></p>
@@ -1461,7 +1604,7 @@
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
                 <h2 class="preference-headline">A Few Quick Picks</h2>
-                <p class="preference-subheading">Skip any you don't have a feel for yet</p>
+                <p class="preference-subheading">Tap all that fit. Skip any you don't have a feel for yet.</p>
                 <div class="progress-indicator">Step 4 of 4</div>
                 <div id="pickList"></div>
                 <p class="form-error" id="deckError" role="alert"></p>
@@ -1478,6 +1621,7 @@
                 </div>
                 <div class="progress-text" id="progressText"></div>
             </div>
+            <div class="swipe-lean" id="swipeLean" aria-live="polite"></div>
 
             <div class="swipe-container" id="swipeContainer">
                 <div class="swipe-indicators">
@@ -1490,6 +1634,17 @@
                 <button class="swipe-button swipe-button-no" onclick="passCard()" title="Not for me" aria-label="Not for me">&#10005;</button>
                 <button class="swipe-undo" id="undoBtn" onclick="undoLastSwipe()" title="Undo" aria-label="Undo last swipe" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
                 <button class="swipe-button swipe-button-yes" onclick="loveCard()" title="Love it" aria-label="Love it">&#9829;&#xFE0E;</button>
+            </div>
+        </div>
+
+        <!-- INSIDE ROUND -->
+        <div class="screen preference-screen" id="insideScreen">
+            <div class="preference-content">
+                <h2 class="preference-headline">One Quick Look Inside</h2>
+                <p class="preference-subheading">Rooms from the homes you loved. Tap the ones you'd love to come home to.</p>
+                <div class="inside-grid" id="insideGrid"></div>
+                <button class="pref-continue" type="button" onclick="finishInside()">See my StyleDNA</button>
+                <button class="text-link" type="button" onclick="finishInside(true)">Skip</button>
             </div>
         </div>
 
@@ -1508,26 +1663,78 @@
         <!-- RESULTS SCREEN -->
         <div class="screen results-screen" id="resultsScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Change my answers" id="resultsBack">&#8249;</button>
-            <div class="results-sticky-header">
+            <div class="results-sticky-header" id="resultsHeader">
+                <div class="hero-bg" aria-hidden="true"><div class="hero-img" id="heroImg"></div></div>
                 <div class="results-archetype">
                     <div class="archetype-kicker">Your StyleDNA</div>
                     <h2 class="archetype-name" id="archetypeName">Craftsman</h2>
                     <p class="style-lean" id="styleLean" hidden></p>
+                    <div class="hero-actions">
+                        <button type="button" class="hero-btn hb-share" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span class="hb-t">Share my StyleDNA</span><span class="hb-s">Send your result to friends</span></button>
+                        <button type="button" class="hero-btn" id="compareBtn" onclick="toggleCompare()" aria-expanded="false" aria-controls="comparePanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M3.5 19c.6-3 2.9-5 5.5-5s4.9 2 5.5 5"/><path d="M14.5 14.6c.6-.4 1.3-.6 2-.6 2.2 0 3.9 1.6 4.3 4"/></svg><span class="hb-t">Compare with someone</span><span class="hb-s">See where your styles match</span></button>
+                    </div>
+                    <div class="compare-panel" id="comparePanel" hidden>
+                        <div class="invite-block" id="inviteBlock">
+                            <p class="invite-title">House hunting with someone?</p>
+                            <p class="invite-text">Send them the quiz and see how your styles line up. Or start a home board to save homes, react and comment together.</p>
+                            <button class="welcome-cta" type="button" onclick="invitePartner()">Compare our styles</button>
+                            <div class="board-start" id="boardStart">
+                                <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
+                                <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board together</button>
+                                <p class="form-error" id="boardError" role="alert"></p>
+                            </div>
+                            <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="results-content">
                 <div class="results-section">
-                    <div class="results-budget-note" id="budgetNote">
-                        Based on your budget and StyleDNA, here are your perfect matches
-                    </div>
                     <p class="results-description" id="archetypeDescription"></p>
+                    <div class="how-love" id="howLove" hidden></div>
+                    <div class="search-row"><details class="search-sum" id="searchSum">
+                        <summary><span class="search-sum-k">Your search</span><span class="search-sum-v" id="searchLine"></span></summary>
+                        <div class="sx" id="sxList">
+                            <div class="sx-row" data-part="area"><span class="sx-k">Area</span><span class="sx-v" id="sxArea"></span><button type="button" class="sx-c" onclick="openPart('area')">Change</button></div>
+                            <div class="sx-row" data-part="budget"><span class="sx-k">Budget</span><span class="sx-v" id="sxBudget"></span><button type="button" class="sx-c" onclick="openPart('budget')">Change</button></div>
+                            <div class="sx-row" data-part="type"><span class="sx-k">Home type</span><span class="sx-v" id="sxType"></span><button type="button" class="sx-c" onclick="openPart('type')">Change</button></div>
+                            <div class="sx-row" data-part="must"><span class="sx-k">Must and nice to have</span><span class="sx-v" id="sxMust"></span><button type="button" class="sx-c" onclick="openPart('must')">Change</button></div>
+                            <div class="sx-row" data-part="picks"><span class="sx-k">Quick picks</span><span class="sx-v" id="sxPicks"></span><button type="button" class="sx-c" onclick="openPart('picks')">Change</button></div>
+                        </div>
+                        <div class="sx-panel" id="sxPanel" hidden>
+                            <div id="sxBody"></div>
+                            <p class="area-count" id="sxCount" aria-live="polite"></p>
+                            <button type="button" class="welcome-cta" id="sxDone" onclick="applyPart()">Show these homes</button>
+                            <button type="button" class="text-link" onclick="closePart()">Cancel</button>
+                        </div>
+                        <dl class="profile-list" hidden>
+                            <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
+                            <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
+                            <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
+                            <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
+                            <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
+                        </dl>
+                    </details></div>
+                    <div class="results-budget-note" id="budgetNote"></div>
                     <div class="avail" id="availBlock">
+                        <div class="area-line"><span class="area-now" id="areaNow"></span><button type="button" class="area-change" id="areaChangeBtn" onclick="openPart('area')">Change</button></div>
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
-                        <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See them on joshwaters.com</a>
+                        <button type="button" class="welcome-cta avail-go" id="availLink" hidden onclick="toggleHomeList()" aria-expanded="false" aria-controls="homeList">See homes for sale</button>
+                        <div class="home-list" id="homeList" hidden></div>
+                        <div class="loosen" id="loosenBox" hidden></div>
                         <p class="avail-near" id="availNear" hidden></p>
+                        <div class="area-help" id="areaHelp" hidden></div>
                     </div>
-                    <button class="btn-outline avail-save" onclick="captureEmail()">Send me homes that fit</button>
+                    <div class="cta-card avail-save">
+                        <p class="cta-h" id="ctaHead">Get first look at new homes in your style</p>
+                        <ul class="cta-list">
+                            <li>New listings in your style and areas, the day they list</li>
+                            <li>Price drops on the homes you loved</li>
+                            <li>Coming-soon homes, before they're on the big sites</li>
+                        </ul>
+                        <button class="welcome-cta" type="button" onclick="captureEmail()">Send me my matches</button>
+                    </div>
                 </div>
 
                 <div class="results-section board-return" id="boardReturn" hidden>
@@ -1545,49 +1752,27 @@
                     <button class="btn-outline compare-send" onclick="sendBack()"><span id="sendBackLabel">Send your result back</span></button>
                 </div>
 
-                <div class="results-section">
-                    <dl class="profile-list">
-                        <div class="profile-row"><dt>Looking in</dt><dd id="pWhere"></dd></div>
-                        <div class="profile-row"><dt>Budget</dt><dd id="pBudget"></dd></div>
-                        <div class="profile-row" id="pMustRow"><dt>Must have</dt><dd id="pMust"></dd></div>
-                        <div class="profile-row" id="pNiceRow"><dt>Nice to have</dt><dd id="pNice"></dd></div>
-                        <div class="profile-row" id="pPicksRow"><dt>Your picks</dt><dd id="pPicks"></dd></div>
-                    </dl>
-                </div>
-
-                <div class="results-section">
-                    <h3 class="results-section-title" id="lovedTitle">Homes You Loved</h3>
-                    <p class="examples-note" id="examplesNote">Real homes for sale right now. Tap one to see it.</p>
-                    <div id="matchedHomes"></div>
+                <div class="results-section loved-section">
+                    <button type="button" class="welcome-cta loved-pill" id="lovedPill" onclick="toggleLoved()" aria-expanded="false" aria-controls="lovedBox">Homes you loved</button>
+                    <div id="lovedBox" hidden>
+                        <h3 class="results-section-title" id="lovedTitle" hidden>Homes You Loved</h3>
+                        <p class="examples-note" id="examplesNote">For sale right now. Swipe across, tap one to see it.</p>
+                        <div id="matchedHomes" class="loved-strip"></div>
+                    </div>
                 </div>
 
                 <div class="results-section" id="moreSection" hidden>
                     <h3 class="results-section-title" id="moreTitle">More Homes Like This</h3>
-                    <p class="examples-note">For sale now in your areas and range.</p>
                     <div id="moreHomes"></div>
                 </div>
 
-                <div class="results-section results-cta">
-                    <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
-                    <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
-                    <div class="invite-block" id="inviteBlock">
-                        <p class="invite-title">House hunting with someone?</p>
-                        <p class="invite-text">Start a home board. Save homes, react and comment together, and get an alert when a new listing fits your style.</p>
-                        <div class="board-start" id="boardStart">
-                            <input class="form-input" id="boardName" placeholder="Your first name" maxlength="24" autocomplete="given-name">
-                            <button class="btn-outline" id="boardBtn" onclick="startBoard()">Start a home board</button>
-                            <p class="form-error" id="boardError" role="alert"></p>
-                        </div>
-                        <a class="btn-outline board-open" id="boardOpen" hidden href="#">Open your home board</a>
-                        <button class="text-link" onclick="invitePartner()">Or just compare styles with someone</button>
-                    </div>
-                    <div class="invite-block value-block">
+                <div class="results-section results-foot">
+                    <div class="value-card">
                         <p class="invite-title">Own a home now?</p>
                         <p class="invite-text">See what it's worth before you buy. Josh sends you a real number, not a guess.</p>
                         <button class="btn-outline" onclick="openValue('results')">What's my home worth?</button>
                     </div>
                     <div class="redo-links">
-                        <button class="text-link" onclick="editSearch()">Change my areas or answers</button>
                         <button class="text-link" onclick="restartQuiz()">Retake the quiz</button>
                     </div>
                 </div>
@@ -1614,10 +1799,11 @@
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="form-container">
-                <h2 class="form-heading">Save Your StyleDNA</h2>
-                <p class="form-subheading">Josh will follow up with DFW homes that fit your style and budget.</p>
+                <h2 class="form-heading">Get First Look</h2>
+                <p class="form-subheading" id="formSub">New homes in your style the day they list, price drops on the homes you loved, and coming-soon homes before they hit the big sites.</p>
 
                 <form onsubmit="submitData(event)" novalidate>
+                    <p class="form-carry" id="formCarry"></p>
                     <div class="form-group">
                         <label class="form-label" for="nameInput">Name</label>
                         <input type="text" class="form-input" id="nameInput" placeholder="First and last name" autocomplete="name" maxlength="60" required>
@@ -1637,7 +1823,7 @@
                         <input type="text" id="sdnaTrap" name="sdna_trap" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label class="form-label" for="neighborhoodInput">Area you're most interested in <span class="form-optional">Optional</span></label>
                         <select class="form-select" id="neighborhoodInput" onchange="handleNeighborhoodChange(this.value)">
                             <option value="">Select an area...</option>
@@ -1746,7 +1932,7 @@
                     <p class="form-error" id="formError" role="alert"></p>
 
                     <div class="form-buttons">
-                        <button type="submit" class="btn-primary" id="submitBtn">Save my StyleDNA</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Send me my matches</button>
                         <button type="button" class="btn-secondary" onclick="skipDataCapture()">Not now</button>
                     </div>
                 </form>
@@ -1831,13 +2017,64 @@
             barndo:       { label: 'Barndominium', desc: 'Metal barn-style home, wide open inside' }
         };
         const STYLE_KEYS = Object.keys(STYLE_INFO);
+        // The signature result: a name built from their style and the material they kept loving,
+        // and one line about their taste. Only about how a home looks and works, never about people.
+        const STYLE_SIG = {
+            traditional: { n: { _: "The Heritage Traditional" }, line: "You appreciate a home with presence, built on proportions that never go out of style." },
+            transitional: { n: { _: "The Quiet Luxury" }, line: "You appreciate restraint, where every line has a purpose and nothing competes for attention." },
+            farmhouse: { n: { _: "The Elevated Farmhouse" }, line: "You appreciate a familiar silhouette made sharper, with black trim, white walls and clean gables." },
+            modern: { n: { _: "The Glass Pavilion" }, line: "You appreciate architecture that's sure of itself: strong lines, open space and walls of glass." },
+            craftsman: { n: { _: "The Artisan Craftsman" }, line: "You appreciate a home where the details show the hands that built it." },
+            ranch: { n: { _: "The Texas Ranch" }, line: "You appreciate a home that stretches out instead of up, with everything on one easy level." },
+            midcentury: { n: { _: "The Mid-Century Icon" }, line: "You appreciate design with a point of view: low, wide and wrapped in glass." },
+            tudor: { n: { _: "The English Manor" }, line: "You appreciate character and craftsmanship, with steep rooflines and rich, layered materials." },
+            mediterranean: { n: { _: "The Villa" }, line: "You appreciate a home that feels like a getaway, with warm walls, arches and a tile roof overhead." },
+            french: { n: { _: "The Chateau" }, line: "You appreciate elegance with ease: limestone, steep rooflines and graceful symmetry." },
+            colonial: { n: { _: "The Georgian" }, line: "You appreciate order and grace, with a balanced front and a door right at the center." },
+            cottage: { n: { _: "The Storybook Cottage" }, line: "You appreciate intimacy and character, where a smaller footprint still makes a big impression." },
+            hillcountry: { n: { _: "The Limestone Lodge" }, line: "You appreciate a home rooted in Texas, with limestone walls, metal roofs and big porches." },
+            barndo: { n: { _: "The Modern Barn" }, line: "You appreciate a home that works as hard as it looks good." },
+        };
+        const MAT_WORD = { stone: 'stone', brick: 'brick', stucco: 'stucco', siding: 'siding and wood' };
+        function topTrait(list, f) {
+            const n = {}; list.forEach(h => { const v = h.t && h.t[f]; if (v) n[v] = (n[v] || 0) + 1; });
+            const best = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+            return best && n[best] >= 2 && n[best] >= list.length * 0.5 ? best : '';
+        }
+        function signature(k) {
+            const sig = STYLE_SIG[k] || STYLE_SIG.traditional;
+            const mine = loves.filter(h => h.k === k), pool = mine.length >= 2 ? mine : loves;
+            const mat = topTrait(pool, 'mat'), big = topTrait(pool, 'lot');
+            return { name: (mat && sig.n[mat]) || (big && sig.n.big) || sig.n._, line: sig.line };
+        }
+        // "How you love it": the mix of styles they loved, what they kept choosing, and where they lingered.
+        function howYouLove() {
+            const rows = [];
+            if (loves.length >= 2) {
+                const n = {}; loves.forEach(h => { n[h.k] = (n[h.k] || 0) + 1; });
+                const ks = Object.keys(n).sort((a, b) => n[b] - n[a]).slice(0, 3);
+                let left = 100;
+                const parts = ks.map((k, i) => { const pct = i === ks.length - 1 && ks.reduce((t, x) => t + n[x], 0) === loves.length ? left : Math.round(n[k] / loves.length * 100); left -= pct; return `${pct}% ${styleLabel(k)}`; });
+                const shownN = ks.reduce((t, x) => t + n[x], 0);
+                if (shownN < loves.length) parts.push(`${Math.round((loves.length - shownN) / loves.length * 100)}% other`);
+                rows.push(['Your mix', parts.join(' · ')]);
+            }
+            const mat = topTrait(loves, 'mat'), st = topTrait(loves, 'st'), big = topTrait(loves, 'lot');
+            const drawn = [mat && MAT_WORD[mat] + ' fronts', st === 'one' ? 'one-story homes' : st === 'two' ? 'two-story homes' : '', big && 'an acre or more'].filter(Boolean);
+            if (drawn.length) rows.push(['You kept choosing', drawn.join(', ')]);
+            const longest = loves.filter(h => h._ms).sort((a, b) => b._ms - a._ms)[0];
+            const il = insideLine();
+            if (il) rows.push(['Inside, you love', il]);
+            if (longest && longest._ms >= 2500) rows.push(['You lingered on', `a ${styleLabel(longest.k)} in ${longest.city || 'DFW'}`]);
+            return rows;
+        }
         const styleLabel = (k) => (STYLE_INFO[k] && STYLE_INFO[k].label) || '';
         // Counties first, then the cities in them.
         const COUNTY_CITIES = {
             Collin: ['Allen','Anna','Celina','Fairview','Frisco','Lucas','McKinney','Melissa','Murphy','Parker','Plano','Princeton','Prosper','Wylie'],
             Dallas: ['Dallas','Addison','Carrollton','Cedar Hill','Coppell','DeSoto','Garland','Grand Prairie','Highland Park','Irving','Mesquite','Richardson','Rowlett','Sachse','Sunnyvale','University Park'],
-            Denton: ['Argyle','Aubrey','Bartonville','Copper Canyon','Corinth','Denton','Double Oak','Flower Mound','Highland Village','Justin','Lantana','Lewisville','Little Elm','Northlake','Pilot Point','Roanoke','The Colony','Trophy Club'],
-            Tarrant: ['Arlington','Bedford','Benbrook','Burleson','Colleyville','Euless','Fort Worth','Grapevine','Haslet','Hurst','Keller','Mansfield','North Richland Hills','Southlake','Westlake'],
+            Denton: ['Argyle','Aubrey','Hickory Creek','Krum','Lake Dallas','Oak Point','Ponder','Sanger','Shady Shores','Bartonville','Copper Canyon','Corinth','Denton','Double Oak','Flower Mound','Highland Village','Justin','Lantana','Lewisville','Little Elm','Northlake','Pilot Point','Roanoke','The Colony','Trophy Club'],
+            Tarrant: ['Arlington','Bedford','Grand Prairie','Benbrook','Burleson','Colleyville','Euless','Fort Worth','Grapevine','Haslet','Hurst','Keller','Mansfield','North Richland Hills','Southlake','Westlake'],
             Rockwall: ['Rockwall','Heath','Fate','Royse City'],
             Kaufman: ['Forney','Terrell','Kaufman','Crandall'],
             Ellis: ['Waxahachie','Midlothian','Red Oak','Ennis'],
@@ -1853,9 +2090,23 @@
             { k: 'acres', label: 'An acre or more', hint: 'Room to spread out' },
             { k: 'gameroom', label: 'Game or media room', hint: 'A second living area upstairs or down' },
             { k: 'suite', label: 'Guest suite or in-law quarters', hint: 'A second living space with its own bath' },
-            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' }
+            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' },
+            { k: 'office', label: 'Home office', hint: 'A room with a door for work' },
+            { k: 'primarydown', label: 'Primary bedroom downstairs', hint: 'Main bedroom on the first floor' },
+            { k: 'garage3', label: '3+ car garage', hint: 'Room for cars, storage or a gym' },
+            { k: 'outdoor', label: 'Outdoor living', hint: 'Covered patio or outdoor kitchen' },
+            { k: 'shop', label: 'Shop or RV/boat parking', hint: 'Workshop, barn or a spot for the RV or boat' },
+            { k: 'newer', label: 'Newer build', hint: 'Built 2015 or later' }
         ];
-        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features' };
+        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features', office: 'Home office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015+' };
+        // Most-picked must-haves show first (learned from recent quizzes); the rest sit behind "More options".
+        let mustOrder = ['pool', 'acres', 'gameroom', 'office', 'primarydown', 'outdoor', 'suite', 'garage3', 'shop', 'newer', 'access'], mustMore = false;
+        fetch('/api/stats?trend=musts').then(r => r.json()).then(j => {
+            const c = (j && j.musts) || {}, total = Object.values(c).reduce((t, n) => t + n, 0);
+            if (total < 20) return; // not enough quizzes yet to trust the order
+            mustOrder = mustOrder.slice().sort((a, b) => (c[b] || 0) - (c[a] || 0));
+            if (document.getElementById('mustScreen') && !document.getElementById('mustScreen').classList.contains('active')) renderMusts();
+        }).catch(() => {});
         const PICKS = [
             { k: 'exterior', label: 'Exterior', opts: [['brick', 'Brick'], ['stone', 'Stone'], ['stucco', 'Stucco'], ['siding', 'Siding']] },
             { k: 'layout', label: 'Layout', opts: [['open', 'Open concept'], ['separate', 'Separate rooms']] },
@@ -1898,6 +2149,12 @@
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             (document.getElementById(prev) || document.getElementById('welcomeScreen')).classList.add('active');
             window.scrollTo(0, 0);
+            if (prev === 'resultsScreen' && reswipe) {
+                // Backed out of "try another area": put their original area back.
+                selectedCounties = reswipe.counties; selectedCities = reswipe.cities;
+                if (reswipe.shown.length) { loves = reswipe.loves; passes = reswipe.passes; currentHomes = reswipe.shown; currentSwipeIndex = currentHomes.length; }
+                setWhereMode(false);
+            }
             // Back from the first question lands on the last card, with that answer undone.
             if (prev === 'swipeScreen' && currentSwipeIndex >= currentHomes.length) undoLastSwipe();
             if (prev === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
@@ -1921,7 +2178,7 @@
             selectedCounties = []; selectedCities = [];
             document.querySelectorAll('.chip.active').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#typeChips .chip').forEach(b => { if (b.textContent === 'Open to any') b.classList.add('active'); });
-            selectedPrice = null; selectedPriceLabel = ''; selectedHomeType = ''; selectedHomeTypeLabel = 'Open to any';
+            selPrices = new Set(); selTypes = new Set(); syncBudget(); syncTypes();
             renderWhere(); renderMusts(); renderPicks();
             showScreen('whereScreen', true);
         }
@@ -1936,8 +2193,26 @@
             return b;
         }
 
+        // The full city list for each county, from real listings (adds towns the short list misses).
+        // Merged on the next redraw of the where screen, never underneath a finger mid-tap.
+        let moreCities = null;
+        fetch('/api/address?cities=4').then(r => r.json()).then(j => {
+            moreCities = (j && j.cities) || null;
+            const ws = document.getElementById('whereScreen');
+            if (!ws.classList.contains('active') || !selectedCounties.length) mergeCities();
+        }).catch(() => {});
+        function mergeCities() {
+            if (!moreCities) return;
+            Object.entries(moreCities).forEach(([county, list]) => {
+                if (!COUNTY_CITIES[county] || !Array.isArray(list)) return;
+                const have = new Set(COUNTY_CITIES[county].map(c => c.toLowerCase()));
+                list.forEach(c => { if (!have.has(String(c).toLowerCase())) { have.add(String(c).toLowerCase()); COUNTY_CITIES[county].push(c); } });
+            });
+            moreCities = null;
+        }
         // ---- Step 1: where ----
         function renderWhere() {
+            mergeCities();
             document.getElementById('countyChips').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, selectedCounties.includes(c), () => {
                 selectedCounties = selectedCounties.includes(c) ? selectedCounties.filter(x => x !== c) : selectedCounties.concat(c);
                 const keep = new Set(selectedCounties.flatMap(x => COUNTY_CITIES[x]));
@@ -1958,10 +2233,28 @@
                 err.textContent = 'Pick at least one county, or tap "show me all of DFW".'; err.classList.add('show');
                 return;
             }
-            track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length });
+            track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length, reswipe: reswipe ? 'yes' : 'no' });
+            if (reswipe) { startSwiping(document.getElementById('whereGo'), document.getElementById('whereError')); return; }
             showScreen('priceScreen', true);
         }
         function anywhereDfw() { selectedCounties = []; selectedCities = []; renderWhere(); track('where_set', { counties: 'all' }); showScreen('priceScreen', true); }
+        // From the results: pick a different area and swipe about 8 homes there; the result folds those in.
+        let reswipe = null;
+        function setWhereMode(on) {
+            reswipe = on ? (reswipe || { loves: loves.slice(), passes: passes.slice(), shown: currentHomes.slice(), counties: selectedCounties.slice(), cities: selectedCities.slice() }) : null;
+            document.getElementById('whereHead').textContent = on ? 'Try Another Area' : 'Where Are You Looking?';
+            document.getElementById('whereSub').textContent = on ? "Pick a new area and we'll show you about 8 homes there." : 'Start with the county. Add cities if you want to narrow it down.';
+            document.getElementById('whereStep').hidden = !!on;
+            document.getElementById('whereAll').hidden = !!on;
+            document.getElementById('whereGo').textContent = on ? 'Show me homes' : 'Continue';
+        }
+        function tryAnotherArea() {
+            setWhereMode(true);
+            selectedCities = [];
+            renderWhere();
+            track('another_area_opened', { archetype: userArchetype });
+            showScreen('whereScreen', true);
+        }
         function whereLabel() {
             if (selectedCities.length) return selectedCities.join(', ');
             if (selectedCounties.length) return selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County');
@@ -1970,12 +2263,39 @@
         function myAreas() { return selectedCities.length ? selectedCities.slice() : selectedCounties.map(c => c + ' County'); }
 
         // ---- Step 2: budget and type ----
+        // Budget and home type: pick as many as fit.
+        let selPrices = new Set(), selTypes = new Set();
+        const BAND_LO = [0, 300000, 500000, 750000, 1000000], BAND_HI = [300000, 500000, 750000, 1000000, 0];
+        const TYPE_LABEL = { 'Single Family Home': 'Single family', Townhouse: 'Townhome', Condo: 'Condo' };
+        const kfmt = (n) => n >= 1000000 ? '$' + (n / 1000000) + 'M' : '$' + (n / 1000) + 'K';
+        function budgetLabel(a) {
+            if (!a.length) return '';
+            if (a.length === 5) return 'Any price';
+            const run = a.every((x, i) => !i || x === a[i - 1] + 1);
+            if (a.length === 1 || !run) return a.map(i => ['Under $300K', '$300K to $500K', '$500K to $750K', '$750K to $1M', '$1M+'][i]).join(' or ');
+            const lo = BAND_LO[a[0]], hi = BAND_HI[a[a.length - 1]];
+            return !lo ? 'Under ' + kfmt(hi) : !hi ? kfmt(lo) + '+' : kfmt(lo) + ' to ' + kfmt(hi);
+        }
+        function syncBudget() {
+            const a = [...selPrices].sort((x, y) => x - y);
+            selectedPrice = a.length ? a[0] : null; selectedPriceLabel = budgetLabel(a);
+            document.querySelectorAll('#budgetChips .chip').forEach((b, i) => b.classList.toggle('active', selPrices.has(i)));
+        }
+        function syncTypes() {
+            selectedHomeType = selTypes.size === 1 ? [...selTypes][0] : '';
+            selectedHomeTypeLabel = selTypes.size ? [...selTypes].map(t => TYPE_LABEL[t]).join(' or ') : 'Open to any';
+            document.querySelectorAll('#typeChips .chip').forEach(b => { const v = b.dataset.type || ''; b.classList.toggle('active', v ? selTypes.has(v) : !selTypes.size); });
+        }
         function selectPrice(index, label, btn) {
-            selectedPrice = index; selectedPriceLabel = label;
-            setActiveChip('budgetChips', btn);
+            if (selPrices.has(index)) selPrices.delete(index); else selPrices.add(index);
+            syncBudget();
             const err = document.getElementById('searchError'); err.textContent = ''; err.classList.remove('show');
         }
-        function selectHomeType(value, label, btn) { selectedHomeType = value; selectedHomeTypeLabel = label; setActiveChip('typeChips', btn); }
+        function selectHomeType(value, label, btn) {
+            if (!value) selTypes.clear(); else if (selTypes.has(value)) selTypes.delete(value); else selTypes.add(value);
+            syncTypes();
+        }
+        function priceSpan() { const a = [...selPrices]; if (!a.length) return ''; const lo = Math.min(...a.map(i => BAND_LO[i])), hi = a.some(i => !BAND_HI[i]) ? 0 : Math.max(...a.map(i => BAND_HI[i])); return (lo || '') + ',' + (hi || ''); }
         function finishSearch() {
             if (selectedPrice === null) {
                 const err = document.getElementById('searchError');
@@ -1988,7 +2308,10 @@
 
         // ---- Step 3: must-haves (Must / Nice, tap again to clear) ----
         function renderMusts() {
-            document.getElementById('mustList').replaceChildren(...MUSTS.map(m => {
+            const byK = Object.fromEntries(MUSTS.map(m => [m.k, m]));
+            const ordered = mustOrder.map(k => byK[k]).filter(Boolean);
+            const shown = ordered.filter((m, i) => mustMore || i < 6 || must[m.k]);
+            const rows = shown.map(m => {
                 const row = document.createElement('div'); row.className = 'must-row';
                 const t = document.createElement('div'); t.className = 'must-text';
                 t.append(Object.assign(document.createElement('b'), { textContent: m.label }), Object.assign(document.createElement('small'), { textContent: m.hint }));
@@ -2001,7 +2324,15 @@
                 });
                 row.append(t, seg);
                 return row;
-            }));
+            });
+            const hiddenN = ordered.length - shown.length;
+            if (hiddenN > 0) {
+                const more = document.createElement('button'); more.type = 'button'; more.className = 'chip must-more';
+                more.textContent = `More options (${hiddenN})`;
+                more.onclick = () => { mustMore = true; renderMusts(); track('must_more_opened', {}); };
+                rows.push(more);
+            }
+            document.getElementById('mustList').replaceChildren(...rows);
         }
 
         // ---- Step 4: quick picks (one per row, tap again to clear) ----
@@ -2010,7 +2341,8 @@
                 const row = document.createElement('div'); row.className = 'pick-row';
                 const lab = document.createElement('p'); lab.className = 'chip-label'; lab.textContent = p.label;
                 const box = document.createElement('div'); box.className = 'chips';
-                p.opts.forEach(([v, l]) => box.append(chip(l, picks[p.k] === v, () => { if (picks[p.k] === v) delete picks[p.k]; else picks[p.k] = v; renderPicks(); })));
+                const cur = () => Array.isArray(picks[p.k]) ? picks[p.k] : picks[p.k] ? [picks[p.k]] : [];
+                p.opts.forEach(([v, l]) => box.append(chip(l, cur().includes(v), () => { const a = cur(); picks[p.k] = a.includes(v) ? a.filter(x => x !== v) : a.concat(v); if (!picks[p.k].length) delete picks[p.k]; renderPicks(); })));
                 row.append(lab, box);
                 return row;
             }));
@@ -2018,10 +2350,11 @@
 
         // ---- the deck: about 20 real homes for sale in their areas ----
         function searchCriteria() {
-            return { counties: selectedCounties, cities: selectedCities, price: PRICE_RANGES[selectedPrice] || '', type: selectedHomeType, must, picks };
+            return { counties: selectedCounties, cities: selectedCities, prices: [...selPrices].map(i => PRICE_RANGES[i]), types: [...selTypes], price: PRICE_RANGES[selectedPrice] || '', type: selectedHomeType, must, picks };
         }
-        async function startSwiping() {
-            const btn = document.getElementById('startSwipeBtn'), err = document.getElementById('deckError');
+        async function startSwiping(btnEl, errEl) {
+            const btn = btnEl || document.getElementById('startSwipeBtn'), err = errEl || document.getElementById('deckError');
+            const label = btn.textContent;
             err.textContent = ''; err.classList.remove('show');
             btn.disabled = true; btn.textContent = 'Finding homes...';
             track('deck_requested', { counties: selectedCounties.join('|') || 'all', musts: Object.keys(must).length, picks: Object.keys(picks).length });
@@ -2035,13 +2368,14 @@
                     return;
                 }
                 deckInfo = j;
-                currentHomes = j.cards;
+                const seenIds = new Set(reswipe ? reswipe.shown.map(h => h.id) : []);
+                cands = j.cards.filter(h => !seenIds.has(h.id));
                 loves = []; passes = [];
                 showScreen('swipeScreen', true);
                 initializeSwipe();
             } catch (e) {
                 err.textContent = "We couldn't load homes just now. Please try again in a moment."; err.classList.add('show');
-            } finally { btn.disabled = false; btn.textContent = 'Start swiping'; }
+            } finally { btn.disabled = false; btn.textContent = label; }
         }
 
         // ---- the result: the style they loved most, by real homes ----
@@ -2061,23 +2395,121 @@
 
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
         function money(n) { n = Number(n) || 0; return n ? '$' + n.toLocaleString('en-US') : ''; }
+        // Photos in the order the server set (front, living room, kitchen, primary bath, their features), with labels.
+        function cardPhotos(home) {
+            const list = (home.photos && home.photos[0] === home.photo) ? home.photos.slice() : [home.photo].concat(home.photos || []);
+            const labels = (home.photos && home.photos[0] === home.photo) ? (home.plabels || []) : [''].concat(home.plabels || []);
+            const seen = new Set(), pics = [], lab = [];
+            list.forEach((u, i) => { if (u && !seen.has(u) && pics.length < 7) { seen.add(u); pics.push(u); lab.push(labels[i] || ''); } });
+            pics.labels = lab;
+            return pics;
+        }
         function buildSwipeCard(home) {
             const card = document.createElement('div');
             card.className = 'swipe-card';
-            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
+            const pics = cardPhotos(home);
+            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div><span class="swipe-room" hidden></span>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
             const img = card.querySelector('img');
             img.alt = home.label + ' home in ' + (home.city || 'DFW');
             img.src = home.photo;
+            card._pics = pics; card._pic = 0;
+            if (pics[1]) new Image().src = pics[1];
             return card;
+        }
+        // Tap the photo for the next one; after the last it goes back to the front.
+        function flipPhoto(card) {
+            const pics = card._pics || [];
+            if (pics.length < 2) return;
+            if (Date.now() - (card._flipAt || 0) < 250) return;
+            card._flipAt = Date.now();
+            card._pic = (card._pic + 1) % pics.length;
+            card.querySelector('.swipe-card-img').src = pics[card._pic];
+            card.querySelectorAll('.swipe-dots i').forEach((d, i) => d.classList.toggle('on', i === card._pic));
+            const lab = card.querySelector('.swipe-room'), t = (pics.labels || [])[card._pic];
+            if (lab) { lab.textContent = card._pic && t && t !== 'Front' ? t : ''; lab.hidden = !lab.textContent; }
+            const h = currentHomes[currentSwipeIndex]; if (h) h._flips = (h._flips || 0) + 1;
+            const nx = pics[(card._pic + 1) % pics.length]; if (nx) new Image().src = nx;
+        }
+        const preload = (h) => { if (h && h.photo) new Image().src = h.photo; };
+
+        // ---- the learning deck ----
+        // The server sends candidate homes; the phone picks each next card from the swipes so far.
+        // First cards explore every style, then it narrows toward what they love, keeping about
+        // 1 card in 5 as a surprise. It ends between 12 and 20 cards, earlier when the read is clear.
+        const MIN_CARDS = 12, MAX_CARDS = 20, TRAITS = ['mat', 'st', 'lot', 'era'];
+        let cands = [], deckTarget = MAX_CARDS, branch = { love: null, pass: null }, shownAt = 0, endedEarly = false, dragT = 0;
+        function weights(L, P) {
+            const w = { k: {} }; TRAITS.forEach(f => { w[f] = {}; });
+            const add = (h, s, s2) => { w.k[h.k] = (w.k[h.k] || 0) + s; const t = h.t || {}; TRAITS.forEach(f => { if (t[f]) w[f][t[f]] = (w[f][t[f]] || 0) + s2; }); };
+            L.forEach(h => add(h, 2, 1)); P.forEach(h => add(h, -1, -0.5));
+            return w;
+        }
+        // The card that would come after `shown`, given these loves and passes.
+        function pickNext(shown, L, P) {
+            const used = new Set(shown.map(h => h.id));
+            const pool = cands.filter(h => !used.has(h.id));
+            if (!pool.length) return null;
+            const n = shown.length, seen = {};
+            shown.forEach(h => { seen[h.k] = (seen[h.k] || 0) + 1; });
+            const probes = shown.filter(h => h.probe).length;
+            const l2 = shown.slice(-2).map(h => h.k);
+            let ok = pool.filter(h => (seen[h.k] || 0) < 5 && !(l2.length === 2 && l2[0] === h.k && l2[1] === h.k) && !(h.probe && (n < 4 || probes >= 2)));
+            if (!ok.length) ok = pool.filter(h => !(h.probe && probes >= 2));
+            if (!ok.length) ok = pool;
+            if (n < 6 || Math.random() < 0.2) {
+                const min = Math.min(...ok.map(h => seen[h.k] || 0));
+                const c = ok.filter(h => (seen[h.k] || 0) === min);
+                const local = c.filter(h => !h.near);
+                const from = local.length && Math.random() < 0.8 ? local : c;
+                return from[Math.floor(Math.random() * from.length)];
+            }
+            const w = weights(L, P);
+            let best = null, bs = -1e9;
+            ok.forEach(h => {
+                const t = h.t || {};
+                const sc = (w.k[h.k] || 0) + TRAITS.reduce((s, f) => s + (t[f] ? (w[f][t[f]] || 0) * 0.5 : 0), 0) - (h.near ? 0.4 : 0) + Math.random() * 1.2;
+                if (sc > bs) { bs = sc; best = h; }
+            });
+            return best;
+        }
+        // Work out both possible next cards now, so the next photo is ready whichever way they swipe.
+        function prepareBranches() {
+            const shown = currentHomes.slice(0, currentSwipeIndex + 1), h = currentHomes[currentSwipeIndex];
+            branch = h ? { love: pickNext(shown, loves.concat([h]), passes), pass: pickNext(shown, loves, passes.concat([h])) } : { love: null, pass: null };
+            preload(branch.love); if (branch.pass !== branch.love) preload(branch.pass);
+            if (h && h.photos && h.photos[0]) new Image().src = h.photos[0];
+        }
+        function clearRead() {
+            if (reswipe) return false;
+            const n = currentSwipeIndex;
+            if (n < MIN_CARDS || n < Math.min(MIN_CARDS, deckTarget)) return false;
+            const lk = {}; loves.forEach(h => { lk[h.k] = (lk[h.k] || 0) + 1; });
+            const top = Math.max(0, ...Object.values(lk));
+            return top >= 4 && top >= 0.6 * loves.length;
+        }
+        const TRAIT_WORD = { mat: { stone: 'stone', stucco: 'stucco', brick: 'brick', siding: 'siding' }, st: { one: 'one-story', two: 'two-story' }, lot: { big: 'big lot' } };
+        function updateLean() {
+            const el = document.getElementById('swipeLean'); if (!el) return;
+            let text = '';
+            if (currentSwipeIndex >= 4 && loves.length >= 2) {
+                const w = weights(loves, passes);
+                const k = Object.keys(w.k).sort((a, b) => w.k[b] - w.k[a])[0];
+                if (k && loves.filter(h => h.k === k).length >= 2) {
+                    const extra = ['mat', 'st', 'lot'].map(f => { const top = Object.keys(w[f]).sort((a, b) => w[f][b] - w[f][a])[0]; return top && w[f][top] >= 1.5 && TRAIT_WORD[f][top]; }).filter(Boolean);
+                    text = 'Leaning: ' + [styleLabel(k)].concat(extra).join(' · ');
+                }
+            } else if (currentSwipeIndex < 2) {
+                const h = currentHomes[currentSwipeIndex];
+                if (h && cardPhotos(h).length > 1) text = 'Tap the photo for more';
+            }
+            el.textContent = text; el.classList.toggle('show', !!text);
         }
 
         function renderCardStack() {
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card').forEach(c => c.remove());
-
             const activeHome = currentHomes[currentSwipeIndex];
-            const peekHome = currentHomes[currentSwipeIndex + 1];
-
+            const peekHome = branch.love || branch.pass;
             if (peekHome) {
                 const peek = buildSwipeCard(peekHome);
                 peek.classList.add('peek');
@@ -2088,13 +2520,20 @@
                 active.classList.add('active');
                 container.appendChild(active);
             }
+            shownAt = Date.now();
         }
 
         function initializeSwipe() {
             const container = document.getElementById('swipeContainer');
-            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">\u2715</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">\u2665\uFE0E</span></div>';
+            container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥︎</span></div>';
             currentSwipeIndex = 0;
-            swipeLocked = false;
+            swipeLocked = false; endedEarly = false;
+            deckTarget = Math.min(reswipe ? 8 : MAX_CARDS, cands.length);
+            if (!reswipe) inside = { req: null, key: '', rooms: [], liked: [] };
+            currentHomes = [];
+            const first = pickNext([], [], []);
+            if (first) currentHomes.push(first);
+            prepareBranches();
             renderCardStack();
             updateProgress();
             setupSwipeListeners();
@@ -2111,7 +2550,11 @@
             document.addEventListener('touchend', endDrag);
         }
 
+        // Phones report a tap twice (as a touch, then as a click); only the touch counts.
+        let lastTouch = 0;
         function startDrag(e) {
+            if (e.type.includes('touch')) lastTouch = Date.now();
+            else if (Date.now() - lastTouch < 900) return;
             isDragging=true;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
@@ -2119,6 +2562,7 @@
             startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             currentX = startX;
             currentY = startY;
+            dragT = Date.now();
             card.style.transition = 'none';
         }
 
@@ -2129,6 +2573,7 @@
             currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             const diffX = currentX - startX, diffY = currentY - startY, angle = Math.atan2(diffY,diffX)*(180/Math.PI);
+            if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8) return;
             card.style.transform = `translate(${diffX}px,${diffY}px) rotate(${angle*0.1}deg)`;
             document.getElementById('indicatorLeft').style.opacity = diffX < -50 ? Math.abs(diffX)/150 : 0;
             document.getElementById('indicatorRight').style.opacity = diffX > 50 ? diffX/150 : 0;
@@ -2136,22 +2581,28 @@
 
         function endDrag(e) {
             if(!isDragging)return;
+            if (e.type.includes('touch')) lastTouch = Date.now();
             isDragging=false;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
-            const diffX = currentX - startX;
+            const diffX = currentX - startX, diffY = currentY - startY;
             document.getElementById('indicatorLeft').style.opacity = 0;
             document.getElementById('indicatorRight').style.opacity = 0;
+            if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8 && Date.now() - dragT < 350) {
+                card.style.transform = '';
+                flipPhoto(card);
+                return;
+            }
             if(Math.abs(diffX)>100) {
                 if (swipeLocked) return;
                 lockSwipe(card);
                 card.style.transition = 'all 0.5s ease-out';
                 if(diffX<0) {
-                    card.style.transform = `translate(-500px,${currentY-startY}px) rotate(-20deg)`;
-                    passes.push(currentHomes[currentSwipeIndex]);
+                    card.style.transform = `translate(-500px,${diffY}px) rotate(-20deg)`;
+                    record(false);
                 } else {
-                    card.style.transform = `translate(500px,${currentY-startY}px) rotate(20deg)`;
-                    loves.push(currentHomes[currentSwipeIndex]);
+                    card.style.transform = `translate(500px,${diffY}px) rotate(20deg)`;
+                    record(true);
                 }
                 setTimeout(()=>nextCard(),420);
             } else {
@@ -2160,10 +2611,42 @@
             }
         }
 
+        // Save the swipe, then line up the next card from the branch that matches it.
+        function record(love) {
+            const h = currentHomes[currentSwipeIndex];
+            if (!h) return;
+            h._ms = Math.min(60000, Date.now() - shownAt);
+            (love ? loves : passes).push(h);
+            const n = currentSwipeIndex + 1;
+            const nextHome = love ? branch.love : branch.pass;
+            currentHomes.length = n;
+            if (nextHome && n < deckTarget) currentHomes.push(nextHome);
+            // Swap the card waiting underneath if this swipe changed which home comes next.
+            const peek = document.querySelector('.swipe-card.peek');
+            if (peek && nextHome && nextHome !== (branch.love || branch.pass)) {
+                const fresh = buildSwipeCard(nextHome); fresh.className = peek.className;
+                peek.replaceWith(fresh);
+            }
+        }
+
         function nextCard() {
             currentSwipeIndex++;
+            const done = currentSwipeIndex >= currentHomes.length || clearRead();
+            if (done) {
+                endedEarly = currentSwipeIndex < deckTarget && currentSwipeIndex < currentHomes.length;
+                currentHomes.length = currentSwipeIndex;
+                updateProgress(true);
+                if (reswipe) {
+                    track('another_area_done', { counties: selectedCounties.join('|') || 'all', loves: loves.length });
+                    loves = reswipe.loves.concat(loves); passes = reswipe.passes.concat(passes);
+                    currentHomes = reswipe.shown.concat(currentHomes); currentSwipeIndex = currentHomes.length;
+                    setWhereMode(false);
+                }
+                swipeLocked = false; goToLoading(); return;
+            }
+            prepareBranches();
             updateProgress();
-            if (currentSwipeIndex >= currentHomes.length) { swipeLocked = false; goToLoading(); return; }
+            if (currentSwipeIndex >= 9 && loves.length >= 2 && !inside.req && loves.filter(h => h.ins).length < 3) fetchInside();
 
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
@@ -2179,12 +2662,13 @@
                     peek.style.opacity = '';
                     peek.style.transition = '';
                     swipeLocked = false;
+                    shownAt = Date.now();
                     setupSwipeListeners();
                 }, 400);
-            }
+            } else { renderCardStack(); swipeLocked = false; setupSwipeListeners(); }
 
-            const nextPeekHome = currentHomes[currentSwipeIndex + 1];
-            if (nextPeekHome) {
+            const nextPeekHome = branch.love || branch.pass;
+            if (nextPeekHome && currentSwipeIndex + 1 < deckTarget) {
                 const newPeek = buildSwipeCard(nextPeekHome);
                 newPeek.classList.add('peek');
                 container.insertBefore(newPeek, container.querySelector('.swipe-card.promoting') || container.querySelector('.swipe-card.active'));
@@ -2199,6 +2683,9 @@
             const h = currentHomes[currentSwipeIndex];
             const li = loves.lastIndexOf(h), pi = passes.lastIndexOf(h);
             if (li >= 0) loves.splice(li, 1); else if (pi >= 0) passes.splice(pi, 1);
+            currentHomes.length = currentSwipeIndex + 1;
+            endedEarly = false; inside.shown = false;
+            prepareBranches();
             renderCardStack();
             updateProgress();
             setupSwipeListeners();
@@ -2214,7 +2701,7 @@
             lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(-500px,0) rotate(-20deg)';
-            passes.push(currentHomes[currentSwipeIndex]);
+            record(false);
             setTimeout(()=>nextCard(),420);
         }
 
@@ -2225,41 +2712,124 @@
             lockSwipe(card);
             card.style.transition = 'all 0.5s ease-out';
             card.style.transform = 'translate(500px,0) rotate(20deg)';
-            loves.push(currentHomes[currentSwipeIndex]);
+            record(true);
             setTimeout(()=>nextCard(),420);
         }
 
-        function updateProgress() {
-            const progress = (currentSwipeIndex/currentHomes.length)*100;
-            document.getElementById('progressFill').style.width = progress+'%';
-            document.getElementById('progressText').textContent = `${currentSwipeIndex}/${currentHomes.length}`;
+        function updateProgress(finished) {
+            const total = finished ? currentSwipeIndex : Math.max(deckTarget, currentSwipeIndex);
+            document.getElementById('progressFill').style.width = (total ? Math.min(100, currentSwipeIndex / total * 100) : 0) + '%';
+            document.getElementById('progressText').textContent = `${currentSwipeIndex}/${total}`;
             updateUndo();
+            updateLean();
         }
 
-        function goToLoading() {
+        // ---- the inside round: about 6 rooms from the homes they loved ----
+        let inside = { req: null, key: '', rooms: [], liked: [] };
+        function insideHomes() { return loves.filter(h => (h.photos || []).length > 1).slice(-5).map(h => ({ id: h.id, k: h.k, photos: h.photos })); }
+        function fetchInside() {
+            const homes = insideHomes(), key = homes.map(h => h.id).join(',');
+            if (homes.length < 2 || key === inside.key) return inside.req;
+            inside.key = key;
+            inside.req = fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'inside', homes }) })
+                .then(r => r.json()).then(j => { const rooms = (j && j.rooms) || []; rooms.forEach(x => { new Image().src = x.url; }); return rooms; }).catch(() => []);
+            return inside.req;
+        }
+        // One room per loved home, rotating room types, so no house repeats. Uses the photos sorted nightly.
+        function roomsFromLoves() {
+            const order = ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining'], out = [];
+            const homes = loves.slice().reverse().filter(h => h.ins && Object.keys(h.ins).length);
+            homes.forEach((h, i) => {
+                if (out.length >= 6) return;
+                for (let j = 0; j < order.length; j++) {
+                    const room = order[(i + j) % order.length];
+                    if (h.ins[room]) { out.push({ id: h.id, k: h.k, url: h.ins[room], room: room === 'primary_bath' ? 'bath' : room === 'primary_bed' ? 'primary' : room, tone: '', feel: '' }); break; }
+                }
+            });
+            return out;
+        }
+        async function maybeInside() {
+            if (loves.length < 2) return false;
+            let rooms = roomsFromLoves();
+            if (rooms.length < 3) {
+                const got = await Promise.race([inside.req || fetchInside() || Promise.resolve([]), new Promise(ok => setTimeout(() => ok(null), 9000))]);
+                const seenH = new Set(); rooms = (got || []).filter(x => !seenH.has(x.id) && seenH.add(x.id));
+            }
+            if (!rooms || rooms.length < 3) return false;
+            inside.rooms = rooms; inside.liked = [];
+            // Read the look of each room in the background; it's ready long before they finish tapping.
+            if (rooms.some(x => !x.tone)) fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'inside', urls: rooms.map(x => x.url) }) })
+                .then(r => r.json()).then(j => { ((j && j.feel) || []).forEach(f => { const x = rooms.find(y => y.url === f.url); if (x) { x.tone = f.tone; x.feel = f.feel; } }); }).catch(() => {});
+            document.getElementById('insideGrid').innerHTML = rooms.map((x, i) => `<button type="button" class="inside-pic" aria-pressed="false" onclick="toggleRoom(this, ${i})"><img src="${esc(x.url)}" alt="${esc(x.room === 'primary' ? 'bedroom' : x.room)} in a ${esc(styleLabel(x.k))} home"><span class="tick">&#10003;</span></button>`).join('');
+            // Swap the waiting screen for the inside round, so Back returns to the last card.
+            if (!document.getElementById('loadingScreen').classList.contains('active')) return false;
+            document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
+            document.getElementById('insideScreen').classList.add('active'); window.scrollTo(0, 0);
+            track('inside_shown', { rooms: rooms.length });
+            return true;
+        }
+        function toggleRoom(el, i) {
+            const on = !el.classList.contains('on');
+            el.classList.toggle('on', on); el.setAttribute('aria-pressed', on ? 'true' : 'false');
+            inside.liked = on ? inside.liked.concat(i) : inside.liked.filter(x => x !== i);
+        }
+        function finishInside(skip) {
+            if (skip) inside.liked = [];
+            track('inside_done', { liked: inside.liked.length, skipped: skip ? 'yes' : 'no' });
+            runLoading();
+        }
+        // "Inside, you love light, modern kitchens": the tone and feel they tapped most.
+        function insideLine() {
+            const liked = inside.liked.map(i => inside.rooms[i]).filter(Boolean);
+            if (!liked.length) return '';
+            const top = (f) => { const n = {}; liked.forEach(x => { if (x[f]) n[x[f]] = (n[x[f]] || 0) + 1; }); const b = Object.keys(n).sort((a, c) => n[c] - n[a])[0]; return b && n[b] >= Math.max(1, liked.length / 2) ? b : ''; };
+            const TONE = { light: 'light and bright', dark: 'dark and moody', warm: 'warm' }, FEEL = { modern: 'modern', classic: 'classic', rustic: 'rustic', transitional: 'transitional' };
+            const rooms = [...new Set(liked.map(x => x.room))];
+            const what = rooms.length === 1 ? { kitchen: 'kitchens', living: 'living rooms', dining: 'dining rooms', primary: 'bedrooms', bath: 'baths', office: 'offices' }[rooms[0]] : 'rooms';
+            const words = [TONE[top('tone')], FEEL[top('feel')]].filter(Boolean);
+            return words.length ? words.join(', ') + ' ' + what : '';
+        }
+        async function goToLoading() {
+            const lt = document.querySelector('#loadingScreen .loading-text');
+            if (lt) lt.textContent = endedEarly ? "We've got a clear read on you." : 'This is where the magic happens.';
+            showScreen('loadingScreen', true);
+            if (!reswipe && !inside.shown && loves.length >= 2) { inside.shown = true; if (await maybeInside()) return; }
+            runLoading();
+        }
+        function runLoading() {
+            const lt = document.querySelector('#loadingScreen .loading-text');
+            if (lt) lt.textContent = endedEarly ? "We've got a clear read on you." : 'This is where the magic happens.';
             showScreen('loadingScreen', true);
             setTimeout(()=>{
                 if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
                 userArchetype = computeArchetype();
                 showResults();
-            }, 1800);
+                playReveal();
+            }, 1400);
         }
 
         function listText(arr) { return arr.length ? arr.join(', ') : ''; }
         function showResults() {
             const info = STYLE_INFO[userArchetype] || STYLE_INFO.traditional;
-            document.getElementById('archetypeName').textContent = info.label;
+            const sig = signature(userArchetype);
+            setHero();
+            document.getElementById('ctaHead').textContent = `Get first look at new ${styleLabel(userArchetype)} homes`;
+            document.getElementById('archetypeName').textContent = sig.name;
             const lean = document.getElementById('styleLean');
-            lean.hidden = !styleNext; lean.textContent = styleNext ? 'with a lean toward ' + styleLabel(styleNext) : '';
-            document.getElementById('archetypeDescription').textContent = info.desc + '.';
+            lean.hidden = false; lean.textContent = info.label + ' architecture' + (styleNext ? ', with a lean toward ' + styleLabel(styleNext) : '');
+            document.getElementById('archetypeDescription').textContent = sig.line;
+            setTimeout(refreshSearchText, 0);
+            const how = howYouLove();
+            document.getElementById('howLove').hidden = !how.length;
+            document.getElementById('howLove').innerHTML = how.map(r => `<div class="how-row"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('');
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = loves.length || passes.length ? `Based on ${currentHomes.length} real homes for sale: ${nLove} and ${nPass}.` : '';
             document.getElementById('pWhere').textContent = whereLabel();
-            document.getElementById('pBudget').textContent = [selectedPriceLabel, selectedHomeType ? selectedHomeTypeLabel : ''].filter(Boolean).join(', ') || 'Open';
+            document.getElementById('pBudget').textContent = [selectedPriceLabel, selTypes.size ? selectedHomeTypeLabel : ''].filter(Boolean).join(', ') || 'Open';
             const musts = Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]);
             const nices = Object.keys(must).filter(k => must[k] === 'nice').map(k => MUST_LABEL[k]);
-            const pk = Object.keys(picks).map(k => PICK_LABEL[k][picks[k]]).filter(Boolean);
+            const pk = Object.keys(picks).flatMap(k => (Array.isArray(picks[k]) ? picks[k] : [picks[k]]).map(v => PICK_LABEL[k][v])).filter(Boolean);
             document.getElementById('pMust').textContent = listText(musts); document.getElementById('pMustRow').hidden = !musts.length;
             document.getElementById('pNice').textContent = listText(nices); document.getElementById('pNiceRow').hidden = !nices.length;
             document.getElementById('pPicks').textContent = listText(pk); document.getElementById('pPicksRow').hidden = !pk.length;
@@ -2270,6 +2840,9 @@
 
             const box = document.getElementById('matchedHomes');
             document.getElementById('examplesNote').hidden = loves.length === 0;
+            const pill = document.getElementById('lovedPill'), lbox = document.getElementById('lovedBox');
+            pill.hidden = loves.length === 0; pill.textContent = `Homes you loved (${loves.length})`; pill.setAttribute('aria-expanded', 'false');
+            lbox.hidden = loves.length !== 0; document.getElementById('lovedTitle').hidden = loves.length !== 0;
             if (loves.length === 0) {
                 document.getElementById('lovedTitle').textContent = 'Nothing Caught Your Eye?';
                 box.innerHTML = `<p class="results-empty">That tells us a lot too. Save your StyleDNA and Josh will send a few homes in your range to react to, or retake it with more areas.</p>`;
@@ -2279,41 +2852,354 @@
             }
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
-            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k) });
+            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k), musts: Object.keys(must) });
         }
 
         // How many homes in their style are for sale in their search, or the closest city that has them.
-        async function loadAvailability() {
-            const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
-            const k = userArchetype, label = styleLabel(k);
-            line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; near.hidden = true; avail = null; document.getElementById('moreSection').hidden = true;
+        // Short area name for sentences: a long list of cities reads as "your areas".
+        function shortWhere() {
+            if (selectedCities.length) return selectedCities.length <= 2 ? 'in ' + selectedCities.join(' and ') : 'in your areas';
+            if (selectedCounties.length) return selectedCounties.length <= 2 ? 'in ' + selectedCounties.join(' and ') + (selectedCounties.length > 1 ? ' counties' : ' County') : 'in your areas';
+            return 'across DFW';
+        }
+        function availFetch(k, mustOver, areaOver) {
+            const c = searchCriteria(); if (mustOver) c.must = mustOver; if (areaOver) { c.counties = areaOver.counties; c.cities = areaOver.cities; }
+            return fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, c)) })
+                .then(r => r.json().then(j => { if (!r.ok || !j.ok) throw new Error('failed'); return j; }));
+        }
+        // soft: keep what's on screen while the new count loads (no blank-out).
+        async function loadAvailability(soft) {
+            const line = document.getElementById('availLine'), link = document.getElementById('availLink');
+            const k = userArchetype;
+            document.getElementById('loosenBox').hidden = true;
+            if (!soft) { line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; document.getElementById('homeList').hidden = true; document.getElementById('availNear').hidden = true; avail = null; document.getElementById('moreSection').hidden = true; }
             try {
-                const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, searchCriteria())) });
-                const j = await r.json();
-                if (!r.ok || !j.ok || k !== userArchetype) throw new Error('failed');
-                avail = j;
-                const where = whereLabel() === 'All of DFW' ? 'across DFW' : 'in ' + whereLabel();
-                renderMore(j);
-                const linkText = j.styled ? `See ${label} homes on joshwaters.com` : 'See homes for sale in your areas';
-                if (j.count >= 3) {
-                    line.innerHTML = `<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range.`;
-                    link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false;
-                } else {
-                    line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} in your range right now.` : `No ${label} homes are for sale ${where} in your range right now.`;
-                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = j.styled ? (j.count === 1 ? 'See it' : 'See them') : linkText; link.hidden = false; }
-                    if (j.nearest) {
-                        near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
-                        near.hidden = false;
-                    }
-                }
+                const j = await availFetch(k);
+                if (k !== userArchetype) return;
+                renderAvail(j);
             } catch (e) {
-                line.textContent = 'Homes in your style are on joshwaters.com.';
-                link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
+                line.innerHTML = `Homes in your style are for sale now. <a href="${esc(homesUrl(false))}" target="_blank" rel="noopener">See homes for sale</a>`;
+                link.hidden = true;
             }
         }
+        function renderAvail(j, note) {
+            const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
+            const label = styleLabel(userArchetype), where = shortWhere();
+            document.getElementById('areaNow').textContent = areaName();
+            const wasOpen = !document.getElementById('homeList').hidden;
+            avail = j;
+            const n = j.count.toLocaleString('en-US');
+            const withMust = Object.values(must).includes('must') ? ' and with your must-haves' : '';
+            if (j.count >= 3) line.innerHTML = `${j.est ? 'About ' : ''}<b>${n}</b> ${esc(label)} homes for sale ${esc(where)}, in your price range${withMust}.`;
+            else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} right now, in your price range${withMust}.` : `No ${label} homes are for sale ${where} right now, in your price range${withMust}.`;
+            link.hidden = !(j.homes && j.homes.length);
+            renderHomeList(j, wasOpen);
+            renderAreaHelp(j);
+            updateSearchLine();
+            near.hidden = !(j.count < 5 && j.nearest);
+            if (!near.hidden) near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
+            offerLoosen(userArchetype, note);
+        }
+        // The exact homes behind the count, right on the results page. Each opens its own page on joshwaters.com.
+        const LIST_STEP = 12;
+        let listShown = LIST_STEP;
+        function listButtonText(open) {
+            const j = avail || {}, listed = (j.homes || []).length;
+            if (open) return 'Hide these homes';
+            if (!j.est && j.count <= listed) return `See ${j.count === 1 ? 'this home' : 'these ' + j.count.toLocaleString('en-US') + ' homes'}`;
+            return `See the best ${listed}`;
+        }
+        function renderHomeList(j, open) {
+            const box = document.getElementById('homeList'), link = document.getElementById('availLink');
+            const homes = j.homes || [];
+            listShown = open ? Math.max(listShown, LIST_STEP) : LIST_STEP;
+            const row = (h) => { homeIndex[h.id] = h; return `<a class="hl-row" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('list_home_clicked', { style: '${esc(h.k)}' }); return openHome(event, '${esc(h.id)}')">
+                    <img src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + (h.address || ''))}" loading="lazy">
+                    <span class="hl-main">
+                        <span class="hl-price">${esc(money(h.price))}</span>
+                        <span class="hl-sub">${esc([h.city, h.beds && h.beds + ' bd', h.baths && h.baths + ' ba', h.sqft && Number(h.sqft).toLocaleString('en-US') + ' sq ft'].filter(Boolean).join(' · '))}</span>
+                        ${h.hits && h.hits.length ? `<span class="hl-has">${esc('Has ' + h.hits.join(', ').toLowerCase())}</span>` : ''}
+                        ${h.office ? `<span class="hl-credit">Listing courtesy of ${esc(h.office)}</span>` : ''}
+                    </span>
+                </a>`; };
+            const more = homes.length > listShown ? `<button type="button" class="hl-more" onclick="showMoreHomes()">Show more</button>` : '';
+            const head = j.count > homes.length ? `<p class="hl-head">The best ${homes.length} of ${j.est ? 'about ' : ''}${j.count.toLocaleString('en-US')}, closest fit first.</p>` : '';
+            box.innerHTML = head + homes.slice(0, listShown).map(row).join('') + more +
+                `<a class="hl-browse" href="${esc(j.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('homes_clicked', { where: 'list_browse', archetype: userArchetype })">Browse more homes on joshwaters.com</a>`;
+            box.hidden = !open;
+            link.setAttribute('aria-expanded', open ? 'true' : 'false');
+            link.textContent = listButtonText(open);
+        }
+        function toggleHomeList() {
+            const box = document.getElementById('homeList'), open = box.hidden;
+            if (!avail) return;
+            if (open) track('homes_clicked', { where: 'results_list', count: avail.count, archetype: userArchetype });
+            renderHomeList(avail, open);
+            if (open) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        function showMoreHomes() { listShown += LIST_STEP; renderHomeList(avail, true); }
 
+        // ---- Change the area right on the results: their current picks, a live count, then apply ----
+        function areaName() {
+            if (selectedCities.length) return selectedCities.length <= 3 ? selectedCities.join(', ') : selectedCities.slice(0, 2).join(', ') + ' and ' + (selectedCities.length - 2) + ' more';
+            if (selectedCounties.length) return selectedCounties.length <= 3 ? selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County') : selectedCounties.slice(0, 2).join(', ') + ' and ' + (selectedCounties.length - 2) + ' more counties';
+            return 'All of DFW';
+        }
+        // ---- Edit one part of the search right on the results; swipes and the result stay as they are ----
+        let part = null, draft = null, draftTimer = null, draftResult = null;
+        function snapshotSearch() { return { counties: selectedCounties.slice(), cities: selectedCities.slice(), prices: new Set(selPrices), types: new Set(selTypes), must: Object.assign({}, must), picks: JSON.parse(JSON.stringify(picks)) }; }
+        function draftCriteria() {
+            return { counties: draft.counties, cities: draft.cities, prices: [...draft.prices].map(i => PRICE_RANGES[i]), types: [...draft.types], price: '', type: '', must: draft.must, picks: draft.picks };
+        }
+        function openPart(p) {
+            const det = document.getElementById('searchSum'); det.open = true;
+            mergeCities();
+            part = p; draft = snapshotSearch();
+            const row = document.querySelector(`.sx-row[data-part="${p}"]`), panel = document.getElementById('sxPanel');
+            row.after(panel); panel.hidden = false;
+            document.querySelectorAll('.sx-row').forEach(r => r.classList.toggle('on', r === row));
+            renderPart(); countPart();
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            track('search_part_opened', { part: p });
+        }
+        function closePart() {
+            document.getElementById('sxPanel').hidden = true; part = null; draft = null;
+            document.querySelectorAll('.sx-row').forEach(r => r.classList.remove('on'));
+        }
+        function renderPart() {
+            const body = document.getElementById('sxBody'), redo = () => { renderPart(); countPart(); };
+            const box = (cls) => { const d = document.createElement('div'); d.className = cls || 'chips'; return d; };
+            const label = (t) => Object.assign(document.createElement('p'), { className: 'chip-label', textContent: t });
+            const nodes = [];
+            if (part === 'area') {
+                const c = box(); Object.keys(COUNTY_CITIES).forEach(k => c.append(chip(k, draft.counties.includes(k), () => {
+                    draft.counties = draft.counties.includes(k) ? draft.counties.filter(x => x !== k) : draft.counties.concat(k);
+                    const keep = new Set(draft.counties.flatMap(x => COUNTY_CITIES[x])); draft.cities = draft.cities.filter(x => keep.has(x)); redo();
+                })));
+                nodes.push(label('Counties'), c);
+                const cities = [...new Set(draft.counties.flatMap(x => COUNTY_CITIES[x]))].sort();
+                if (cities.length) { const ci = box('chips city-chips'); cities.forEach(k => ci.append(chip(k, draft.cities.includes(k), () => { draft.cities = draft.cities.includes(k) ? draft.cities.filter(x => x !== k) : draft.cities.concat(k).slice(-12); redo(); }))); nodes.push(label('Cities (optional)'), ci); }
+            } else if (part === 'budget') {
+                const c = box(); ['Under $300K', '$300K to $500K', '$500K to $750K', '$750K to $1M', '$1M+'].forEach((t, i) => c.append(chip(t, draft.prices.has(i), () => { if (draft.prices.has(i)) draft.prices.delete(i); else draft.prices.add(i); redo(); })));
+                nodes.push(label('Pick all that work'), c);
+            } else if (part === 'type') {
+                const c = box(); Object.entries(TYPE_LABEL).forEach(([v, t]) => c.append(chip(t, draft.types.has(v), () => { if (draft.types.has(v)) draft.types.delete(v); else draft.types.add(v); redo(); })));
+                c.append(chip('Open to any', !draft.types.size, () => { draft.types.clear(); redo(); }));
+                nodes.push(label('Pick all that work'), c);
+            } else if (part === 'must') {
+                const byK = Object.fromEntries(MUSTS.map(m => [m.k, m]));
+                mustOrder.map(k => byK[k]).filter(Boolean).forEach(m => {
+                    const row = document.createElement('div'); row.className = 'must-row';
+                    const t = document.createElement('div'); t.className = 'must-text'; t.append(Object.assign(document.createElement('b'), { textContent: m.label }));
+                    const seg = document.createElement('div'); seg.className = 'seg';
+                    [['must', 'Must'], ['nice', 'Nice']].forEach(([v, l]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = l; b.className = draft.must[m.k] === v ? 'on' : ''; b.onclick = () => { if (draft.must[m.k] === v) delete draft.must[m.k]; else draft.must[m.k] = v; redo(); }; seg.append(b); });
+                    row.append(t, seg); nodes.push(row);
+                });
+            } else if (part === 'picks') {
+                PICKS.forEach(p => {
+                    const cur = Array.isArray(draft.picks[p.k]) ? draft.picks[p.k] : draft.picks[p.k] ? [draft.picks[p.k]] : [];
+                    const c = box(); p.opts.forEach(([v, l]) => c.append(chip(l, cur.includes(v), () => { const a = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v); if (a.length) draft.picks[p.k] = a; else delete draft.picks[p.k]; redo(); })));
+                    nodes.push(label(p.label), c);
+                });
+            }
+            body.replaceChildren(...nodes);
+        }
+        function countPart() {
+            const out = document.getElementById('sxCount'), done = document.getElementById('sxDone');
+            if (part === 'picks') { out.textContent = 'Quick picks change which homes show first, not how many.'; done.disabled = false; done.textContent = 'Save'; draftResult = null; return; }
+            if (part === 'budget' && !draft.prices.size) { out.textContent = 'Pick at least one budget.'; done.disabled = true; return; }
+            out.textContent = 'Counting homes in your style...'; done.disabled = true; draftResult = null;
+            clearTimeout(draftTimer);
+            const k = userArchetype, crit = draftCriteria(), key = JSON.stringify(crit);
+            draftTimer = setTimeout(() => fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, crit)) })
+                .then(r => r.json()).then(j => {
+                    if (!draft || JSON.stringify(draftCriteria()) !== key || !j || !j.ok) return;
+                    draftResult = j; done.disabled = false;
+                    const n = j.count, label = styleLabel(k);
+                    out.innerHTML = n >= 5 ? `<b>${n.toLocaleString('en-US')}</b> ${esc(label)} homes with these changes.` : n ? `Only <b>${n}</b> ${esc(label)} ${n === 1 ? 'home' : 'homes'} with these changes right now.` : `No ${esc(label)} homes with these changes right now.`;
+                    done.textContent = n ? 'Show these homes' : 'Use these changes';
+                }).catch(() => { out.textContent = "Couldn't count homes just now. You can still save."; done.disabled = false; done.textContent = 'Save'; }), 400);
+        }
+        function applyPart() {
+            if (!draft) return;
+            const j = draftResult, p = part;
+            selectedCounties = draft.counties; selectedCities = draft.cities;
+            selPrices = draft.prices; selTypes = draft.types; syncBudget(); syncTypes();
+            must = draft.must; picks = draft.picks;
+            track('search_part_changed', { part: p, count: j ? j.count : -1 });
+            closePart();
+            refreshSearchText();
+            if (j) renderAvail(j); else loadAvailability(true);
+            saveMyResult();
+            resyncLead();
+        }
+        // Keep every place that shows their search in step after a change.
+        function refreshSearchText() {
+            const mustL = Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]);
+            const niceL = Object.keys(must).filter(k => must[k] === 'nice').map(k => MUST_LABEL[k]);
+            const pk = Object.keys(picks).flatMap(k => (Array.isArray(picks[k]) ? picks[k] : [picks[k]]).map(v => PICK_LABEL[k][v])).filter(Boolean);
+            document.getElementById('pWhere').textContent = whereLabel();
+            document.getElementById('pBudget').textContent = [selectedPriceLabel, selTypes.size ? selectedHomeTypeLabel : ''].filter(Boolean).join(', ') || 'Open';
+            document.getElementById('pMust').textContent = listText(mustL); document.getElementById('pMustRow').hidden = !mustL.length;
+            document.getElementById('pNice').textContent = listText(niceL); document.getElementById('pNiceRow').hidden = !niceL.length;
+            document.getElementById('pPicks').textContent = listText(pk); document.getElementById('pPicksRow').hidden = !pk.length;
+            document.getElementById('sxArea').textContent = areaName();
+            document.getElementById('sxBudget').textContent = selectedPriceLabel || 'Any price';
+            document.getElementById('sxType').textContent = selectedHomeTypeLabel;
+            document.getElementById('sxMust').textContent = [mustL.length ? 'Must: ' + mustL.join(', ') : '', niceL.length ? 'Nice: ' + niceL.join(', ') : ''].filter(Boolean).join(' · ') || 'None';
+            document.getElementById('sxPicks').textContent = pk.join(', ') || 'None';
+            document.getElementById('areaNow').textContent = areaName();
+            updateSearchLine();
+        }
+        // Few homes here: say so, offer a short swipe of what is here, the closest area with their style,
+        // and if there are none, ask whether building new or renovating would be on the table.
+        let buildOpen = null;
+        function renderAreaHelp(j) {
+            const box = document.getElementById('areaHelp');
+            const small = j.count < 5 && (selectedCounties.length || selectedCities.length);
+            if (!small) { box.hidden = true; box.innerHTML = ''; return; }
+            let html = `<button type="button" class="btn-outline" onclick="swipeHere()">Swipe a few homes here</button>`;
+            const alreadyOpen = picks.condition === 'project' || buildOpen !== null;
+            if (j.count === 0 && !alreadyOpen) html += `<div class="build-ask"><p class="invite-title">Set on this area?</p><p class="invite-text">If nothing here fits your style today, building new or renovating can get you there. Would you consider either?</p><div class="build-row"><button type="button" class="btn-outline" onclick="answerBuild(true)">Yes, show me how</button><button type="button" class="text-link" onclick="answerBuild(false)">Not for me</button></div></div>`;
+            if (buildOpen) html += `<p class="build-yes">Josh works with builders, renovation contractors and lot sellers here. He'll include those options when he sends homes.</p>`;
+            box.innerHTML = html; box.hidden = false;
+        }
+        function answerBuild(yes) {
+            buildOpen = !!yes;
+            track('build_or_renovate', { open: yes ? 'yes' : 'no', area: areaName(), archetype: userArchetype });
+            if (avail) renderAreaHelp(avail);
+            if (yes) captureEmail();
+        }
+        function swipeHere() {
+            reswipe = { loves: loves.slice(), passes: passes.slice(), shown: currentHomes.slice(), counties: selectedCounties.slice(), cities: selectedCities.slice() };
+            track('another_area_opened', { archetype: userArchetype, from: 'results' });
+            const btn = document.querySelector('#areaHelp .btn-outline');
+            startSwiping(btn, document.getElementById('areaHelp'));
+        }
+        function updateSearchLine() {
+            const bits = [areaName(), selectedPriceLabel || '', selTypes.size ? selectedHomeTypeLabel : ''].concat(Object.keys(must).filter(k => must[k] === 'must').map(k => MUST_LABEL[k]));
+            document.getElementById('searchLine').textContent = bits.filter(Boolean).join(' · ');
+        }
+        // ---- In-app home viewer: swipe every photo without leaving StyleDNA ----
+        const homeIndex = {};
+        let hvHome = null;
+        function openHome(e, id) {
+            const h = homeIndex[id];
+            if (!h) return true;
+            if (e) e.preventDefault();
+            hvHome = h;
+            const v = document.getElementById('homeViewer'), strip = document.getElementById('hvStrip');
+            const first = [{ u: h.photo, t: 'Front' }];
+            const paint = (list) => {
+                strip.innerHTML = list.map((p, i) => `<img src="${esc(p.u)}" alt="${esc((p.t || 'Photo') + ', ' + (h.address || ''))}" data-t="${esc(p.t || '')}" ${i > 1 ? 'loading="lazy"' : ''}>`).join('');
+                strip.scrollLeft = 0; hvMark();
+            };
+            paint(first);
+            document.getElementById('hvInfo').innerHTML = `<p class="hv-price">${esc(money(h.price))}</p>
+                <p class="hv-sub">${esc([h.address, [h.beds && h.beds + ' bd', h.baths && h.baths + ' ba', h.sqft && Number(h.sqft).toLocaleString('en-US') + ' sq ft'].filter(Boolean).join(' · ')].filter(Boolean).join('  ·  '))}</p>
+                ${h.hits && h.hits.length ? `<p class="hv-has">${esc('Has ' + h.hits.join(', ').toLowerCase())}</p>` : ''}
+                ${h.office ? `<p class="hv-credit">Listing courtesy of ${esc(h.office)}</p>` : ''}
+                <a class="welcome-cta" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('viewer_full_details', { style: '${esc(h.k)}' })">See full details</a>
+                <button type="button" class="text-link" onclick="closeHome()">Back to my results</button>`;
+            v.hidden = false; document.body.style.overflow = 'hidden';
+            try { history.pushState({ sdnaViewer: 1 }, ''); } catch (err) {}
+            track('viewer_opened', { style: h.k });
+            fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'gallery', id: h.id, county: h.county || '', photo: h.photo, address: h.address || '' }) })
+                .then(r => r.json()).then(j => { if (hvHome === h && j && j.photos && j.photos.length > 1) paint(j.photos); }).catch(() => {});
+            return false;
+        }
+        function hvMark() {
+            const strip = document.getElementById('hvStrip'), imgs = strip.querySelectorAll('img');
+            const i = Math.round(strip.scrollLeft / Math.max(1, strip.clientWidth));
+            document.getElementById('hvCount').textContent = imgs.length > 1 ? `${Math.min(i + 1, imgs.length)} of ${imgs.length} · swipe for more` : '';
+            const t = imgs[i] && imgs[i].dataset.t; document.getElementById('hvTag').textContent = t && t !== 'Front' ? t : '';
+        }
+        document.addEventListener('DOMContentLoaded', () => { const st = document.getElementById('hvStrip'); if (st) st.addEventListener('scroll', () => requestAnimationFrame(hvMark), { passive: true }); });
+        function closeHome(fromPop) {
+            const v = document.getElementById('homeViewer');
+            if (v.hidden) return;
+            v.hidden = true; document.body.style.overflow = ''; hvHome = null;
+            if (!fromPop) { try { if (history.state && history.state.sdnaViewer) history.back(); } catch (err) {} }
+        }
+        window.addEventListener('popstate', () => closeHome(true));
+        // Hero: the front of the home they lingered on longest in their style, else any loved home, else one of their style.
+        function setHero() {
+            const mine = loves.filter(h => h.k === userArchetype && h.photo), any = loves.filter(h => h.photo);
+            const byDwell = (a) => a.slice().sort((x, y) => (y._ms || 0) - (x._ms || 0))[0];
+            const pick = byDwell(mine) || byDwell(any) || ((deckInfo && deckInfo.cards) || []).find(h => h.k === userArchetype && h.photo);
+            const head = document.getElementById('resultsHeader'), img = document.getElementById('heroImg');
+            head.classList.toggle('has-hero', !!pick);
+            if (pick) { img.style.animation = 'none'; img.offsetHeight; img.style.animation = ''; img.style.backgroundImage = `url("${String(pick.photo).replace(/"/g, '')}")`; }
+        }
+        // The arrival: dim, a gold line, "Your StyleDNA is", then their name word by word over their home.
+        function playReveal() {
+            const r = document.getElementById('reveal');
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const name = document.getElementById('archetypeName').textContent;
+            const nm = document.getElementById('revealName');
+            nm.className = 'reveal-name';
+            nm.innerHTML = name.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
+            const hero = document.getElementById('heroImg').style.backgroundImage;
+            document.getElementById('revealImg').style.backgroundImage = hero || '';
+            r.className = 'reveal'; r.hidden = false;
+            const t = (ms, f) => setTimeout(f, ms);
+            requestAnimationFrame(() => r.classList.add('go'));
+            const words = nm.querySelectorAll('span');
+            words.forEach((w, i) => t(700 + i * 160, () => w.classList.add('on')));
+            const named = 700 + words.length * 160 + 300;
+            t(named, () => { nm.classList.add('shine'); if (hero) r.classList.add('show-img'); try { navigator.vibrate && navigator.vibrate(25); } catch (e) {} });
+            t(named + 1500, () => r.classList.add('out'));
+            t(named + 2100, () => { r.hidden = true; r.className = 'reveal'; });
+            r.onclick = () => { r.classList.add('out'); t(500, () => { r.hidden = true; }); };
+            track('reveal_played', { archetype: userArchetype });
+        }
+        function toggleLoved() {
+            const box = document.getElementById('lovedBox'), pill = document.getElementById('lovedPill'), open = box.hidden;
+            box.hidden = !open; pill.setAttribute('aria-expanded', open ? 'true' : 'false');
+            pill.textContent = open ? 'Hide homes you loved' : `Homes you loved (${loves.length})`;
+            if (open) { track('loved_opened', { n: loves.length }); box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+        }
+        function toggleCompare() {
+            const p = document.getElementById('comparePanel'), b = document.getElementById('compareBtn'), open = p.hidden;
+            p.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); b.classList.toggle('on', open);
+            if (open) track('compare_opened', { archetype: userArchetype });
+        }
+
+        // Few homes: for each must-have, how many more homes they'd see without requiring it.
+        // The offer shows the exact result they'll get, so the number never changes after the tap.
+        const LOOSE_WORD = { pool: 'a pool', acres: 'an acre or more', gameroom: 'a game or media room', suite: 'a guest suite', access: 'accessible features', office: 'a home office', primarydown: 'a primary bedroom downstairs', garage3: 'a 3+ car garage', outdoor: 'outdoor living', shop: 'a shop or RV parking', newer: 'a newer build' };
+        let looseTries = {};
+        async function offerLoosen(k, note) {
+            const box = document.getElementById('loosenBox');
+            const show = (html) => { box.innerHTML = html; box.hidden = !html; };
+            const done = note ? `<p class="loosen-done">${esc(note)}</p>` : '';
+            show(done);
+            const cur = avail, base = (avail && avail.count) || 0;
+            const hard = Object.keys(must).filter(m => must[m] === 'must');
+            looseTries = {};
+            if (!hard.length || base >= 25) return;
+            const tries = await Promise.all(hard.slice(0, 4).map(m => availFetch(k, Object.assign({}, must, { [m]: 'nice' })).then(j => ({ m, j }), () => null)));
+            if (k !== userArchetype || avail !== cur) return;
+            const better = tries.filter(t => t && t.j.count - base >= 3).sort((a, b) => b.j.count - a.j.count);
+            better.forEach(t => { looseTries[t.m] = t.j; });
+            if (!better.length) return;
+            show(done + '<p class="loosen-q">Want more to look at?</p>' + better.map(t => `<button type="button" class="loosen-chip" onclick="loosen('${t.m}')"><span class="loosen-what">Don't require ${esc(LOOSE_WORD[t.m])}</span><span class="loosen-gain">${(t.j.count - base).toLocaleString('en-US')} more homes</span></button>`).join(''));
+        }
+        function loosen(m) {
+            const j = looseTries[m];
+            must[m] = 'nice';
+            track('must_loosened', { must: m, archetype: userArchetype });
+            document.getElementById('pMust').textContent = listText(Object.keys(must).filter(x => must[x] === 'must').map(x => MUST_LABEL[x]));
+            document.getElementById('pMustRow').hidden = !Object.values(must).includes('must');
+            document.getElementById('pNice').textContent = listText(Object.keys(must).filter(x => must[x] === 'nice').map(x => MUST_LABEL[x]));
+            document.getElementById('pNiceRow').hidden = false;
+            const note = MUST_LABEL[m] + ' moved to nice-to-have.';
+            setTimeout(refreshSearchText, 0); resyncLead();
+            if (j) renderAvail(j, note); else loadAvailability(true);
+        }
         function homeCard(h, where) {
-            return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' })">
+            homeIndex[h.id] = h;
+            return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' }); return openHome(event, '${esc(h.id)}')">
                     <img class="home-match-image" src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + h.address)}" loading="lazy">
                     <div class="home-match-info">
                         <div class="home-match-name">${esc(h.label)} &middot; ${esc(money(h.price))}</div>
@@ -2323,6 +3209,7 @@
                 </a>`;
         }
         function renderMore(j) {
+            return; // replaced by the exact list under the count
             const seen = new Set(loves.map(h => h.id));
             const more = (j.homes || []).filter(h => !seen.has(h.id)).slice(0, 4);
             document.getElementById('moreSection').hidden = !more.length;
@@ -2336,10 +3223,10 @@
         function homesUrl(styled) {
             if (styled && avail && avail.url && avail.count) return avail.url + boardFragment();
             const cond = { purchasetype: ['For Sale'] };
-            if (selectedHomeType) cond.propertytype = [selectedHomeType];
+            if (selTypes.size) cond.propertytype = [...selTypes];
             if (selectedCities.length) cond.location = { city: selectedCities.map(c => c + ', TX') };
             else if (selectedCounties.length) cond.location = { county: selectedCounties };
-            if (PRICE_RANGES[selectedPrice] !== undefined) cond.price = PRICE_RANGES[selectedPrice];
+            if (priceSpan()) cond.price = priceSpan();
             const q = [['listingSource', 'all listings'], ['condition', JSON.stringify(cond)], ['page', '1'],
                 ['utm_source', 'styledna'], ['utm_medium', 'quiz'], ['utm_campaign', 'styledna_quiz'], ['utm_content', userArchetype]];
             return IDX_BASE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&') + boardFragment();
@@ -2373,7 +3260,13 @@
         }
         const KNOWN_AREAS = new Set([...document.querySelectorAll('#neighborhoodInput option')].map(o => o.value).filter(v => v && v !== '__other__'));
 
-        function captureEmail() { track('lead_form_opened', { archetype: userArchetype }); showScreen('dataCaptureScreen', true); }
+        function captureEmail() {
+            track('lead_form_opened', { archetype: userArchetype });
+            // Carry their search over instead of asking again.
+            const bits = [areaName(), selectedPriceLabel, selTypes.size ? selectedHomeTypeLabel : ''].filter(Boolean);
+            document.getElementById('formCarry').textContent = 'Matching homes in ' + bits.join(' · ');
+            showScreen('dataCaptureScreen', true);
+        }
         function skipDataCapture() { track('lead_skipped', { archetype: userArchetype }); finalAction(); }
         function handleNeighborhoodChange(value) {
             const otherInput = document.getElementById('otherNeighborhoodInput');
@@ -2394,7 +3287,47 @@
             if (field) field.focus();
         }
 
-        let submitting = false;
+        let submitting = false, leadSent = null;
+        function leadPayload(name, email, phone, neighborhood) {
+            return {
+                name, email, phone,
+                area: neighborhood,
+                areas: [...new Set([neighborhood, ...myAreas()])].filter(Boolean).slice(0, 6),
+                consent: document.getElementById('consentInput').checked,
+                website: document.getElementById('sdnaTrap').value,
+                homeType: selTypes.size ? selectedHomeTypeLabel : '',
+                dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
+                partner: partner ? { name: partner.n || '', archetype: styleLabel(partner.a) } : null,
+                board: boardParam || lastBoardId(),
+                member: myBoardMember(),
+                archetype: styleLabel(userArchetype),
+                style: userArchetype,
+                styleNext: styleLabel(styleNext),
+                signature: signature(userArchetype).name,
+                buildOpen: buildOpen,
+                inside: insideLine(),
+                budget: selectedPrice,
+                budgets: [...selPrices],
+                search: searchCriteria(),
+                lovedHomes: loves.map(h => ({ label: h.label, address: h.address, url: h.url })),
+                loved: loves.map(h => h.label),
+                passed: passes.map(h => h.label),
+                utm: window.__utm || {},
+                source: window.__srcLabel || '', sid: window.__sid || '', referredBy: (window.__src && window.__src.r) || '',
+                elapsed: window.__quizStart ? Math.round((Date.now() - window.__quizStart) / 1000) : null
+            };
+        }
+        // After they've sent their info, a search change goes to Lofty as an updated note.
+        let resyncTimer = null;
+        function resyncLead() {
+            if (!leadSent) return;
+            clearTimeout(resyncTimer);
+            resyncTimer = setTimeout(() => {
+                const p = leadPayload(leadSent.name, leadSent.email, leadSent.phone, myAreas()[0] || leadSent.neighborhood);
+                p.update = true;
+                fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }).then(() => track('lead_search_updated', {})).catch(() => {});
+            }, 1500);
+        }
         async function submitData(event) {
             event.preventDefault();
             if (submitting) return;
@@ -2412,33 +3345,12 @@
             if (!/^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[a-z]{2,}$/i.test(email)) return showFormError('Please check your email address.', emailEl);
             if (phone && phone.replace(/\D/g, '').length < 10) return showFormError('Please check your mobile number, or leave it blank.', phoneEl);
             if (!neighborhood && select.value === '__other__') return showFormError('Please type the area you are most interested in.', document.getElementById('otherNeighborhoodInput'));
-            if (!neighborhood) neighborhood = selectedCities[0] || '';
+            if (!neighborhood) neighborhood = myAreas()[0] || '';
             showFormError('');
 
             userData = { name, email, phone, neighborhood };
-            const payload = {
-                name, email, phone,
-                area: neighborhood,
-                areas: [...new Set([neighborhood, ...selectedCities])].filter(Boolean).slice(0, 6),
-                consent: document.getElementById('consentInput').checked,
-                website: document.getElementById('sdnaTrap').value,
-                homeType: selectedHomeType ? selectedHomeTypeLabel : '',
-                dream: document.getElementById('dreamInput').value.trim().slice(0, 300),
-                partner: partner ? { name: partner.n || '', archetype: styleLabel(partner.a) } : null,
-                board: boardParam || lastBoardId(),
-                member: myBoardMember(),
-                archetype: styleLabel(userArchetype),
-                style: userArchetype,
-                styleNext: styleLabel(styleNext),
-                budget: selectedPrice,
-                search: searchCriteria(),
-                lovedHomes: loves.map(h => ({ label: h.label, address: h.address, url: h.url })),
-                loved: loves.map(h => h.label),
-                passed: passes.map(h => h.label),
-                utm: window.__utm || {},
-                source: window.__srcLabel || '', sid: window.__sid || '', referredBy: (window.__src && window.__src.r) || '',
-                elapsed: window.__quizStart ? Math.round((Date.now() - window.__quizStart) / 1000) : null
-            };
+            const payload = leadPayload(name, email, phone, neighborhood);
+            leadSent = null;
 
             const btn = document.getElementById('submitBtn');
             const label = btn.textContent;
@@ -2452,6 +3364,7 @@
                 const data = await r.json().catch(() => ({}));
                 if (!r.ok || !data.ok) throw new Error(data.error || ('status ' + r.status));
                 if (data.leadId && data.leadToken) { try { localStorage.setItem('sdna_lead', JSON.stringify({ id: String(data.leadId), t: data.leadToken })); } catch (e) {} }
+                leadSent = { name, email, phone, neighborhood };
                 if (window.sdnaStat) sdnaStat('lead');
                 track('lead_submitted', { archetype: userArchetype, budget: selectedPriceLabel, area: select.value === '__other__' ? 'other' : neighborhood, phone: phone ? 'yes' : 'no' });
                 showActivation(true);
@@ -2464,7 +3377,7 @@
         }
 
         function showActivation(saved) {
-            const area = whereLabel() === 'All of DFW' ? '' : whereLabel();
+            const sw = shortWhere(), area = sw === 'across DFW' || sw === 'in your areas' ? '' : sw.replace(/^in /, '');
             document.getElementById('activationHeadline').textContent = saved ? "You're All Set" : 'Your StyleDNA';
             document.getElementById('activationText').textContent = saved
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with ${styleLabel(userArchetype)} homes${area ? ' in ' + area : ''} that fit what you need.`
@@ -2541,12 +3454,13 @@
         // One share button: the phone's own share menu, with their result card as the link preview.
         function shareResults() {
             const lab = styleLabel(userArchetype);
-            const url = buildShareUrl('share');
-            const text = `My home StyleDNA is ${lab}. Swipe real DFW homes and find yours:`;
+            const sigName = signature(userArchetype).name;
+            const url = `${STYLEDNA_BASE_URL}/s/${userArchetype}/${sigName.toLowerCase().replace(/^the /, '').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}${window.__sid ? '?r=' + window.__sid : ''}`;
+            const text = `My home style: ${sigName}. Swipe real DFW homes and find yours:`;
             if (navigator.share) {
                 track('shared', { channel: 'native', archetype: userArchetype });
                 if (window.sdnaStat) sdnaStat('share', { channel: 'native' });
-                navigator.share({ title: `My home StyleDNA: ${lab}`, text, url }).catch(err => {
+                navigator.share({ title: `My home style: ${sigName}`, text, url }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
                 return;
@@ -2558,7 +3472,7 @@
             track('shared', { channel: 'copy', archetype: userArchetype });
             if (window.sdnaStat) sdnaStat('share', { channel: 'copy' });
             const done = () => {
-                document.querySelectorAll('.share-btn span').forEach(el => {
+                document.querySelectorAll('.share-btn span, .hb-share .hb-t').forEach(el => {
                     const original = el.dataset.label || el.textContent;
                     el.dataset.label = original;
                     el.textContent = 'Link copied';
@@ -2594,7 +3508,7 @@
             try {
                 localStorage.setItem('sdna_me', JSON.stringify({
                     v: 2, a: userArchetype, nx: styleNext, l: [...new Set(loves.map(h => h.k))], lh: loves.slice(0, 6), cards: currentHomes.length, np: passes.length,
-                    p: selectedPrice, pl: selectedPriceLabel, t: selectedHomeType, tl: selectedHomeTypeLabel,
+                    p: selectedPrice, pl: selectedPriceLabel, t: selectedHomeType, tl: selectedHomeTypeLabel, ps: [...selPrices], ts: [...selTypes],
                     co: selectedCounties, ci: selectedCities, must, picks, n: firstName(), at: Date.now()
                 }));
             } catch (e) {}
@@ -2607,7 +3521,7 @@
             if (!m) return startQuiz();
             userArchetype = m.a; styleNext = m.nx || ''; loves = Array.isArray(m.lh) ? m.lh : []; passes = new Array(m.np || 0).fill({});
             currentHomes = new Array(m.cards || loves.length).fill({});
-            selectedPrice = m.p; selectedPriceLabel = m.pl || ''; selectedHomeType = m.t || ''; selectedHomeTypeLabel = m.tl || 'Open to any';
+            selPrices = new Set(Array.isArray(m.ps) ? m.ps : m.p != null ? [m.p] : []); selTypes = new Set(Array.isArray(m.ts) ? m.ts : m.t ? [m.t] : []); syncBudget(); syncTypes();
             selectedCounties = m.co || []; selectedCities = m.ci || []; must = m.must || {}; picks = m.picks || {};
             track('compare_saved', { archetype: userArchetype });
             showResults();
@@ -2645,7 +3559,7 @@
             copyShareLink(text + ' ' + url);
         }
         function invitePartner() {
-            shareLink('Compare our home styles', `My home StyleDNA is ${styleLabel(userArchetype)}. Take it and see how our styles compare:`, encodeResult(), 'invite');
+            shareLink('Compare our home styles', `My home StyleDNA: ${signature(userArchetype).name}. Take it and see how our styles compare:`, encodeResult(), 'invite');
         }
         function sendBack() {
             shareLink('My StyleDNA', `I took it. Mine is ${styleLabel(userArchetype)}. Open this to see how we compare:`, encodeResult(), 'send_back');
@@ -2755,5 +3669,19 @@
             </div>
         </div>
     </div>
+<div class="hv" id="homeViewer" hidden role="dialog" aria-modal="true" aria-label="Home photos">
+    <div class="hv-top"><button type="button" class="hv-close" onclick="closeHome()" aria-label="Close">&#10005;</button><span class="hv-count" id="hvCount"></span></div>
+    <div class="hv-strip" id="hvStrip"></div>
+    <p class="hv-tag" id="hvTag"></p>
+    <div class="hv-info" id="hvInfo"></div>
+</div>
+<div class="reveal" id="reveal" hidden aria-hidden="true">
+    <div class="reveal-img" id="revealImg"></div>
+    <div class="reveal-in">
+        <i class="reveal-line"></i>
+        <p class="reveal-kicker">Your StyleDNA is</p>
+        <p class="reveal-name" id="revealName"></p>
+    </div>
+</div>
 </body>
 </html>

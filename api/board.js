@@ -304,13 +304,13 @@ async function handle(req, res) {
     }
     if (!info.address) info.address = typed || 'Home';
     const via = body.via === 'heart' ? 'heart' : (body.via === 'save' ? 'save' : '');
-    let home = null, dupId = '';
+    let home = null, dupId = '', dupMine = false;
     const out = await store.update(id, (b) => {
       actor = memberByKey(b, key);
       if (!actor) return 'forbidden';
       if (b.homes.length >= MAX_HOMES) return 'full';
       const same = info.url && b.homes.find((h) => h.url === info.url || (info.mls && h.mls === info.mls));
-      if (same) { dupId = same.id; return 'dupe'; }
+      if (same) { dupId = same.id; dupMine = !!(actor && same.addedBy === actor.pid); return 'dupe'; }
       home = { id: store.newId(8), source: 'member', mls: info.mls || '', url: info.url || '', address: info.address, price: info.price || 0, beds: info.beds || '', baths: info.baths || '', sqft: info.sqft || '',
         city: info.city || '', office: info.office || '', photo: info.photo || '', status: info.status || '', listPrice: info.price || 0, openHouse: info.openHouse || null,
         addedBy: actor.pid, addedAt: Date.now(), reactions: { [actor.pid]: 'love' }, comments: [] };
@@ -322,7 +322,7 @@ async function handle(req, res) {
     });
     if (!out) return res.status(404).json({ ok: false, error: 'not_found' });
     if (out.result === 'forbidden') return res.status(403).json({ ok: false, error: 'not_member' });
-    if (out.result === 'dupe') return res.status(409).json({ ok: false, error: 'already_added', homeId: dupId, boardName: out.doc.name });
+    if (out.result === 'dupe') return res.status(409).json({ ok: false, error: 'already_added', homeId: dupId, mine: dupMine, boardName: out.doc.name });
     if (out.result === 'full') return res.status(409).json({ ok: false, error: 'full' });
     const dead = await notify(out.doc, actor.pid, out.doc.name, `${actor.name} added ${shortAddr(home)}`);
     await dropDead(id, dead);

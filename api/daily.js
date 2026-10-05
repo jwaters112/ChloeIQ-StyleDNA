@@ -365,16 +365,35 @@ module.exports = async (req, res) => {
   const onlyVisitor = process.env.VERCEL_ENV === 'production' ? null : (q.visitor || null);
   const report = { part, changes: [], notes: 0, tasks: 0, people: [], recaps: 0, nudges: 0 };
   // Nightly quiz pool: every county, photos read for new listings. Test site can run one county.
+  if (part === 'rooms') {
+    // Sort new pool homes' photos by room (runs after the nightly pool build).
+    const started = Date.now();
+    const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
+    const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
+    let budget = Number(q.budget) || 400; report.rooms = [];
+    for (const c of list) {
+      const left = 270000 - (Date.now() - started);
+      if (left < 30000 || budget <= 0) { report.rooms.push({ county: c, skipped: 'out of time' }); continue; }
+      try { const r = await poolLib.sortCounty(c, budget, left - 20000); report.rooms.push(r); budget -= (r.sorted || 0) + (r.failed || 0); } catch (e) { report.rooms.push({ county: c, error: String(e && e.message) }); }
+    }
+    console.log('rooms run', JSON.stringify(report.rooms));
+    return res.status(200).json(report);
+  }
   if (part === 'pool') {
     const started = Date.now();
     const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
     const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
     let budget = Number(q.budget) || 1500; report.pool = [];
+    // City lists change slowly: rebuilt on Sundays (after the homes, so the two don't crowd the listing search).
+    const cityRun = async () => { try { const c = await poolLib.buildCities(); report.cities = q.cities === 'only' ? c : c.counts; } catch (e) { report.cities = { error: String(e && e.message) }; } };
+    if (q.cities === 'only') { await cityRun(); return res.status(200).json(report); }
     for (const c of list) {
       const left = 270000 - (Date.now() - started);
       if (left < 30000) { report.pool.push({ county: c, skipped: 'out of time' }); continue; }
-      try { const r = await poolLib.buildCounty(c, budget, Math.min(left - 25000, 120000)); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
+      try { const r = await poolLib.buildCounty(c, budget, only1 ? left - 25000 : Math.min(left - 25000, 120000), Number(q.rooms) || 0); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
     }
+    const sunday = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'short' }) === 'Sun';
+    if (!only1 && sunday && 270000 - (Date.now() - started) > 60000) await cityRun();
     console.log('pool run', JSON.stringify(report.pool));
     return res.status(200).json(report);
   }

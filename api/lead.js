@@ -53,6 +53,7 @@ const RATE_MAX_PER_IP = 5;
 const MIN_QUIZ_SECONDS = 25; // a real person can't finish 20 swipes, 4 steps and the form faster
 const recentByIp = new Map();
 const recentEmails = new Map();
+const recentUpdates = new Map();
 
 function overLimit(ip, now) {
   const hits = (recentByIp.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
@@ -118,7 +119,10 @@ async function handle(req, res) {
 
   // Same email again within 10 minutes (double submit, back button): don't create a second lead.
   const seen = recentEmails.get(email);
-  if (seen && now - seen < RATE_WINDOW_MS) return res.status(200).json({ ok: true, duplicate: true });
+  // A search change from the results page after they sent their info: allowed, at most once a minute.
+  const isUpdate = body.update === true;
+  if (isUpdate) { const u = recentUpdates.get(email); if (u && now - u < 60000) return res.status(200).json({ ok: true, duplicate: true }); recentUpdates.set(email, now); if (recentUpdates.size > 5000) recentUpdates.clear(); }
+  else if (seen && now - seen < RATE_WINDOW_MS) return res.status(200).json({ ok: true, duplicate: true });
 
   const key = process.env.LOFTY_API_KEY;
   if (!key) {
@@ -132,7 +136,13 @@ async function handle(req, res) {
   // Every area they picked (the form's area first), at most 6.
   const areas = [...new Set([area, ...(Array.isArray(body.areas) ? body.areas : []).map((a) => clip(a, 60))].filter(Boolean))].slice(0, 6);
   const budgetKey = Number(body.budget);
-  const budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
+  let budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
+  // Several budget bands picked: one label for the note, and the full span for Lofty's price range.
+  const bands = (Array.isArray(body.budgets) ? body.budgets : []).map(Number).filter((n) => Number.isInteger(n) && BUDGETS[n]).sort((a, b) => a - b);
+  if (bands.length > 1) {
+    const lo = BUDGETS[bands[0]], hi = BUDGETS[bands[bands.length - 1]];
+    budget = { label: bands.map((n) => BUDGETS[n].label).join(', '), priceMin: lo.priceMin, priceMax: hi.priceMax };
+  }
   const consent = body.consent === true;
   const prefs = (body.preferences && typeof body.preferences === 'object') ? body.preferences : {};
   const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {};
@@ -147,29 +157,32 @@ async function handle(req, res) {
   // StyleDNA v2: architectural style from real homes, must-haves and quick picks.
   const crit = deckLib.criteria(body.search || {});
   const styleNext = clip(body.styleNext, 40);
-  const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features' };
+  const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features', office: 'Home office', primarydown: 'Primary bedroom downstairs', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV/boat parking', newer: 'Built 2015 or later' };
   const PICK_LABEL = { exterior: { brick: 'Brick', stone: 'Stone', stucco: 'Stucco', siding: 'Siding' }, layout: { open: 'Open concept', separate: 'Separate rooms' },
     condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Secluded, more privacy' } };
   const musts = Object.entries(crit.must).filter(([, v]) => v === 'must').map(([k]) => MUST_LABEL[k]);
   const nices = Object.entries(crit.must).filter(([, v]) => v === 'nice').map(([k]) => MUST_LABEL[k]);
-  const picks = Object.entries(crit.picks).map(([k, v]) => PICK_LABEL[k] && PICK_LABEL[k][v]).filter(Boolean);
+  const picks = Object.entries(crit.picks).flatMap(([k, v]) => (Array.isArray(v) ? v : [v]).map((x) => PICK_LABEL[k] && PICK_LABEL[k][x])).filter(Boolean);
   const lovedHomes = (Array.isArray(body.lovedHomes) ? body.lovedHomes : []).slice(0, 12)
     .map((h) => h && typeof h === 'object' ? { label: clip(h.label, 40), address: clip(h.address, 90), url: /^https:\/\/joshwaters\.com\//.test(String(h.url || '')) ? clip(h.url, 300) : '' } : null).filter((h) => h && h.address);
   const where = [crit.counties.length ? crit.counties.join(', ') + (crit.counties.length > 1 ? ' counties' : ' County') : '', crit.cities.join(', ')].filter(Boolean).join(': ');
 
   const tags = ['StyleDNA Quiz'];
   if (archetype) tags.push(clip('StyleDNA: ' + archetype, 64));
-  if (budget) tags.push(clip('Budget: ' + budget.label, 64));
+  if (bands.length > 1) bands.forEach((n) => tags.push(clip('Budget: ' + BUDGETS[n].label, 64))); else if (budget) tags.push(clip('Budget: ' + budget.label, 64));
   areas.forEach((a) => tags.push(clip('Area: ' + a, 64)));
   crit.counties.forEach((c) => tags.push(clip('County: ' + c, 64)));
   musts.forEach((m) => tags.push(clip('Must have: ' + m, 64)));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
+  if (body.buildOpen === true) tags.push('Open to build or renovate');
   if (partnerArch) tags.push('Partner compare');
   if (clip(body.board, 24)) tags.push('Home board');
 
   const noteLines = [
     'StyleDNA quiz result',
-    'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : ''),
+    'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : '') + (clip(body.signature, 60) ? ' (' + clip(body.signature, 60) + ')' : ''),
+    ...(clip(body.inside, 80) ? ['Inside they love: ' + clip(body.inside, 80)] : []),
+    ...(body.buildOpen === true ? ['Open to building new or renovating to be in: ' + (where || 'their area') + '. Connect with builders or contractors.'] : body.buildOpen === false ? ['Not open to building or renovating.'] : []),
     'Budget: ' + (budget ? budget.label : 'n/a'),
     'Looking in: ' + (where || areas.join(', ') || 'anywhere in DFW'),
     'Home type: ' + (homeType || 'open to any'),
@@ -236,8 +249,9 @@ async function handle(req, res) {
   // Already in Lofty (retake, second device, partner using the same email): add the new result as a
   // note on the existing lead instead of creating a duplicate.
   const existing = await lofty.leadIdByEmail(email);
+  if (isUpdate && !existing) return res.status(200).json({ ok: true, skipped: true }); // never create a lead from an update
   if (existing) {
-    await lofty.addNote(existing, ['StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
+    await lofty.addNote(existing, [isUpdate ? 'StyleDNA search updated on the results page' : 'StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
     recentEmails.set(email, now);
     await linkMember(body.member, existing);
     await rememberSharer(body.sid, existing, name);
