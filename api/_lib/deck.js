@@ -171,7 +171,7 @@ async function availability(input, k) {
   const live = here ? here.count : 0;
   const count = Math.max(verified.length, live);
   const homes = verified.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
-  const out = { ok: true, k, label: s.label, count, homes,
+  const out = { ok: true, k, label: s.label, count, homes, ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, inArea: inArea.length, verified: verified.length, live } } : {}),
     // The MLS search finds this style by its label, which misses many homes; when the photos found more, link the area instead.
     url: live >= verified.length ? idx.searchUrl(Object.assign({}, baseCond(c), s.q)) : idx.searchUrl(baseCond(c)), styled: live >= verified.length };
   if (count < 3) {
