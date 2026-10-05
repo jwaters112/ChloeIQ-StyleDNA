@@ -101,8 +101,11 @@ module.exports = async (req, res) => {
       ['transitional', 'transitional'], ['traditional', 'traditional'], ['farmhouse', 'farmhouse'], ['craftsman', 'craftsman'], ['colonial', 'colonial'], ['cottage', 'cottage'],
       ['tudor', 'tudor'], ['ranch', 'ranch'], ['modern', 'modern']];
     const slug = String(req.query.share).toLowerCase().replace(/[^a-z-]/g, '').slice(0, 60);
+    // New links carry the style code (/s/modern/glass-pavilion); older ones end in the style word.
+    const KEYS = SUFFIX.map(([, key]) => key);
+    const given = String(req.query.k || '').toLowerCase().replace(/[^a-z]/g, '');
     const hit = SUFFIX.find(([sfx]) => slug === sfx || slug.endsWith('-' + sfx));
-    const k = hit ? hit[1] : '';
+    const k = KEYS.includes(given) ? given : hit ? hit[1] : '';
     const words = slug.split('-').filter(Boolean).map((w) => (['and', 'of', 'the'].includes(w) ? w : w[0].toUpperCase() + w.slice(1)));
     const name = k ? 'The ' + words.join(' ').replace(/^The /, '').replace(/Mid Century/, 'Mid-Century') : 'Home StyleDNA';
     const r = String(req.query.r || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
@@ -113,7 +116,7 @@ module.exports = async (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     return res.status(200).send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${e(title)} | Home StyleDNA</title>
-<meta property="og:type" content="website"><meta property="og:site_name" content="Home StyleDNA"><meta property="og:url" content="https://homestyledna.com/s/${e(slug)}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Home StyleDNA"><meta property="og:url" content="https://homestyledna.com/s/${given ? e(given) + '/' : ''}${e(slug)}">
 <meta property="og:title" content="${e(title)}"><meta property="og:description" content="Swipe real DFW homes for sale and find your StyleDNA. Free, two minutes.">
 <meta property="og:image" content="${e(img)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${e(title)}"><meta name="twitter:image" content="${e(img)}"><meta name="theme-color" content="#030C0D">

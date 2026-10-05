@@ -113,6 +113,10 @@
       "destination": "/api/address"
     },
     {
+      "source": "/s/:k/:slug",
+      "destination": "/api/address?share=:slug&k=:k"
+    },
+    {
       "source": "/s/:slug",
       "destination": "/api/address?share=:slug"
     }

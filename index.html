@@ -2020,20 +2020,20 @@
         // The signature result: a name built from their style and the material they kept loving,
         // and one line about their taste. Only about how a home looks and works, never about people.
         const STYLE_SIG = {
-            traditional:  { n: { _: 'The Timeless Traditional', stone: 'The Stone Front Traditional', brick: 'The Classic Brick Traditional' }, line: 'You appreciate a home that looks settled and sure of itself, with a classic front and rooms that make sense.' },
-            transitional: { n: { _: 'The Soft Modern Transitional', stone: 'The Limestone Transitional', brick: 'The Light Brick Transitional' }, line: 'You appreciate quiet confidence: classic shapes, clean finishes and nothing extra.' },
-            farmhouse:    { n: { _: 'The Black and White Farmhouse', brick: 'The White Brick Farmhouse', siding: 'The Board and Batten Farmhouse', stone: 'The Stone and Steel Farmhouse' }, line: 'You appreciate crisp contrast and simple gables, a fresh take on a familiar shape.' },
-            modern:       { n: { _: 'The Clean Line Modern', stone: 'The Stone and Glass Modern', stucco: 'The White Stucco Modern', siding: 'The Wood and Glass Modern' }, line: 'You appreciate clean lines, big glass and a home that lets the light do the work.' },
-            craftsman:    { n: { _: 'The Front Porch Craftsman', stone: 'The Stone Pier Craftsman' }, line: 'You appreciate handmade detail, a real front porch and a home with character up close.' },
-            ranch:        { n: { _: 'The Long and Low Ranch', stone: 'The Stone Ranch', big: 'The Wide Open Ranch' }, line: 'You appreciate life on one level, long and low, with room to breathe.' },
-            midcentury:   { n: { _: 'The Low Slung Mid-Century', stone: 'The Stone and Glass Mid-Century' }, line: 'You appreciate low rooflines, walls of glass and design that has aged beautifully.' },
-            tudor:        { n: { _: 'The Storybook Tudor', stone: 'The Stone and Timber Tudor' }, line: 'You appreciate steep gables, rich brick and stone, and a front that tells a story.' },
-            mediterranean:{ n: { _: 'The Tile Roof Mediterranean', stucco: 'The Sunlit Stucco Mediterranean' }, line: 'You appreciate warm stucco, tile roofs and arches that feel like an escape.' },
-            french:       { n: { _: 'The Grand French Country', stone: 'The Limestone French Country' }, line: 'You appreciate formal symmetry, tall rooflines and old world polish.' },
-            colonial:     { n: { _: 'The Stately Colonial', brick: 'The Red Brick Colonial' }, line: 'You appreciate balance and proportion, a centered front door and a stately presence.' },
-            cottage:      { n: { _: 'The Painted Brick Cottage', stone: 'The Stone Cottage' }, line: 'You appreciate smaller scale with big charm, where every detail is close at hand.' },
-            hillcountry:  { n: { _: 'The Limestone Hill Country', big: 'The Wide Porch Hill Country' }, line: 'You appreciate Texas limestone, metal roofs and porches made for long evenings.' },
-            barndo:       { n: { _: 'The Wide Open Barndominium', big: 'The Open Acreage Barndominium' }, line: 'You appreciate wide open space, simple steel lines and a home built to work hard.' },
+            traditional: { n: { _: "The Heritage Traditional" }, line: "You appreciate a home with presence, built on proportions that never go out of style." },
+            transitional: { n: { _: "The Quiet Luxury" }, line: "You appreciate restraint, where every line has a purpose and nothing competes for attention." },
+            farmhouse: { n: { _: "The Elevated Farmhouse" }, line: "You appreciate a familiar silhouette made sharper, with black trim, white walls and clean gables." },
+            modern: { n: { _: "The Glass Pavilion" }, line: "You appreciate architecture that's sure of itself: strong lines, open space and walls of glass." },
+            craftsman: { n: { _: "The Artisan Craftsman" }, line: "You appreciate a home where the details show the hands that built it." },
+            ranch: { n: { _: "The Texas Ranch" }, line: "You appreciate a home that stretches out instead of up, with everything on one easy level." },
+            midcentury: { n: { _: "The Mid-Century Icon" }, line: "You appreciate design with a point of view: low, wide and wrapped in glass." },
+            tudor: { n: { _: "The English Manor" }, line: "You appreciate character and craftsmanship, with steep rooflines and rich, layered materials." },
+            mediterranean: { n: { _: "The Villa" }, line: "You appreciate a home that feels like a getaway, with warm walls, arches and a tile roof overhead." },
+            french: { n: { _: "The Chateau" }, line: "You appreciate elegance with ease: limestone, steep rooflines and graceful symmetry." },
+            colonial: { n: { _: "The Georgian" }, line: "You appreciate order and grace, with a balanced front and a door right at the center." },
+            cottage: { n: { _: "The Storybook Cottage" }, line: "You appreciate intimacy and character, where a smaller footprint still makes a big impression." },
+            hillcountry: { n: { _: "The Limestone Lodge" }, line: "You appreciate a home rooted in Texas, with limestone walls, metal roofs and big porches." },
+            barndo: { n: { _: "The Modern Barn" }, line: "You appreciate a home that works as hard as it looks good." },
         };
         const MAT_WORD = { stone: 'stone', brick: 'brick', stucco: 'stucco', siding: 'siding and wood' };
         function topTrait(list, f) {
@@ -2813,7 +2813,7 @@
             const info = STYLE_INFO[userArchetype] || STYLE_INFO.traditional;
             const sig = signature(userArchetype);
             setHero();
-            document.getElementById('ctaHead').textContent = `Get first look at new ${sig.name.replace(/^The /, '')} homes`;
+            document.getElementById('ctaHead').textContent = `Get first look at new ${styleLabel(userArchetype)} homes`;
             document.getElementById('archetypeName').textContent = sig.name;
             const lean = document.getElementById('styleLean');
             lean.hidden = false; lean.textContent = info.label + ' architecture' + (styleNext ? ', with a lean toward ' + styleLabel(styleNext) : '');
@@ -3455,7 +3455,7 @@
         function shareResults() {
             const lab = styleLabel(userArchetype);
             const sigName = signature(userArchetype).name;
-            const url = `${STYLEDNA_BASE_URL}/s/${sigName.toLowerCase().replace(/^the /, '').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}${window.__sid ? '?r=' + window.__sid : ''}`;
+            const url = `${STYLEDNA_BASE_URL}/s/${userArchetype}/${sigName.toLowerCase().replace(/^the /, '').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}${window.__sid ? '?r=' + window.__sid : ''}`;
             const text = `My home style: ${sigName}. Swipe real DFW homes and find yours:`;
             if (navigator.share) {
                 track('shared', { channel: 'native', archetype: userArchetype });
