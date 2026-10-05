@@ -2649,9 +2649,9 @@
             const n = j.count.toLocaleString('en-US');
             link.textContent = j.styled && !j.est ? `See ${n} ${j.count === 1 ? 'home' : 'homes'} for sale` : 'See homes for sale';
             link.href = j.url + boardFragment(); link.hidden = !j.count;
-            const withMust = Object.values(must).includes('must') ? ' with your must-haves' : '';
-            if (j.count >= 3) line.innerHTML = `${j.est ? 'About ' : ''}<b>${n}</b> ${esc(label)} homes for sale ${esc(where)}${withMust}, in your price range.`;
-            else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where}${withMust}, in your price range, right now.` : `No ${label} homes are for sale ${where}${withMust}, in your price range, right now.`;
+            const withMust = Object.values(must).includes('must') ? ' and with your must-haves' : '';
+            if (j.count >= 3) line.innerHTML = `${j.est ? 'About ' : ''}<b>${n}</b> ${esc(label)} homes for sale ${esc(where)}, in your price range${withMust}.`;
+            else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} right now, in your price range${withMust}.` : `No ${label} homes are for sale ${where} right now, in your price range${withMust}.`;
             near.hidden = !(j.count < 3 && j.nearest);
             if (!near.hidden) near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
             offerLoosen(userArchetype, note);
