@@ -58,7 +58,8 @@ async function save(newTags) {
   Object.assign(mem.tags, newTags);
 }
 
-async function readOne(url) {
+async function readOne(url, why) {
+  why = why || {};
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key || !/^https:\/\//.test(url)) return null;
   try {
@@ -66,9 +67,9 @@ async function readOne(url) {
     // Some photos don't come in the 800px size quickly; fall back to 600px.
     let img = await fetch(url.replace('/w600_original_', '/w800_original_'), { signal: AbortSignal.timeout(7000) }).catch(() => null);
     if (!img || !img.ok) img = await fetch(url.replace('/w800_original_', '/w600_original_'), { signal: AbortSignal.timeout(7000) }).catch(() => null);
-    if (!img || !img.ok) { console.warn('photo fetch failed', url.slice(0, 90)); return null; }
+    if (!img || !img.ok) { why.reason = 'photo fetch ' + (img ? img.status : 'timeout'); console.warn('photo fetch failed', url.slice(0, 90)); return null; }
     const media = (img.headers.get('content-type') || 'image/jpeg').split(';')[0];
-    if (!/^image\/(jpeg|png|webp|gif)$/.test(media)) return null;
+    if (!/^image\/(jpeg|png|webp|gif)$/.test(media)) { why.reason = 'type ' + media; return null; }
     const data = Buffer.from(await img.arrayBuffer()).toString('base64');
     for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -80,15 +81,16 @@ async function readOne(url) {
     });
     const j = await r.json().catch(() => ({}));
     if (r.status === 429 || r.status === 529) { await new Promise((ok) => setTimeout(ok, 1500 * (attempt + 1))); continue; }
-    if (!r.ok) { console.warn('photo read failed', r.status, j && j.error && j.error.message); return null; }
+    if (!r.ok) { why.reason = 'api ' + r.status + ' ' + (j && j.error && j.error.message); console.warn('photo read failed', why.reason); return null; }
     const text = (j.content || []).map((c) => c.text || '').join('');
     const m = text.match(/"ext"\s*:\s*"([A-Z]{2})"/), v = (text.match(/"visible"\s*:\s*"(\w+)"/) || [])[1], cf = (text.match(/"conf"\s*:\s*"(\w+)"/) || [])[1];
-    if (!m || !CODES.has(m[1])) return null;
+    if (!m || !CODES.has(m[1])) { why.reason = 'answer ' + text.slice(0, 120); return null; }
     if (m[1] === 'NA' || v !== 'full' || cf === 'low') return 'NA';
     return cf === 'high' ? m[1] : m[1] + '~';
     }
+    why.reason = why.reason || 'busy after retries';
     return null;
-  } catch (e) { console.warn('photo read error', e && e.message); return null; }
+  } catch (e) { why.reason = 'error ' + (e && e.message); console.warn('photo read error', e && e.message); return null; }
 }
 
 // listings: [{ id, photo }]. Reads the ones not seen before (up to `budget`), within `ms`.

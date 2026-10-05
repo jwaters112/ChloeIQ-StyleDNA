@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
         const byK = {}; docs.forEach((d) => ((d && d.doc && d.doc.homes) || []).forEach((h) => { (byK[h.k] = byK[h.k] || []).push(h); }));
         const pick = []; let round = 0;
         while (pick.length < (b.n || 20) && round < 10) { Object.values(byK).forEach((a) => { if (a[round] && pick.length < (b.n || 20)) pick.push(a[Math.floor(Math.random() * a.length)]); }); round++; }
-        const out = await Promise.all(pick.map(async (h) => ({ id: h.id, old: h.k, now: await phototag.readOne(h.photo), photo: h.photo.replace('/w600_original_', '/w800_original_'), address: h.address })));
+        const out = await Promise.all(pick.map(async (h) => { const why = {}; const now = await phototag.readOne(h.photo, why); return { id: h.id, old: h.k, now, why: why.reason, photo: h.photo.replace('/w600_original_', '/w800_original_'), address: h.address }; }));
         return res.status(200).json({ ok: true, model: phototag.MODEL, out });
       }
     } catch (e) {
