@@ -103,7 +103,7 @@ async function buildCities() {
 }
 const citiesMem = { t: 0, map: null };
 async function cities() {
-  if (citiesMem.map && Date.now() - citiesMem.t < 30 * 60000) return citiesMem.map;
+  if (citiesMem.map && Date.now() - citiesMem.t < 5 * 60000) return citiesMem.map;
   const cur = await store.readIn('pool', 'cities').catch(() => null);
   citiesMem.map = (cur && cur.doc && cur.doc.map) || {}; citiesMem.t = Date.now();
   return citiesMem.map;

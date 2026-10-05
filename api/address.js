@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
 
   if (req.query && req.query.cities) {
     const map = await require('./_lib/pool').cities().catch(() => ({}));
-    res.setHeader('Cache-Control', Object.keys(map).length ? 'public, max-age=3600' : 'no-store');
+    res.setHeader('Cache-Control', Object.keys(map).length ? 'public, max-age=600' : 'no-store');
     return res.status(200).json({ ok: true, cities: map });
   }
   const q = String((req.query && req.query.q) || '');
