@@ -69,7 +69,7 @@ const titleCase = (x) => String(x || '').toLowerCase().replace(/\b([a-z])/g, (m)
 async function buildCities() {
   const jobs = [];
   Object.keys(COUNTIES).forEach((county) => BANDS.forEach((price) => [1, 2].forEach((page) => jobs.push(() => idx.search({ price, location: { county: [county] } }, 100, page).then((r) => ({ county, r }))))));
-  const out = await each(jobs, 6);
+  const out = await each(jobs, 3);
   const tally = {};
   out.forEach(({ county, r }) => (r ? r.list : []).forEach((l) => {
     if (!l.city || (l.county && String(l.county).replace(/ county$/i, '').toLowerCase() !== county.toLowerCase())) return;

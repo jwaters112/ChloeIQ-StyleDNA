@@ -370,13 +370,16 @@ module.exports = async (req, res) => {
     const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
     const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
     let budget = Number(q.budget) || 1500; report.pool = [];
-    if (!only1 || q.cities) { try { report.cities = await poolLib.buildCities(); } catch (e) { report.cities = { error: String(e && e.message) }; } }
-    if (q.cities === 'only') return res.status(200).json(report);
+    // City lists change slowly: rebuilt on Sundays (after the homes, so the two don't crowd the listing search).
+    const cityRun = async () => { try { report.cities = await poolLib.buildCities(); } catch (e) { report.cities = { error: String(e && e.message) }; } };
+    if (q.cities === 'only') { await cityRun(); return res.status(200).json(report); }
     for (const c of list) {
       const left = 270000 - (Date.now() - started);
       if (left < 30000) { report.pool.push({ county: c, skipped: 'out of time' }); continue; }
       try { const r = await poolLib.buildCounty(c, budget, Math.min(left - 25000, 120000)); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
     }
+    const sunday = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'short' }) === 'Sun';
+    if (!only1 && sunday && 270000 - (Date.now() - started) > 60000) await cityRun();
     console.log('pool run', JSON.stringify(report.pool));
     return res.status(200).json(report);
   }
