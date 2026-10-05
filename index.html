@@ -1561,6 +1561,12 @@
                     <div id="matchedHomes"></div>
                 </div>
 
+                <div class="results-section" id="moreSection" hidden>
+                    <h3 class="results-section-title" id="moreTitle">More Homes Like This</h3>
+                    <p class="examples-note">For sale now in your areas and range.</p>
+                    <div id="moreHomes"></div>
+                </div>
+
                 <div class="results-section results-cta">
                     <button class="welcome-cta" onclick="captureEmail()">Get homes that fit my style</button>
                     <button class="share-btn" id="copyLinkBtn" onclick="shareResults()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share my StyleDNA</span></button>
@@ -2269,15 +2275,7 @@
                 box.innerHTML = `<p class="results-empty">That tells us a lot too. Save your StyleDNA and Josh will send a few homes in your range to react to, or retake it with more areas.</p>`;
             } else {
                 document.getElementById('lovedTitle').textContent = 'Homes You Loved';
-                box.innerHTML = loves.slice(0, 6).map(h => `
-                <a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('loved_home_clicked', { style: '${esc(h.k)}' })">
-                    <img class="home-match-image" src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + h.address)}" loading="lazy">
-                    <div class="home-match-info">
-                        <div class="home-match-name">${esc(h.label)} &middot; ${esc(money(h.price))}</div>
-                        <div class="home-match-location">${esc(h.address)}</div>
-                        ${h.office ? `<div class="home-match-credit">Listing courtesy of ${esc(h.office)}</div>` : ''}
-                    </div>
-                </a>`).join('');
+                box.innerHTML = loves.slice(0, 6).map(h => homeCard(h, 'loved')).join('');
             }
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
@@ -2288,19 +2286,21 @@
         async function loadAvailability() {
             const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
             const k = userArchetype, label = styleLabel(k);
-            line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; near.hidden = true; avail = null;
+            line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; near.hidden = true; avail = null; document.getElementById('moreSection').hidden = true;
             try {
                 const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, searchCriteria())) });
                 const j = await r.json();
                 if (!r.ok || !j.ok || k !== userArchetype) throw new Error('failed');
                 avail = j;
                 const where = whereLabel() === 'All of DFW' ? 'across DFW' : 'in ' + whereLabel();
+                renderMore(j);
+                const linkText = j.styled ? `See ${label} homes on joshwaters.com` : 'See homes for sale in your areas';
                 if (j.count >= 3) {
                     line.innerHTML = `<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range.`;
-                    link.href = j.url + boardFragment(); link.textContent = `See ${label} homes on joshwaters.com`; link.hidden = false;
+                    link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false;
                 } else {
                     line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} in your range right now.` : `No ${label} homes are for sale ${where} in your range right now.`;
-                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = j.count === 1 ? 'See it' : 'See them'; link.hidden = false; }
+                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = j.styled ? (j.count === 1 ? 'See it' : 'See them') : linkText; link.hidden = false; }
                     if (j.nearest) {
                         near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
                         near.hidden = false;
@@ -2310,6 +2310,24 @@
                 line.textContent = 'Homes in your style are on joshwaters.com.';
                 link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
             }
+        }
+
+        function homeCard(h, where) {
+            return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' })">
+                    <img class="home-match-image" src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + h.address)}" loading="lazy">
+                    <div class="home-match-info">
+                        <div class="home-match-name">${esc(h.label)} &middot; ${esc(money(h.price))}</div>
+                        <div class="home-match-location">${esc(h.address)}${h.hits && h.hits.length ? ' &middot; ' + esc(h.hits.join(', ')) : ''}</div>
+                        ${h.office ? `<div class="home-match-credit">Listing courtesy of ${esc(h.office)}</div>` : ''}
+                    </div>
+                </a>`;
+        }
+        function renderMore(j) {
+            const seen = new Set(loves.map(h => h.id));
+            const more = (j.homes || []).filter(h => !seen.has(h.id)).slice(0, 4);
+            document.getElementById('moreSection').hidden = !more.length;
+            document.getElementById('moreTitle').textContent = `More ${j.label} Homes`;
+            document.getElementById('moreHomes').innerHTML = more.map(h => homeCard(h, 'more')).join('');
         }
 
         // ===== Real listings on joshwaters.com =====

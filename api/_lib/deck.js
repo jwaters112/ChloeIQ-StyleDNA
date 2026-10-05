@@ -158,31 +158,30 @@ async function buildDeck(input) {
   return { ok: true, cards: deck, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
 }
 
-// How many homes in this style fit their search, and if few, the closest city that has them.
+// How many homes in this style fit their search, the best of them, and if few, the closest city that has them.
+// Counts come from homes whose photo shows the style (the pool), with the MLS search as a floor.
 async function availability(input, k) {
   const c = criteria(input); const s = BY_KEY[k];
   if (!s) return { ok: false };
-  const here = await idx.search(Object.assign({}, baseCond(c), s.q), 24);
-  const count = here ? here.count : 0;
-  // Best fits: homes whose photo shows this style, from the pool first; the live search as a backup.
+  const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
-  const verified = (await pool.load(c.counties.length ? c.counties : Object.keys(COUNTIES))).filter((l) => l.k === k && inSearch(l, c, cities));
-  const src = verified.length ? verified : (here ? here.list : []);
-  const top = src.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
-  const out = { ok: true, k, label: s.label, count, url: idx.searchUrl(Object.assign({}, baseCond(c), s.q)), homes: top };
+  const [here, mine] = await Promise.all([idx.search(Object.assign({}, baseCond(c), s.q), 1), pool.load(counties)]);
+  const inArea = mine.filter((l) => inSearch(l, c, cities));
+  const verified = inArea.filter((l) => l.k === k);
+  const live = here ? here.count : 0;
+  const count = Math.max(verified.length, live);
+  const homes = verified.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
+  const out = { ok: true, k, label: s.label, count, homes,
+    // The MLS search finds this style by its label, which misses many homes; when the photos found more, link the area instead.
+    url: live >= verified.length ? idx.searchUrl(Object.assign({}, baseCond(c), s.q)) : idx.searchUrl(baseCond(c)), styled: live >= verified.length };
   if (count < 3) {
-    const wide = await idx.search(Object.assign({}, baseCond(Object.assign({}, c, { cities: [] }), Object.keys(COUNTIES)), s.q), 60);
-    if (wide && wide.list.length) {
-      const center = areaCenter(c), mine = new Set(c.cities.map((x) => x.toLowerCase()));
-      const byCity = {};
-      wide.list.forEach((l) => { if (!l.city || mine.has(l.city.toLowerCase())) return; const b = byCity[l.city] = byCity[l.city] || { city: l.city, county: l.county, n: 0, lat: 0, lng: 0 }; b.n++; b.lat += l.lat; b.lng += l.lng; });
-      const best = Object.values(byCity).filter((b) => b.n >= 2 && b.lat).map((b) => Object.assign(b, { d: dist([b.lat / b.n, b.lng / b.n], center) })).sort((a, b) => a.d - b.d)[0]
-        || Object.values(byCity).sort((a, b) => b.n - a.n)[0];
-      if (best) {
-        const cond = Object.assign({}, baseCond(Object.assign({}, c, { cities: [best.city] })), s.q);
-        out.nearest = { city: best.city, county: best.county, url: idx.searchUrl(cond) };
-      }
-    }
+    const all = (await pool.load(Object.keys(COUNTIES))).filter((l) => l.k === k && inSearch(l, c, null) && !cities.has(String(l.city || '').toLowerCase()));
+    const pts = inArea.filter((l) => l.lat && l.lng);
+    const center = pts.length ? [pts.reduce((t, l) => t + l.lat, 0) / pts.length, pts.reduce((t, l) => t + l.lng, 0) / pts.length] : areaCenter(c);
+    const byCity = {};
+    all.forEach((l) => { if (!l.city || !l.lat) return; const b = byCity[l.city] = byCity[l.city] || { city: l.city, county: l.county, n: 0, lat: 0, lng: 0 }; b.n++; b.lat += l.lat; b.lng += l.lng; });
+    const best = Object.values(byCity).map((b) => Object.assign(b, { d: dist([b.lat / b.n, b.lng / b.n], center) - Math.min(b.n, 4) * 0.01 })).sort((a, b) => a.d - b.d)[0];
+    if (best) out.nearest = { city: best.city, county: best.county, n: best.n, url: idx.searchUrl(baseCond(Object.assign({}, c, { cities: [best.city] }))) };
   }
   return out;
 }
