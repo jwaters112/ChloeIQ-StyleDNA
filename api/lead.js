@@ -149,7 +149,7 @@ async function handle(req, res) {
   const styleNext = clip(body.styleNext, 40);
   const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features' };
   const PICK_LABEL = { exterior: { brick: 'Brick', stone: 'Stone', stucco: 'Stucco', siding: 'Siding' }, layout: { open: 'Open concept', separate: 'Separate rooms' },
-    condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Quiet and secluded' } };
+    condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Secluded, more privacy' } };
   const musts = Object.entries(crit.must).filter(([, v]) => v === 'must').map(([k]) => MUST_LABEL[k]);
   const nices = Object.entries(crit.must).filter(([, v]) => v === 'nice').map(([k]) => MUST_LABEL[k]);
   const picks = Object.entries(crit.picks).map(([k, v]) => PICK_LABEL[k] && PICK_LABEL[k][v]).filter(Boolean);
