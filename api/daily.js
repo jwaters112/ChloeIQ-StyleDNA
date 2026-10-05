@@ -376,7 +376,7 @@ module.exports = async (req, res) => {
     for (const c of list) {
       const left = 270000 - (Date.now() - started);
       if (left < 30000) { report.pool.push({ county: c, skipped: 'out of time' }); continue; }
-      try { const r = await poolLib.buildCounty(c, budget, Math.min(left - 25000, 120000)); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
+      try { const r = await poolLib.buildCounty(c, budget, only1 ? left - 25000 : Math.min(left - 25000, 120000), Number(q.rooms) || (only1 ? 0 : 60)); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
     }
     const sunday = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'short' }) === 'Sun';
     if (!only1 && sunday && 270000 - (Date.now() - started) > 60000) await cityRun();

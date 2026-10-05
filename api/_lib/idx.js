@@ -71,6 +71,7 @@ function slim(l) {
     price: num(l.price), beds: num(l.bedrooms), baths: num(l.bathrooms), sqft: num(l.sqft), built: num(l.builtYear),
     photo: photoUrl(l.previewPicture), office: l.agentOrganizationName || '',
     photos: String(l.listingPictures || '').split('|').filter((u) => /^https:/.test(u)).slice(0, 6).map(photoUrl),
+    pics: String(l.listingPictures || '').split('|').filter((u) => /^https:/.test(u)).slice(0, 28).map(photoUrl),
     lat: num(l.latitude), lng: num(l.longitude),
     acres: num(m.chimeLotAcreage), pool: /yes/i.test(m.chimePrivatePoolFlag || m.chimePool || ''),
     stories: String(m.chimeStory || ''), hoa: /yes/i.test(m.chimeHoaFlag || ''), materials: String(m.chimeMaterials || ''),

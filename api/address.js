@@ -36,6 +36,17 @@ module.exports = async (req, res) => {
         for (let round = 0; round < 3 && pick.length < 6; round++) order.forEach((room) => { const x = ok.find((y) => y.room === room && !used.has(y.url) && pick.filter((p) => p.id === y.id).length <= round); if (x && pick.length < 6) { used.add(x.url); pick.push(x); } });
         return res.status(200).json({ ok: true, rooms: pick.map((x) => ({ id: x.id, k: x.k, url: x.url, room: x.room, tone: x.tone, feel: x.feel })) });
       }
+      // Test site only: sort a spread of real listings' photos by room, to review before running everywhere.
+      if (b.action === 'roomsample' && process.env.VERCEL_ENV !== 'production') {
+        const roomsLib = require('./_lib/rooms');
+        const picks = [];
+        const counties = ['Dallas', 'Collin', 'Denton', 'Tarrant', 'Parker', 'Ellis', 'Rockwall', 'Hood'];
+        const bands = [',400000', '400000,700000', '700000,1200000', '1200000,'];
+        const found = await Promise.all(counties.map((c, i) => idx.search({ price: bands[i % 4], location: { county: [c] }, propertytype: ['Single Family Home'] }, 6, 1 + (b.page || 0))));
+        found.forEach((r) => (r ? r.list : []).slice(0, 3).forEach((l) => { if (picks.length < (b.n || 20) && l.pics && l.pics.length > 5) picks.push(l); }));
+        const out = await Promise.all(picks.slice(b.from || 0, (b.from || 0) + (b.n || 20)).map(async (l) => { const why = {}; const r = await roomsLib.sortHome(l.pics, why); return { id: l.id, address: l.address, price: l.price, acres: l.acres, pool: l.pool, n: l.pics.length, rooms: r, why: why.reason, usage: why.usage }; }));
+        return res.status(200).json({ ok: true, model: roomsLib.MODEL, out });
+      }
       // Test site only: re-read a spread of pool homes with the current photo reader, without saving.
       if (b.action === 'tagsample' && process.env.VERCEL_ENV !== 'production') {
         const store = require('./_lib/boards'), phototag = require('./_lib/phototag');

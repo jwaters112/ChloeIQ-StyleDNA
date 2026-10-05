@@ -4,6 +4,7 @@
 const idx = require('./idx');
 const store = require('./boards');
 const phototag = require('./phototag');
+const rooms = require('./rooms');
 const { STYLES, COUNTIES } = require('./styles');
 
 const BANDS = [',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,'];
@@ -17,7 +18,8 @@ async function each(tasks, n) {
 }
 
 // Rebuild one county. tagBudget caps how many new photos are read this run; the rest wait for tomorrow.
-async function buildCounty(county, tagBudget, ms) {
+async function buildCounty(county, tagBudget, ms, roomBudget) {
+  const started = Date.now();
   if (!COUNTIES[county]) return { county, error: 'unknown' };
   const jobs = [], meta = [];
   BANDS.forEach((price) => STYLES.forEach((s) => { meta.push(s); jobs.push(() => idx.search(Object.assign({ price, location: { county: [county] } }, s.q), PER_QUERY)); }));
@@ -44,9 +46,16 @@ async function buildCounty(county, tagBudget, ms) {
     homes.push(Object.assign(Object.fromEntries(KEEP.map((k) => [k, l[k]])), { k: t.k, sure: t.sure }));
   });
   const untagged = all.filter((l) => !tags[l.id]).length;
+  // Sort the kept homes' photos by room (front, living, kitchen...), with whatever time is left.
+  let roomRun = null;
+  const left = (ms || 60000) - (Date.now() - started);
+  if (roomBudget && left > 20000) {
+    const keptIds = new Set(homes.map((h) => h.id));
+    roomRun = await rooms.sortAll(all.filter((l) => keptIds.has(l.id)), roomBudget, left - 15000).catch((e) => ({ error: e.message }));
+  }
   await store.upsert('pool', county, (doc) => { doc.at = Date.now(); doc.v = 2; doc.homes = homes; doc.untagged = untagged; });
   mem.delete(county);
-  return { county, found: all.length, read, kept: homes.length, untagged, doubtful, notUsable: all.filter((l) => tags[l.id] === 'NA').length };
+  return { county, found: all.length, read, kept: homes.length, untagged, doubtful, notUsable: all.filter((l) => tags[l.id] === 'NA').length, rooms: roomRun };
 }
 
 const mem = new Map();
