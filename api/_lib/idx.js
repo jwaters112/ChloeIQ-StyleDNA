@@ -10,13 +10,15 @@ async function getJson(url, ms) {
   if (hit && Date.now() - hit.t < 10 * 60000) return hit.v;
   try {
     const r = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(ms || 5000) });
-    if (!r.ok) return null;
+    last = r.status + ' ' + (r.headers.get('content-type') || '');
+    if (!r.ok) { last += ' ' + (await r.text()).slice(0, 200); return null; }
     const v = await r.json();
     if (cache.size > 500) cache.clear();
     cache.set(url, { t: Date.now(), v });
     return v;
-  } catch (e) { return null; }
+  } catch (e) { last = 'ERR ' + (e && e.message); return null; }
 }
+let last = '';
 
 // "9105 Nor" -> ["9105 Norman DR, Plano, TX 75025", ...]
 async function suggest(q) {
@@ -54,4 +56,4 @@ async function findListing(address) {
   return { id: String(l.id), url: `${SITE}/listing-detail/${l.id}/${slug(street + ', ' + city + ' TX')}`, address: exact, mls: String(l.mlsListingId || '') };
 }
 
-module.exports = { suggest, findListing };
+module.exports = { suggest, findListing, lastError: () => last };

@@ -11,5 +11,6 @@ module.exports = async (req, res) => {
   const q = String((req.query && req.query.q) || '');
   const out = await idx.suggest(q);
   res.setHeader('Cache-Control', 'public, max-age=300');
+  if (req.query.debug && process.env.VERCEL_ENV !== 'production') return res.status(200).json({ ok: true, list: out, debug: idx.lastError(), find: await idx.findListing(q) });
   return res.status(200).json({ ok: true, list: out });
 };
