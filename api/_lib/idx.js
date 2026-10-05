@@ -24,7 +24,7 @@ let last = '';
 async function suggest(q) {
   q = String(q || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   if (q.length < 3) return [];
-  const j = await getJson(`${SITE}/api-site/search/suggestions/listing/location?siteId=${SITE_ID}&key=${encodeURIComponent(q)}`, 4000);
+  const j = await getJson(`${SITE}/api-site/search/suggestions/listing/location?siteId=${SITE_ID}&key=${encodeURIComponent(q)}`, 6000);
   if (!Array.isArray(j)) return [];
   const group = j.find((g) => g && g.type === 'streetAddress');
   return ((group && group.list) || []).map((x) => String(x.value || x.label || '').trim()).filter(Boolean).slice(0, 6);
