@@ -1309,9 +1309,10 @@
         .swipe-card-description { font-size: 14px; }
         .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
         .loosen { margin: 14px 0 0; }
-        .loosen-q { font-size: 14px; color: var(--silver); margin: 0 0 8px; }
+        .loosen-q { font-size: 14px; color: var(--silver); margin: 4px 0 8px; }
         .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
-        .loosen-chip span { color: var(--gold); font-size: 13px; white-space: nowrap; }
+        .loosen-chip .loosen-gain { color: var(--gold); font-size: 14px; white-space: nowrap; }
+        .loosen-done { font-size: 14px; color: var(--silver); margin: 0 0 10px; }
         .another-area { display: block; margin: 10px auto 0; order: 5; }
         .how-love { order: 1; margin: 6px 0 18px; border-top: 1px solid rgba(255,255,255,.1); }
         .how-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 14px; }
@@ -2028,16 +2029,25 @@
         }
 
         // The full city list for each county, from real listings (adds towns the short list misses).
+        // Merged on the next redraw of the where screen, never underneath a finger mid-tap.
+        let moreCities = null;
         fetch('/api/address?cities=1').then(r => r.json()).then(j => {
-            Object.entries((j && j.cities) || {}).forEach(([county, list]) => {
+            moreCities = (j && j.cities) || null;
+            const ws = document.getElementById('whereScreen');
+            if (!ws.classList.contains('active') || !selectedCounties.length) mergeCities();
+        }).catch(() => {});
+        function mergeCities() {
+            if (!moreCities) return;
+            Object.entries(moreCities).forEach(([county, list]) => {
                 if (!COUNTY_CITIES[county] || !Array.isArray(list)) return;
                 const have = new Set(COUNTY_CITIES[county].map(c => c.toLowerCase()));
                 list.forEach(c => { if (!have.has(String(c).toLowerCase())) { have.add(String(c).toLowerCase()); COUNTY_CITIES[county].push(c); } });
             });
-            if (document.getElementById('whereScreen').classList.contains('active')) renderWhere();
-        }).catch(() => {});
+            moreCities = null;
+        }
         // ---- Step 1: where ----
         function renderWhere() {
+            mergeCities();
             document.getElementById('countyChips').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, selectedCounties.includes(c), () => {
                 selectedCounties = selectedCounties.includes(c) ? selectedCounties.filter(x => x !== c) : selectedCounties.concat(c);
                 const keep = new Set(selectedCounties.flatMap(x => COUNTY_CITIES[x]));
@@ -2191,13 +2201,16 @@
             img.alt = home.label + ' home in ' + (home.city || 'DFW');
             img.src = home.photo;
             card._pics = pics; card._pic = 0;
+            if (pics[1]) new Image().src = pics[1];
             return card;
         }
-        // Tap the photo: right side for the next photo, left side to go back.
-        function flipPhoto(card, back) {
+        // Tap the photo for the next one; after the last it goes back to the front.
+        function flipPhoto(card) {
             const pics = card._pics || [];
             if (pics.length < 2) return;
-            card._pic = (card._pic + (back ? pics.length - 1 : 1)) % pics.length;
+            if (Date.now() - (card._flipAt || 0) < 250) return;
+            card._flipAt = Date.now();
+            card._pic = (card._pic + 1) % pics.length;
             card.querySelector('.swipe-card-img').src = pics[card._pic];
             card.querySelectorAll('.swipe-dots i').forEach((d, i) => d.classList.toggle('on', i === card._pic));
             const h = currentHomes[currentSwipeIndex]; if (h) h._flips = (h._flips || 0) + 1;
@@ -2323,7 +2336,11 @@
             document.addEventListener('touchend', endDrag);
         }
 
+        // Phones report a tap twice (as a touch, then as a click); only the touch counts.
+        let lastTouch = 0;
         function startDrag(e) {
+            if (e.type.includes('touch')) lastTouch = Date.now();
+            else if (Date.now() - lastTouch < 900) return;
             isDragging=true;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
@@ -2350,6 +2367,7 @@
 
         function endDrag(e) {
             if(!isDragging)return;
+            if (e.type.includes('touch')) lastTouch = Date.now();
             isDragging=false;
             const card = document.querySelector('.swipe-card.active');
             if(!card)return;
@@ -2358,8 +2376,7 @@
             document.getElementById('indicatorRight').style.opacity = 0;
             if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8 && Date.now() - dragT < 350) {
                 card.style.transform = '';
-                const r = card.getBoundingClientRect();
-                flipPhoto(card, startX < r.left + r.width / 3);
+                flipPhoto(card);
                 return;
             }
             if(Math.abs(diffX)>100) {
@@ -2598,60 +2615,78 @@
         }
 
         // How many homes in their style are for sale in their search, or the closest city that has them.
-        async function loadAvailability() {
-            const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
-            const k = userArchetype, label = styleLabel(k);
-            line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; near.hidden = true; avail = null; document.getElementById('moreSection').hidden = true;
+        // Short area name for sentences: a long list of cities reads as "your areas".
+        function shortWhere() {
+            if (selectedCities.length) return selectedCities.length <= 2 ? 'in ' + selectedCities.join(' and ') : 'in your areas';
+            if (selectedCounties.length) return selectedCounties.length <= 2 ? 'in ' + selectedCounties.join(' and ') + (selectedCounties.length > 1 ? ' counties' : ' County') : 'in your areas';
+            return 'across DFW';
+        }
+        function availFetch(k, mustOver) {
+            const c = searchCriteria(); if (mustOver) c.must = mustOver;
+            return fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, c)) })
+                .then(r => r.json().then(j => { if (!r.ok || !j.ok) throw new Error('failed'); return j; }));
+        }
+        // soft: keep what's on screen while the new count loads (no blank-out).
+        async function loadAvailability(soft) {
+            const line = document.getElementById('availLine'), link = document.getElementById('availLink');
+            const k = userArchetype;
+            document.getElementById('loosenBox').hidden = true;
+            if (!soft) { line.textContent = 'Checking homes for sale in your areas...'; link.hidden = true; document.getElementById('availNear').hidden = true; avail = null; document.getElementById('moreSection').hidden = true; }
             try {
-                const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, searchCriteria())) });
-                const j = await r.json();
-                if (!r.ok || !j.ok || k !== userArchetype) throw new Error('failed');
-                avail = j;
-                const where = whereLabel() === 'All of DFW' ? 'across DFW' : 'in ' + whereLabel();
-                renderMore(j);
-                const linkText = j.styled && !j.est ? `See ${j.count.toLocaleString('en-US')} ${j.count === 1 ? 'home' : 'homes'} for sale` : 'See homes for sale';
-                if (j.count >= 3) {
-                    line.innerHTML = `${j.est ? 'About ' : ''}<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range${Object.values(must).includes('must') ? ' with your must-haves' : ''}.`;
-                    link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false;
-                } else {
-                    line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} in your range right now.` : `No ${label} homes are for sale ${where} in your range right now.`;
-                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false; }
-                    offerLoosen(k);
-                    if (j.nearest) {
-                        near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
-                        near.hidden = false;
-                    }
-                }
+                const j = await availFetch(k);
+                if (k !== userArchetype) return;
+                renderAvail(j);
             } catch (e) {
                 line.textContent = 'Homes in your style are for sale now.';
                 link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
             }
         }
+        function renderAvail(j, note) {
+            const line = document.getElementById('availLine'), link = document.getElementById('availLink'), near = document.getElementById('availNear');
+            const label = styleLabel(userArchetype), where = shortWhere();
+            avail = j;
+            renderMore(j);
+            const n = j.count.toLocaleString('en-US');
+            link.textContent = j.styled && !j.est ? `See ${n} ${j.count === 1 ? 'home' : 'homes'} for sale` : 'See homes for sale';
+            link.href = j.url + boardFragment(); link.hidden = !j.count;
+            const withMust = Object.values(must).includes('must') ? ' with your must-haves' : '';
+            if (j.count >= 3) line.innerHTML = `${j.est ? 'About ' : ''}<b>${n}</b> ${esc(label)} homes for sale ${esc(where)}${withMust}, in your price range.`;
+            else line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where}${withMust}, in your price range, right now.` : `No ${label} homes are for sale ${where}${withMust}, in your price range, right now.`;
+            near.hidden = !(j.count < 3 && j.nearest);
+            if (!near.hidden) near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
+            offerLoosen(userArchetype, note);
+        }
 
-        // Few homes: show how many more each must-have would open up if it became a nice-to-have. One tap applies it.
-        async function offerLoosen(k) {
-            const box = document.getElementById('loosenBox'); box.hidden = true; box.innerHTML = '';
+        // Few homes: for each must-have, how many more homes they'd see without requiring it.
+        // The offer shows the exact result they'll get, so the number never changes after the tap.
+        const LOOSE_WORD = { pool: 'a pool', acres: 'an acre or more', gameroom: 'a game or media room', suite: 'a guest suite', access: 'accessible features' };
+        let looseTries = {};
+        async function offerLoosen(k, note) {
+            const box = document.getElementById('loosenBox');
+            const show = (html) => { box.innerHTML = html; box.hidden = !html; };
+            const done = note ? `<p class="loosen-done">${esc(note)}</p>` : '';
+            show(done);
+            const cur = avail, base = (avail && avail.count) || 0;
             const hard = Object.keys(must).filter(m => must[m] === 'must');
-            if (!hard.length) return;
-            const tries = await Promise.all(hard.slice(0, 4).map(async m => {
-                const c = searchCriteria(); c.must = Object.assign({}, must, { [m]: 'nice' });
-                try { const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, c)) }); const j = await r.json(); return { m, n: (j && j.count) || 0 }; } catch (e) { return { m, n: 0 }; }
-            }));
-            if (k !== userArchetype) return;
-            const base = (avail && avail.count) || 0;
-            const better = tries.filter(t => t.n > base).sort((a, b) => b.n - a.n);
+            looseTries = {};
+            if (!hard.length || base >= 25) return;
+            const tries = await Promise.all(hard.slice(0, 4).map(m => availFetch(k, Object.assign({}, must, { [m]: 'nice' })).then(j => ({ m, j }), () => null)));
+            if (k !== userArchetype || avail !== cur) return;
+            const better = tries.filter(t => t && t.j.count - base >= 3).sort((a, b) => b.j.count - a.j.count);
+            better.forEach(t => { looseTries[t.m] = t.j; });
             if (!better.length) return;
-            box.innerHTML = '<div class="loosen-q">Open up your search?</div>' + better.map(t => `<button type="button" class="loosen-chip" onclick="loosen('${t.m}')">${esc(MUST_LABEL[t.m])} as a nice-to-have <span>${t.n.toLocaleString('en-US')} homes</span></button>`).join('');
-            box.hidden = false;
+            show(done + '<p class="loosen-q">Want more to look at?</p>' + better.map(t => `<button type="button" class="loosen-chip" onclick="loosen('${t.m}')"><span class="loosen-what">Don't require ${esc(LOOSE_WORD[t.m])}</span><span class="loosen-gain">${(t.j.count - base).toLocaleString('en-US')} more homes</span></button>`).join(''));
         }
         function loosen(m) {
+            const j = looseTries[m];
             must[m] = 'nice';
             track('must_loosened', { must: m, archetype: userArchetype });
             document.getElementById('pMust').textContent = listText(Object.keys(must).filter(x => must[x] === 'must').map(x => MUST_LABEL[x]));
             document.getElementById('pMustRow').hidden = !Object.values(must).includes('must');
             document.getElementById('pNice').textContent = listText(Object.keys(must).filter(x => must[x] === 'nice').map(x => MUST_LABEL[x]));
             document.getElementById('pNiceRow').hidden = false;
-            loadAvailability();
+            const note = MUST_LABEL[m] + ' moved to nice-to-have.';
+            if (j) renderAvail(j, note); else loadAvailability(true);
         }
         function homeCard(h, where) {
             return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' })">
@@ -2807,7 +2842,7 @@
         }
 
         function showActivation(saved) {
-            const area = whereLabel() === 'All of DFW' ? '' : whereLabel();
+            const sw = shortWhere(), area = sw === 'across DFW' || sw === 'in your areas' ? '' : sw.replace(/^in /, '');
             document.getElementById('activationHeadline').textContent = saved ? "You're All Set" : 'Your StyleDNA';
             document.getElementById('activationText').textContent = saved
                 ? `Thanks${userData && userData.name ? ', ' + userData.name.split(' ')[0] : ''}. Josh will be in touch with ${styleLabel(userArchetype)} homes${area ? ' in ' + area : ''} that fit what you need.`

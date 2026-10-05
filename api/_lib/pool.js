@@ -63,23 +63,40 @@ async function load(counties) {
   return out;
 }
 
-// Every city with homes for sale in each county, read from real listings (a listing's own county,
-// so cities that cross county lines, like Frisco or Carrollton, show under each county they're in).
-const titleCase = (x) => String(x || '').toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\bMc([a-z])/g, (m, a) => 'Mc' + a.toUpperCase()).replace(/^Desoto$/, 'DeSoto').trim();
+// Every city with homes for sale in each county, read from real listings. Listing addresses use the
+// post office city, so a "Dallas" address can sit in Collin County. A town only counts under a county
+// when that county holds a real share of the town's homes (or the town is only in that county), so
+// towns that truly cross county lines (Frisco, Prosper, Carrollton) show under each, and mailing-address
+// strays (Dallas under Denton) don't.
+const SPELL = { 'Desoto': 'DeSoto', 'Mclendon Chisholm': 'McLendon-Chisholm', 'Mclendon-Chisholm': 'McLendon-Chisholm' };
+const titleCase = (x) => { const t = String(x || '').toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).trim(); return SPELL[t] || t.replace(/\bMc([a-z])/g, (m, a) => 'Mc' + a.toUpperCase()); };
+const CITY_SHARE = 0.15;
 async function buildCities() {
   const jobs = [];
-  Object.keys(COUNTIES).forEach((county) => BANDS.forEach((price) => [1, 2].forEach((page) => jobs.push(() => idx.search({ price, location: { county: [county] } }, 100, page).then((r) => ({ county, r }))))));
+  Object.keys(COUNTIES).forEach((county) => BANDS.forEach((price) => [1, 2].forEach((page) => jobs.push(() => idx.search({ price, location: { county: [county] } }, 100, page).then((r) => ({ county, price, r }))))));
   const out = await each(jobs, 3);
-  const tally = {};
-  out.forEach(({ county, r }) => (r ? r.list : []).forEach((l) => {
-    if (!l.city || (l.county && String(l.county).replace(/ county$/i, '').toLowerCase() !== county.toLowerCase())) return;
-    const c = titleCase(l.city); const t = tally[county] = tally[county] || {}; t[c] = (t[c] || 0) + 1;
-  }));
-  const map = {};
-  Object.entries(tally).forEach(([county, t]) => { map[county] = Object.keys(t).filter((c) => t[c] >= 1).sort(); });
-  if (Object.keys(map).length >= 8) await store.upsert('pool', 'cities', (doc) => { doc.at = Date.now(); doc.v = 1; doc.map = map; });
+  // Each price band is a sample; weight it up to the band's full count so big and small counties compare fairly.
+  const fetched = {};
+  out.forEach(({ county, price, r }) => { const k = county + price; fetched[k] = (fetched[k] || 0) + (r ? r.list.length : 0); });
+  const w = {}, total = {};
+  out.forEach(({ county, price, r }) => {
+    if (!r) return;
+    const k = county + price, scale = fetched[k] ? Math.max(1, r.count / fetched[k]) : 1;
+    r.list.forEach((l) => {
+      if (!l.city || (l.county && String(l.county).replace(/ county$/i, '').toLowerCase() !== county.toLowerCase())) return;
+      const c = titleCase(l.city);
+      (w[county] = w[county] || {})[c] = (w[county][c] || 0) + scale;
+      total[c] = (total[c] || 0) + scale;
+    });
+  });
+  const map = {}, share = {};
+  Object.entries(w).forEach(([county, t]) => {
+    map[county] = Object.keys(t).filter((c) => t[c] / total[c] >= CITY_SHARE).sort();
+    share[county] = Object.fromEntries(Object.keys(t).map((c) => [c, Math.round(t[c] / total[c] * 100)]));
+  });
+  if (Object.keys(map).length >= 8) await store.upsert('pool', 'cities', (doc) => { doc.at = Date.now(); doc.v = 2; doc.map = map; doc.share = share; });
   citiesMem.t = 0;
-  return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, v.length]));
+  return { counts: Object.fromEntries(Object.entries(map).map(([k, v]) => [k, v.length])), map, share };
 }
 const citiesMem = { t: 0, map: null };
 async function cities() {

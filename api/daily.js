@@ -371,7 +371,7 @@ module.exports = async (req, res) => {
     const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
     let budget = Number(q.budget) || 1500; report.pool = [];
     // City lists change slowly: rebuilt on Sundays (after the homes, so the two don't crowd the listing search).
-    const cityRun = async () => { try { report.cities = await poolLib.buildCities(); } catch (e) { report.cities = { error: String(e && e.message) }; } };
+    const cityRun = async () => { try { const c = await poolLib.buildCities(); report.cities = q.cities === 'only' ? c : c.counts; } catch (e) { report.cities = { error: String(e && e.message) }; } };
     if (q.cities === 'only') { await cityRun(); return res.status(200).json(report); }
     for (const c of list) {
       const left = 270000 - (Date.now() - started);
