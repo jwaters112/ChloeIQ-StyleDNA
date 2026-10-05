@@ -9,6 +9,7 @@ const roomsLib = require('./rooms');
 const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
 const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
 const LEVEL = new Set(['must', 'nice']);
+const MUST_KEYS = ['pool', 'acres', 'gameroom', 'suite', 'access', 'office', 'primarydown', 'garage3', 'outdoor', 'shop', 'newer'];
 const clip = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
 
 // Whatever the browser sends, keep only values we know.
@@ -17,7 +18,7 @@ function criteria(b) {
   const counties = (Array.isArray(b.counties) ? b.counties : []).filter((c) => COUNTIES[c]).slice(0, 8);
   const cities = (Array.isArray(b.cities) ? b.cities : []).map((c) => clip(c, 40).replace(/[^A-Za-z .'-]/g, '')).filter(Boolean).slice(0, 12);
   const must = {}, picks = {};
-  ['pool', 'acres', 'gameroom', 'suite', 'access'].forEach((k) => { const v = b.must && b.must[k]; if (LEVEL.has(v)) must[k] = v; });
+  MUST_KEYS.forEach((k) => { const v = b.must && b.must[k]; if (LEVEL.has(v)) must[k] = v; });
   const allowed = { exterior: ['brick', 'stone', 'stucco', 'siding'], layout: ['open', 'separate'], condition: ['ready', 'updates', 'project'], hoa: ['no', 'yes'], setting: ['near', 'secluded'] };
   // Quick picks can have more than one answer each (older saves send a single value).
   Object.entries(allowed).forEach(([k, vals]) => { const v = b.picks && b.picks[k]; const list = (Array.isArray(v) ? v : [v]).filter((x) => vals.includes(x)); if (list.length) picks[k] = [...new Set(list)]; });
@@ -47,6 +48,12 @@ const has = {
   gameroom: (l) => /game ?room|media room|theater|theatre|bonus room/.test(l.remarks),
   suite: (l) => /guest suite|in-law|mother-in-law|casita|guest quarters|guest house|second primary|dual primar|next ?gen|multi-?gen/.test(l.remarks),
   access: (l) => /^(one|1)$/i.test(l.stories) || /single[- ]story|one[- ]story|wheelchair|no[- ]step|wide doorways|accessib/.test(l.remarks),
+  office: (l) => /\b(home office|study|private office|office)\b/.test(l.remarks),
+  primarydown: (l) => /^(one|1)$/i.test(l.stories) || /(primary|master|owner'?s?)( bedroom| suite| retreat)? (is )?(down|downstairs|on the (first|main) (floor|level))|(first|main)[- ](floor|level) (primary|master|owner)|(primary|master) (bedroom |suite )?down\b/.test(l.remarks),
+  garage3: (l) => /\b(3|three|4|four|5|five)[- ]car garage|\b(3|4|5) car\b/.test(l.remarks),
+  outdoor: (l) => /outdoor kitchen|covered patio|outdoor living|summer kitchen|pergola|covered porch|outdoor fireplace/.test(l.remarks),
+  shop: (l) => /workshop|\bshop\b|rv (parking|pad|garage|gate|hookup)|boat (parking|storage)|\bbarn\b|detached garage/.test(l.remarks),
+  newer: (l) => l.built >= 2015,
 };
 const pickHas = {
   exterior: { brick: (l) => /brick/i.test(l.materials), stone: (l) => /stone|rock/i.test(l.materials), stucco: (l) => /stucco/i.test(l.materials), siding: (l) => /siding|hardi|fiber cement|wood|vinyl/i.test(l.materials) },
@@ -62,7 +69,7 @@ const pickHas = {
     secluded: (l) => l.acres >= 1 || /secluded|private (lot|setting|retreat)|wooded|tree-?lined|cul-de-sac|peaceful/.test(l.remarks),
   },
 };
-const FEATURE_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game room', suite: 'Guest suite', access: 'One story' };
+const FEATURE_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game room', suite: 'Guest suite', access: 'One story', office: 'Office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015 or later' };
 function fit(l, c) {
   let score = 0; const hits = [];
   Object.entries(c.must).forEach(([k, lvl]) => {
@@ -101,7 +108,7 @@ function traits(l) {
 // The photos a swipe card shows, in a set order: the front (its style), living room, kitchen, primary bath,
 // then the features they asked for when this home has a photo of them, and an aerial when they want acreage.
 // A home without a sorted photo for a slot simply skips it.
-const ROOM_LABEL = { living: 'Living room', kitchen: 'Kitchen', primary_bath: 'Primary bath', pool: 'Pool', game: 'Game room', aerial: 'From above' };
+const ROOM_LABEL = { living: 'Living room', kitchen: 'Kitchen', primary_bath: 'Primary bath', pool: 'Pool', game: 'Game room', aerial: 'From above', office: 'Office', rear: 'Outdoor living' };
 function cardPhotos(l, c, rooms) {
   const r = rooms && rooms[l.id];
   // Not sorted yet: front photo only, so a floor plan, map or sign can never show on a card.
@@ -110,6 +117,8 @@ function cardPhotos(l, c, rooms) {
   const wants = (k) => c.must[k] === 'must' || c.must[k] === 'nice';
   if (wants('pool')) slots.push('pool');
   if (wants('gameroom')) slots.push('game');
+  if (wants('office')) slots.push('office');
+  if (wants('outdoor')) slots.push('rear');
   if (wants('acres')) slots.push('aerial');
   const photos = [l.photo], plabels = ['Front'], used = new Set([l.photo]);
   slots.forEach((k) => { const u = (r[k] || []).find((x) => !used.has(x)); if (u) { used.add(u); photos.push(u); plabels.push(ROOM_LABEL[k]); } });

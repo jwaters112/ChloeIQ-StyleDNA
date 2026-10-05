@@ -1400,6 +1400,40 @@
         .hv-credit { font-size: 12px; color: #7d8382; margin: 0 0 18px; }
         .hv-info .welcome-cta { display: block; text-align: center; text-decoration: none; }
         .hv-info .text-link { display: block; margin: 8px auto 0; }
+        .must-more { display: block; margin: 14px auto 0; }
+        .results-sticky-header { position: relative; overflow: hidden; }
+        .hero-bg { position: absolute; left: 0; right: 0; top: 0; height: 420px; overflow: hidden; pointer-events: none; display: none; }
+        .has-hero .hero-bg { display: block; }
+        .hero-img { position: absolute; inset: 0; background-size: cover; background-position: center; transform-origin: 50% 60%; animation: heroZoom 22s ease-out forwards; }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,12,13,.35) 0%, rgba(3,12,13,.25) 35%, rgba(3,12,13,.85) 78%, #030c0d 100%); }
+        @keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+        .has-hero { padding-top: 190px !important; }
+        .results-archetype { position: relative; z-index: 1; }
+        .has-hero .archetype-kicker { color: rgba(255,255,255,.85); }
+        @media (prefers-reduced-motion: reduce) { .hero-img { animation: none; } }
+        .reveal { position: fixed; inset: 0; z-index: 8500; background: #030c0d; display: flex; align-items: center; justify-content: center; transition: opacity .6s ease; }
+        .reveal[hidden] { display: none; }
+        .reveal.out { opacity: 0; }
+        .reveal-img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.08); transition: opacity 1.2s ease, transform 3s ease-out; }
+        .reveal-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(3,12,13,.55) 0%, rgba(3,12,13,.88) 70%); }
+        .reveal.show-img .reveal-img { opacity: 1; transform: scale(1); }
+        .reveal-in { position: relative; text-align: center; padding: 0 28px; max-width: 440px; }
+        .reveal-line { display: block; height: 1px; width: 0; margin: 0 auto 22px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width .7s ease; }
+        .reveal.go .reveal-line { width: 160px; }
+        .reveal-kicker { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.8); margin: 0 0 14px; opacity: 0; transition: opacity .5s ease .35s; }
+        .reveal.go .reveal-kicker { opacity: 1; }
+        .reveal-name { font-size: 36px; line-height: 1.15; color: var(--gold); font-weight: 700; font-style: italic; margin: 0; }
+        .reveal-name span { display: inline-block; opacity: 0; transform: translateY(10px); filter: blur(4px); transition: opacity .5s ease, transform .5s ease, filter .5s ease; }
+        .reveal-name span.on { opacity: 1; transform: none; filter: none; }
+        .reveal-name.shine { background: linear-gradient(100deg, var(--gold) 40%, #fff3c4 50%, var(--gold) 60%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: revealShine 1.2s ease forwards; }
+        .reveal-name.shine span { color: transparent; }
+        @keyframes revealShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+        .cta-card { padding: 20px; border: 1px solid rgba(201,162,74,.45); border-radius: 18px; background: linear-gradient(160deg, rgba(201,162,74,.08), rgba(255,255,255,.02)); }
+        .cta-h { font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--soft-white); margin: 0 0 12px; }
+        .cta-list { list-style: none; padding: 0; margin: 0 0 16px; }
+        .cta-list li { position: relative; padding: 0 0 0 20px; margin: 0 0 8px; font-size: 14px; color: var(--silver); line-height: 1.45; }
+        .cta-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+        .cta-card .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1617,7 +1651,8 @@
         <!-- RESULTS SCREEN -->
         <div class="screen results-screen" id="resultsScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Change my answers" id="resultsBack">&#8249;</button>
-            <div class="results-sticky-header">
+            <div class="results-sticky-header" id="resultsHeader">
+                <div class="hero-bg" aria-hidden="true"><div class="hero-img" id="heroImg"></div></div>
                 <div class="results-archetype">
                     <div class="archetype-kicker">Your StyleDNA</div>
                     <h2 class="archetype-name" id="archetypeName">Craftsman</h2>
@@ -1675,7 +1710,15 @@
                         <p class="avail-near" id="availNear" hidden></p>
                         <div class="area-help" id="areaHelp" hidden></div>
                     </div>
-                    <button class="btn-outline avail-save" onclick="captureEmail()">Send me new homes that fit</button>
+                    <div class="cta-card avail-save">
+                        <p class="cta-h" id="ctaHead">Get first look at new homes in your style</p>
+                        <ul class="cta-list">
+                            <li>New listings in your style and areas, the day they list</li>
+                            <li>Price drops on the homes you loved</li>
+                            <li>Coming-soon homes, before they're on the big sites</li>
+                        </ul>
+                        <button class="welcome-cta" type="button" onclick="captureEmail()">Send me my matches</button>
+                    </div>
                 </div>
 
                 <div class="results-section board-return" id="boardReturn" hidden>
@@ -1740,8 +1783,8 @@
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="brand-bar" aria-hidden="true"><span>Dallas Collective Group</span><i></i><b>StyleDNA</b></div>
             <div class="form-container">
-                <h2 class="form-heading">Save Your StyleDNA</h2>
-                <p class="form-subheading">Josh will follow up with DFW homes that fit your style and budget.</p>
+                <h2 class="form-heading">Get First Look</h2>
+                <p class="form-subheading" id="formSub">New homes in your style the day they list, price drops on the homes you loved, and coming-soon homes before they hit the big sites.</p>
 
                 <form onsubmit="submitData(event)" novalidate>
                     <p class="form-carry" id="formCarry"></p>
@@ -1873,7 +1916,7 @@
                     <p class="form-error" id="formError" role="alert"></p>
 
                     <div class="form-buttons">
-                        <button type="submit" class="btn-primary" id="submitBtn">Save my StyleDNA</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Send me my matches</button>
                         <button type="button" class="btn-secondary" onclick="skipDataCapture()">Not now</button>
                     </div>
                 </form>
@@ -2031,9 +2074,23 @@
             { k: 'acres', label: 'An acre or more', hint: 'Room to spread out' },
             { k: 'gameroom', label: 'Game or media room', hint: 'A second living area upstairs or down' },
             { k: 'suite', label: 'Guest suite or in-law quarters', hint: 'A second living space with its own bath' },
-            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' }
+            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' },
+            { k: 'office', label: 'Home office', hint: 'A room with a door for work' },
+            { k: 'primarydown', label: 'Primary bedroom downstairs', hint: 'Main bedroom on the first floor' },
+            { k: 'garage3', label: '3+ car garage', hint: 'Room for cars, storage or a gym' },
+            { k: 'outdoor', label: 'Outdoor living', hint: 'Covered patio or outdoor kitchen' },
+            { k: 'shop', label: 'Shop or RV/boat parking', hint: 'Workshop, barn or a spot for the RV or boat' },
+            { k: 'newer', label: 'Newer build', hint: 'Built 2015 or later' }
         ];
-        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features' };
+        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features', office: 'Home office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015+' };
+        // Most-picked must-haves show first (learned from recent quizzes); the rest sit behind "More options".
+        let mustOrder = ['pool', 'acres', 'gameroom', 'office', 'primarydown', 'outdoor', 'suite', 'garage3', 'shop', 'newer', 'access'], mustMore = false;
+        fetch('/api/stats?trend=musts').then(r => r.json()).then(j => {
+            const c = (j && j.musts) || {}, total = Object.values(c).reduce((t, n) => t + n, 0);
+            if (total < 20) return; // not enough quizzes yet to trust the order
+            mustOrder = mustOrder.slice().sort((a, b) => (c[b] || 0) - (c[a] || 0));
+            if (document.getElementById('mustScreen') && !document.getElementById('mustScreen').classList.contains('active')) renderMusts();
+        }).catch(() => {});
         const PICKS = [
             { k: 'exterior', label: 'Exterior', opts: [['brick', 'Brick'], ['stone', 'Stone'], ['stucco', 'Stucco'], ['siding', 'Siding']] },
             { k: 'layout', label: 'Layout', opts: [['open', 'Open concept'], ['separate', 'Separate rooms']] },
@@ -2235,7 +2292,10 @@
 
         // ---- Step 3: must-haves (Must / Nice, tap again to clear) ----
         function renderMusts() {
-            document.getElementById('mustList').replaceChildren(...MUSTS.map(m => {
+            const byK = Object.fromEntries(MUSTS.map(m => [m.k, m]));
+            const ordered = mustOrder.map(k => byK[k]).filter(Boolean);
+            const shown = ordered.filter((m, i) => mustMore || i < 6 || must[m.k]);
+            const rows = shown.map(m => {
                 const row = document.createElement('div'); row.className = 'must-row';
                 const t = document.createElement('div'); t.className = 'must-text';
                 t.append(Object.assign(document.createElement('b'), { textContent: m.label }), Object.assign(document.createElement('small'), { textContent: m.hint }));
@@ -2248,7 +2308,15 @@
                 });
                 row.append(t, seg);
                 return row;
-            }));
+            });
+            const hiddenN = ordered.length - shown.length;
+            if (hiddenN > 0) {
+                const more = document.createElement('button'); more.type = 'button'; more.className = 'chip must-more';
+                more.textContent = `More options (${hiddenN})`;
+                more.onclick = () => { mustMore = true; renderMusts(); track('must_more_opened', {}); };
+                rows.push(more);
+            }
+            document.getElementById('mustList').replaceChildren(...rows);
         }
 
         // ---- Step 4: quick picks (one per row, tap again to clear) ----
@@ -2720,13 +2788,16 @@
                 if (!document.getElementById('loadingScreen').classList.contains('active')) return; // they went back
                 userArchetype = computeArchetype();
                 showResults();
-            }, 1800);
+                playReveal();
+            }, 1400);
         }
 
         function listText(arr) { return arr.length ? arr.join(', ') : ''; }
         function showResults() {
             const info = STYLE_INFO[userArchetype] || STYLE_INFO.traditional;
             const sig = signature(userArchetype);
+            setHero();
+            document.getElementById('ctaHead').textContent = `Get first look at new ${sig.name.replace(/^The /, '')} homes`;
             document.getElementById('archetypeName').textContent = sig.name;
             const lean = document.getElementById('styleLean');
             lean.hidden = false; lean.textContent = info.label + ' architecture' + (styleNext ? ', with a lean toward ' + styleLabel(styleNext) : '');
@@ -2764,7 +2835,7 @@
             }
             showScreen('resultsScreen', false);
             track('quiz_completed', { archetype: userArchetype, budget: selectedPriceLabel, loves: loves.length });
-            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k) });
+            if (window.sdnaStat) sdnaStat('quiz_done', { archetype: userArchetype, budget: selectedPriceLabel, homeType: selectedHomeTypeLabel, areas: myAreas(), loved: loves.map(h => h.k), passed: passes.map(h => h.k), musts: Object.keys(must) });
         }
 
         // How many homes in their style are for sale in their search, or the closest city that has them.
@@ -2979,6 +3050,37 @@
             if (!fromPop) { try { if (history.state && history.state.sdnaViewer) history.back(); } catch (err) {} }
         }
         window.addEventListener('popstate', () => closeHome(true));
+        // Hero: the front of the home they lingered on longest in their style, else any loved home, else one of their style.
+        function setHero() {
+            const mine = loves.filter(h => h.k === userArchetype && h.photo), any = loves.filter(h => h.photo);
+            const byDwell = (a) => a.slice().sort((x, y) => (y._ms || 0) - (x._ms || 0))[0];
+            const pick = byDwell(mine) || byDwell(any) || ((deckInfo && deckInfo.cards) || []).find(h => h.k === userArchetype && h.photo);
+            const head = document.getElementById('resultsHeader'), img = document.getElementById('heroImg');
+            head.classList.toggle('has-hero', !!pick);
+            if (pick) { img.style.animation = 'none'; img.offsetHeight; img.style.animation = ''; img.style.backgroundImage = `url("${String(pick.photo).replace(/"/g, '')}")`; }
+        }
+        // The arrival: dim, a gold line, "Your StyleDNA is", then their name word by word over their home.
+        function playReveal() {
+            const r = document.getElementById('reveal');
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const name = document.getElementById('archetypeName').textContent;
+            const nm = document.getElementById('revealName');
+            nm.className = 'reveal-name';
+            nm.innerHTML = name.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
+            const hero = document.getElementById('heroImg').style.backgroundImage;
+            document.getElementById('revealImg').style.backgroundImage = hero || '';
+            r.className = 'reveal'; r.hidden = false;
+            const t = (ms, f) => setTimeout(f, ms);
+            requestAnimationFrame(() => r.classList.add('go'));
+            const words = nm.querySelectorAll('span');
+            words.forEach((w, i) => t(700 + i * 160, () => w.classList.add('on')));
+            const named = 700 + words.length * 160 + 300;
+            t(named, () => { nm.classList.add('shine'); if (hero) r.classList.add('show-img'); try { navigator.vibrate && navigator.vibrate(25); } catch (e) {} });
+            t(named + 1500, () => r.classList.add('out'));
+            t(named + 2100, () => { r.hidden = true; r.className = 'reveal'; });
+            r.onclick = () => { r.classList.add('out'); t(500, () => { r.hidden = true; }); };
+            track('reveal_played', { archetype: userArchetype });
+        }
         function toggleLoved() {
             const box = document.getElementById('lovedBox'), pill = document.getElementById('lovedPill'), open = box.hidden;
             box.hidden = !open; pill.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2993,7 +3095,7 @@
 
         // Few homes: for each must-have, how many more homes they'd see without requiring it.
         // The offer shows the exact result they'll get, so the number never changes after the tap.
-        const LOOSE_WORD = { pool: 'a pool', acres: 'an acre or more', gameroom: 'a game or media room', suite: 'a guest suite', access: 'accessible features' };
+        const LOOSE_WORD = { pool: 'a pool', acres: 'an acre or more', gameroom: 'a game or media room', suite: 'a guest suite', access: 'accessible features', office: 'a home office', primarydown: 'a primary bedroom downstairs', garage3: 'a 3+ car garage', outdoor: 'outdoor living', shop: 'a shop or RV parking', newer: 'a newer build' };
         let looseTries = {};
         async function offerLoosen(k, note) {
             const box = document.getElementById('loosenBox');
@@ -3263,12 +3365,13 @@
         // One share button: the phone's own share menu, with their result card as the link preview.
         function shareResults() {
             const lab = styleLabel(userArchetype);
-            const url = buildShareUrl('share');
-            const text = `My home StyleDNA: ${signature(userArchetype).name}. Swipe real DFW homes and find yours:`;
+            const sigName = signature(userArchetype).name;
+            const url = `${STYLEDNA_BASE_URL}/s/${sigName.toLowerCase().replace(/^the /, '').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}${window.__sid ? '?r=' + window.__sid : ''}`;
+            const text = `My home style: ${sigName}. Swipe real DFW homes and find yours:`;
             if (navigator.share) {
                 track('shared', { channel: 'native', archetype: userArchetype });
                 if (window.sdnaStat) sdnaStat('share', { channel: 'native' });
-                navigator.share({ title: `My home StyleDNA: ${lab}`, text, url }).catch(err => {
+                navigator.share({ title: `My home style: ${sigName}`, text, url }).catch(err => {
                     if (err && err.name !== 'AbortError') console.warn('Share failed:', err);
                 });
                 return;
@@ -3482,6 +3585,14 @@
     <div class="hv-strip" id="hvStrip"></div>
     <p class="hv-tag" id="hvTag"></p>
     <div class="hv-info" id="hvInfo"></div>
+</div>
+<div class="reveal" id="reveal" hidden aria-hidden="true">
+    <div class="reveal-img" id="revealImg"></div>
+    <div class="reveal-in">
+        <i class="reveal-line"></i>
+        <p class="reveal-kicker">Your StyleDNA is</p>
+        <p class="reveal-name" id="revealName"></p>
+    </div>
 </div>
 </body>
 </html>

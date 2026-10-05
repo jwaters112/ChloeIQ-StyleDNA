@@ -8,6 +8,8 @@ const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String
 const dayKey = (t) => 'd' + new Date(t).toLocaleDateString('en-CA', { timeZone: 'America/Chicago' }).replace(/-/g, '');
 const bump = (obj, k, n) => { if (!k) return; obj[k] = (obj[k] || 0) + (n || 1); };
 const hits = new Map();
+const trendMem = { at: 0, counts: {} };
+const now0 = () => Date.now();
 
 function addEvent(doc, e) {
   doc.c = doc.c || {}; doc.src = doc.src || {}; doc.ref = doc.ref || {}; doc.uniq = doc.uniq || [];
@@ -24,12 +26,13 @@ function addEvent(doc, e) {
     (e.passed || []).forEach((x) => bump(doc.passed, x));
     (e.areas || []).forEach((x) => bump(doc.area, x));
     bump(doc.budget, e.budget); bump(doc.htype, e.homeType || 'Any');
+    doc.musts = doc.musts || {}; (e.musts || []).forEach((x) => bump(doc.musts, x));
   }
   if (e.type === 'share') { doc.shareCh = doc.shareCh || {}; bump(doc.shareCh, e.channel || 'native'); }
 }
 
 function merge(into, doc) {
-  ['c', 'src', 'ref', 'arch', 'loved', 'passed', 'area', 'budget', 'htype', 'shareCh'].forEach((k) => {
+  ['c', 'src', 'ref', 'arch', 'loved', 'passed', 'area', 'budget', 'htype', 'shareCh', 'musts'].forEach((k) => {
     into[k] = into[k] || {}; Object.entries(doc[k] || {}).forEach(([x, n]) => bump(into[k], x, n));
   });
 }
@@ -52,11 +55,22 @@ module.exports = async (req, res) => {
       archetype: clip(b.archetype, 20), budget: clip(b.budget, 30), homeType: clip(b.homeType, 30),
       loved: (Array.isArray(b.loved) ? b.loved : []).slice(0, 12).map((x) => clip(x, 40)), passed: (Array.isArray(b.passed) ? b.passed : []).slice(0, 12).map((x) => clip(x, 40)),
       areas: (Array.isArray(b.areas) ? b.areas : []).slice(0, 6).map((x) => clip(x, 60)),
+      musts: (Array.isArray(b.musts) ? b.musts : []).slice(0, 12).map((x) => clip(x, 20).replace(/[^a-z0-9]/g, '')).filter(Boolean),
     };
     try { await store.upsert('stats', dayKey(now), (doc) => addEvent(doc, e)); } catch (err) { console.warn('stats write failed', err && err.message); }
     return res.status(204).end();
   }
 
+  // ---- public: which must-haves people pick most (last 30 days), so the quiz shows the top ones first ----
+  if (req.query && req.query.trend === 'musts') {
+    if (!trendMem.at || now0() - trendMem.at > 3600000) {
+      const counts = {};
+      for (let i = 0; i < 30; i++) { const cur = await store.readIn('stats', dayKey(Date.now() - i * 86400000)).catch(() => null); Object.entries((cur && cur.doc && cur.doc.musts) || {}).forEach(([k, n]) => bump(counts, k, n)); }
+      trendMem.at = now0(); trendMem.counts = counts;
+    }
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    return res.status(200).json({ ok: true, musts: trendMem.counts });
+  }
   // ---- scoreboard data (Josh only) ----
   const key = process.env.STATS_KEY;
   if (!key || (req.query && req.query.k) !== key) return res.status(401).json({ ok: false });

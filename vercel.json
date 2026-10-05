@@ -111,6 +111,10 @@
     {
       "source": "/api/deck",
       "destination": "/api/address"
+    },
+    {
+      "source": "/s/:slug",
+      "destination": "/api/address?share=:slug"
     }
   ]
 }
