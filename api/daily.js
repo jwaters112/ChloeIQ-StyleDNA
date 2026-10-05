@@ -3,6 +3,7 @@
 //    back on the market, off the market, new open houses. Updates the board and alerts members.
 // 2. Mornings only: writes one Lofty note per lead summarizing their StyleDNA and joshwaters.com activity.
 const store = require('./_lib/boards');
+const poolLib = require('./_lib/pool');
 const lofty = require('./_lib/lofty');
 const mailer = require('./_lib/mailer');
 const hotLib = require('./_lib/hot');
@@ -363,6 +364,20 @@ module.exports = async (req, res) => {
   const only = process.env.VERCEL_ENV === 'production' ? null : (q.board || null);
   const onlyVisitor = process.env.VERCEL_ENV === 'production' ? null : (q.visitor || null);
   const report = { part, changes: [], notes: 0, tasks: 0, people: [], recaps: 0, nudges: 0 };
+  // Nightly quiz pool: every county, photos read for new listings. Test site can run one county.
+  if (part === 'pool') {
+    const started = Date.now();
+    const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
+    const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
+    let budget = Number(q.budget) || 1500; report.pool = [];
+    for (const c of list) {
+      const left = 270000 - (Date.now() - started);
+      if (left < 30000) { report.pool.push({ county: c, skipped: 'out of time' }); continue; }
+      try { const r = await poolLib.buildCounty(c, budget, Math.min(left - 25000, 120000)); report.pool.push(r); budget = Math.max(0, budget - (r.read || 0)); } catch (e) { report.pool.push({ county: c, error: String(e && e.message) }); }
+    }
+    console.log('pool run', JSON.stringify(report.pool));
+    return res.status(200).json(report);
+  }
   try {
     if (part === 'all' || part === 'listings') await checkListings(report, only);
     if (part === 'all' || part === 'notes') await writeNotes(report, only, onlyVisitor);

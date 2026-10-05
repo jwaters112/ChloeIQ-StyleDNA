@@ -2,6 +2,8 @@
 // their must-haves, and answers "how many homes in my style are near me, and if none, where?".
 const idx = require('./idx');
 const { STYLES, BY_KEY, COUNTIES } = require('./styles');
+const pool = require('./pool');
+const phototag = require('./phototag');
 
 const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
 const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
@@ -64,7 +66,7 @@ function fit(l, c) {
 }
 
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-async function pool(tasks, n) {
+async function each(tasks, n) {
   const out = new Array(tasks.length); let i = 0;
   await Promise.all(Array.from({ length: Math.min(n, tasks.length) }, async () => { while (i < tasks.length) { const at = i++; out[at] = await tasks[at](); } }));
   return out;
@@ -87,44 +89,65 @@ function card(l, s, c, near) {
 }
 
 const DECK_SIZE = 20;
+const TYPE_RE = { 'Single Family Home': /single family/i, Townhouse: /town/i, Condo: /condo/i };
+function inSearch(l, c, cities) {
+  if (c.price) { const [lo, hi] = c.price.split(',').map((x) => Number(x) || 0); if ((lo && l.price < lo) || (hi && l.price > hi)) return false; }
+  if (c.type && l.ptype && TYPE_RE[c.type] && !TYPE_RE[c.type].test(l.ptype)) return false;
+  if (cities && cities.size && !cities.has(String(l.city || '').toLowerCase())) return false;
+  if (c.must.acres === 'must' && !(l.acres >= 1)) return false;
+  return true;
+}
+// Deal up to 20 cards: one of each style first (biggest first), then more rounds.
+function deal(styles, cands, sizes) {
+  const avail = styles.filter((s) => cands[s.k] && cands[s.k].length).sort((a, b) => (sizes[b.k] || 0) - (sizes[a.k] || 0));
+  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 4 : 7;
+  const chosen = [];
+  for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
+    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(x); }
+  }
+  let deck = shuffle(chosen);
+  for (let t = 0; t < 60 && deck.some((d, i) => i && d.k === deck[i - 1].k); t++) deck = shuffle(chosen);
+  return deck;
+}
+
 async function buildDeck(input) {
   const c = criteria(input);
   const styles = stylesFor(c);
-  // Remark-word styles are the more specific label, so they claim a home before its MLS style does.
-  const order = styles.slice().sort((a, b) => (b.q.keyword ? 1 : 0) - (a.q.keyword ? 1 : 0));
-  const run = async (countiesOverride) => pool(order.map((s) => () => idx.search(Object.assign({}, baseCond(c, countiesOverride), s.q), 16)), 6);
-  const results = await run();
-  if (results.every((r) => r === null)) return { ok: false, error: 'listings_unavailable' };
-  const counts = {}, cands = {}, seen = new Set();
-  order.forEach((s, i) => {
-    const r = results[i]; counts[s.k] = r ? r.count : 0;
-    cands[s.k] = (r ? r.list : []).filter((l) => !seen.has(l.id) && (seen.add(l.id), true)).map((l) => ({ l, f: fit(l, c).score + Math.random() * 0.5 }));
-    cands[s.k].sort((a, b) => b.f - a.f);
-  });
-  // If their areas are thin, top up from the nearest neighboring counties, marked "Nearby".
-  let total = Object.values(cands).reduce((n, a) => n + a.length, 0);
-  const near = {};
-  if (total < 12) {
-    const center = areaCenter(c);
-    const extra = Object.keys(COUNTIES).filter((k) => !c.counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
-    const more = await run(c.counties.concat(extra));
-    order.forEach((s, i) => {
-      const r = more[i]; if (!r) return;
-      r.list.forEach((l) => { if (!seen.has(l.id)) { seen.add(l.id); near[l.id] = true; cands[s.k].push({ l, f: fit(l, c).score }); } });
+  const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
+  const cities = new Set(c.cities.map((x) => x.toLowerCase()));
+  const pick = (homes, near) => {
+    const cands = {}, seen = new Set();
+    homes.forEach((l) => {
+      if (seen.has(l.id) || !BY_KEY[l.k] || !styles.some((s) => s.k === l.k)) return; seen.add(l.id);
+      (cands[l.k] = cands[l.k] || []).push(Object.assign(card(l, BY_KEY[l.k], c, near), { _f: fit(l, c).score + Math.random() * 0.6 }));
     });
-    total = Object.values(cands).reduce((n, a) => n + a.length, 0);
+    Object.values(cands).forEach((a) => a.sort((x, y) => y._f - x._f));
+    return cands;
+  };
+  let homes = (await pool.load(counties)).filter((l) => inSearch(l, c, cities));
+  let source = 'pool';
+  if (!homes.length && !(await pool.load(counties)).length) {
+    // Pool not built for these counties yet: look live, and read photos now (slower, first time only).
+    source = 'live';
+    const results = await each(styles.map((s) => () => idx.search(Object.assign({}, baseCond(c), s.q), 12)), 6);
+    const all = []; results.forEach((r) => (r ? r.list : []).forEach((l) => all.push(l)));
+    const tags = await phototag.tagAll(all, 60, 7000);
+    homes = all.filter((l) => tags[l.id] && phototag.CODE_STYLE[tags[l.id]]).map((l) => Object.assign({}, l, { k: phototag.CODE_STYLE[tags[l.id]] }));
   }
-  // One of each style first, biggest styles first, then a second and third round.
-  const avail = styles.filter((s) => cands[s.k] && cands[s.k].length).sort((a, b) => (counts[b.k] || 0) - (counts[a.k] || 0));
-  const maxPer = avail.length >= 8 ? 3 : avail.length >= 5 ? 4 : 6;
-  const chosen = [];
-  for (let round = 0; round < maxPer && chosen.length < DECK_SIZE; round++) {
-    for (const s of avail) { if (chosen.length >= DECK_SIZE) break; const x = cands[s.k][round]; if (x) chosen.push(card(x.l, s, c, near[x.l.id])); }
+  const cands = pick(homes, false);
+  const sizes = Object.fromEntries(Object.entries(cands).map(([k, a]) => [k, a.length]));
+  let total = homes.length;
+  // Thin areas: top up from the three nearest counties, marked "Nearby".
+  if (total < 14 && source === 'pool') {
+    const center = areaCenter(c);
+    const extra = Object.keys(COUNTIES).filter((k) => !counties.includes(k)).sort((a, b) => dist(COUNTIES[a], center) - dist(COUNTIES[b], center)).slice(0, 3);
+    const more = (await pool.load(extra)).filter((l) => inSearch(l, c, null));
+    const add = pick(more, true);
+    Object.entries(add).forEach(([k, a]) => { cands[k] = (cands[k] || []).concat(a); });
+    total += more.length;
   }
-  // Spread the deck so the same style never sits back to back when it can be helped.
-  let deck = shuffle(chosen);
-  for (let t = 0; t < 60 && deck.some((d, i) => i && d.k === deck[i - 1].k); t++) deck = shuffle(chosen);
-  return { ok: true, cards: deck, counts, total, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
+  const deck = deal(styles, cands, sizes).map((x) => { delete x._f; return x; });
+  return { ok: true, cards: deck, counts: sizes, total, source, styles: styles.map((s) => ({ k: s.k, label: s.label, desc: s.desc })), criteria: c };
 }
 
 // How many homes in this style fit their search, and if few, the closest city that has them.
@@ -133,7 +156,11 @@ async function availability(input, k) {
   if (!s) return { ok: false };
   const here = await idx.search(Object.assign({}, baseCond(c), s.q), 24);
   const count = here ? here.count : 0;
-  const top = here ? here.list.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c)) : [];
+  // Best fits: homes whose photo shows this style, from the pool first; the live search as a backup.
+  const cities = new Set(c.cities.map((x) => x.toLowerCase()));
+  const verified = (await pool.load(c.counties.length ? c.counties : Object.keys(COUNTIES))).filter((l) => l.k === k && inSearch(l, c, cities));
+  const src = verified.length ? verified : (here ? here.list : []);
+  const top = src.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
   const out = { ok: true, k, label: s.label, count, url: idx.searchUrl(Object.assign({}, baseCond(c), s.q)), homes: top };
   if (count < 3) {
     const wide = await idx.search(Object.assign({}, baseCond(Object.assign({}, c, { cities: [] }), Object.keys(COUNTIES)), s.q), 60);

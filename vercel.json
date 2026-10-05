@@ -44,11 +44,21 @@
     {
       "path": "/api/daily?part=listings",
       "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/daily?part=pool",
+      "schedule": "0 9 * * *"
     }
   ],
   "functions": {
     "api/daily.js": {
       "maxDuration": 300
+    },
+    "api/address.js": {
+      "maxDuration": 30
+    },
+    "api/lead.js": {
+      "maxDuration": 20
     }
   },
   "redirects": [

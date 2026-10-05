@@ -5,6 +5,7 @@
 const LOFTY_URL = 'https://api.lofty.com/v1.0/leads';
 const lofty = require('./_lib/lofty');
 const store = require('./_lib/boards');
+const deckLib = require('./_lib/deck');
 
 async function rememberSharer(sid, leadId, name) {
   sid = String(sid || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
@@ -49,7 +50,7 @@ const AREA_ZIPS = {
 // the honeypot and the too-fast check below catch most bots on their own.
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX_PER_IP = 5;
-const MIN_QUIZ_SECONDS = 20; // a real person can't finish 12 swipes, 5 steps and the form faster
+const MIN_QUIZ_SECONDS = 25; // a real person can't finish 20 swipes, 4 steps and the form faster
 const recentByIp = new Map();
 const recentEmails = new Map();
 
@@ -143,26 +144,54 @@ async function handle(req, res) {
   const partnerName = partner ? clip(partner.name, 24) : '';
   const partnerArch = partner ? clip(partner.archetype, 40) : '';
 
+  // StyleDNA v2: architectural style from real homes, must-haves and quick picks.
+  const crit = deckLib.criteria(body.search || {});
+  const styleNext = clip(body.styleNext, 40);
+  const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features' };
+  const PICK_LABEL = { exterior: { brick: 'Brick', stone: 'Stone', stucco: 'Stucco', siding: 'Siding' }, layout: { open: 'Open concept', separate: 'Separate rooms' },
+    condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Quiet and secluded' } };
+  const musts = Object.entries(crit.must).filter(([, v]) => v === 'must').map(([k]) => MUST_LABEL[k]);
+  const nices = Object.entries(crit.must).filter(([, v]) => v === 'nice').map(([k]) => MUST_LABEL[k]);
+  const picks = Object.entries(crit.picks).map(([k, v]) => PICK_LABEL[k] && PICK_LABEL[k][v]).filter(Boolean);
+  const lovedHomes = (Array.isArray(body.lovedHomes) ? body.lovedHomes : []).slice(0, 12)
+    .map((h) => h && typeof h === 'object' ? { label: clip(h.label, 40), address: clip(h.address, 90), url: /^https:\/\/joshwaters\.com\//.test(String(h.url || '')) ? clip(h.url, 300) : '' } : null).filter((h) => h && h.address);
+  const where = [crit.counties.length ? crit.counties.join(', ') + (crit.counties.length > 1 ? ' counties' : ' County') : '', crit.cities.join(', ')].filter(Boolean).join(': ');
+
   const tags = ['StyleDNA Quiz'];
   if (archetype) tags.push(clip('StyleDNA: ' + archetype, 64));
   if (budget) tags.push(clip('Budget: ' + budget.label, 64));
   areas.forEach((a) => tags.push(clip('Area: ' + a, 64)));
+  crit.counties.forEach((c) => tags.push(clip('County: ' + c, 64)));
+  musts.forEach((m) => tags.push(clip('Must have: ' + m, 64)));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
   if (partnerArch) tags.push('Partner compare');
   if (clip(body.board, 24)) tags.push('Home board');
 
   const noteLines = [
     'StyleDNA quiz result',
-    'Archetype: ' + (archetype || 'n/a'),
+    'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : ''),
     'Budget: ' + (budget ? budget.label : 'n/a'),
-    (areas.length > 1 ? 'Areas: ' : 'Area: ') + (areas.join(', ') || 'n/a'),
+    'Looking in: ' + (where || areas.join(', ') || 'anywhere in DFW'),
     'Home type: ' + (homeType || 'open to any'),
-    'Floor plan: ' + clip(prefs.floorPlan, 20) + ' | Outdoor: ' + clip(prefs.backyard, 20) +
-      ' | Kitchen: ' + clip(prefs.kitchen, 20) + ' | Entertaining: ' + clip(prefs.entertaining, 20),
-    'Loved styles: ' + (loved.join(', ') || 'none'),
-    'Passed styles: ' + (passed.join(', ') || 'none'),
+    'Must have: ' + (musts.join(', ') || 'nothing required'),
+    nices.length ? 'Nice to have: ' + nices.join(', ') : '',
+    picks.length ? 'Picks: ' + picks.join(', ') : '',
+    lovedHomes.length ? 'Homes they loved in the quiz:\n' + lovedHomes.map((h) => `- ${h.label ? h.label + ': ' : ''}${h.address}${h.url ? ' ' + h.url : ''}`).join('\n') : 'Loved: none',
+    passed.length ? 'Passed on: ' + [...new Set(passed)].join(', ') : '',
     'Call/text consent: ' + (phoneDigits ? (consent ? 'yes' : 'no') : 'no phone given'),
-  ];
+  ].filter(Boolean);
+  // Their top matches on the market right now, so Josh can open the call with real homes.
+  const styleKey = clip(body.style, 20);
+  if (styleKey) {
+    try {
+      const av = await Promise.race([deckLib.availability(body.search || {}, styleKey), new Promise((ok) => setTimeout(() => ok(null), 4000))]);
+      if (av && av.ok) {
+        noteLines.push(`${av.label} homes for sale in their search right now: ${av.count}`);
+        if (av.homes.length) noteLines.push('Best fits:\n' + av.homes.slice(0, 3).map((h) => `- ${h.address}, $${Number(h.price).toLocaleString('en-US')}${h.hits.length ? ' (' + h.hits.join(', ') + ')' : ''} ${h.url}`).join('\n'));
+        if (av.nearest) noteLines.push(`Few in their areas. Closest place with ${av.label} homes: ${av.nearest.city}`);
+      }
+    } catch (e) {}
+  }
   const utmBits = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']
     .filter((k) => utm[k]).map((k) => k.replace('utm_', '') + '=' + clip(utm[k], 60));
   if (dream) noteLines.splice(1, 0, 'In their words: "' + dream + '"');

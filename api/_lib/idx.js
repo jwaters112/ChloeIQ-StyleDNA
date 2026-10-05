@@ -73,7 +73,8 @@ function slim(l) {
     lat: num(l.latitude), lng: num(l.longitude),
     acres: num(m.chimeLotAcreage), pool: /yes/i.test(m.chimePrivatePoolFlag || m.chimePool || ''),
     stories: String(m.chimeStory || ''), hoa: /yes/i.test(m.chimeHoaFlag || ''), materials: String(m.chimeMaterials || ''),
-    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 1500),
+    ptype: String(l.secondaryType || l.propertyType || ''),
+    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 700),
   };
 }
 // cond: the site's search condition. Returns { count, list } or null when the site didn't answer.
