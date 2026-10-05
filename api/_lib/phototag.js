@@ -109,7 +109,42 @@ async function tagAll(listings, budget, ms) {
   return Object.assign({}, known, fresh);
 }
 
+// ---- the "inside" round: which listing photos are rooms worth showing, and how they feel ----
+const ROOM_PROMPT = `You are sorting Dallas-Fort Worth listing photos for a home style quiz.
+Answer with JSON only: {"room":"kitchen|living|dining|primary|bath|office|other|outside","tone":"light|dark|warm","feel":"modern|classic|rustic|transitional","good":true|false}
+room = what the photo shows (outside means any exterior, yard, pool, aerial or street view; other means hallway, closet, garage, laundry, detail shot, floor plan).
+tone = the overall color: light (white or pale), dark (black, charcoal, deep colors), warm (wood, cream, earth tones).
+feel = the interior design: modern (flat panel, minimal), classic (traditional trim, raised panel, ornate), rustic (beams, reclaimed wood, farmhouse), transitional (in between).
+good = true only when the photo is clear, well lit and shows the room well enough to judge the look.`;
+const roomMem = new Map();
+async function readRoom(url) {
+  if (roomMem.has(url)) return roomMem.get(url);
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key || !/^https:\/\/img\.chime\.me\//.test(url)) return null;
+  try {
+    const img = await fetch(url, { signal: AbortSignal.timeout(6000) }).catch(() => null);
+    if (!img || !img.ok) return null;
+    const media = (img.headers.get('content-type') || 'image/jpeg').split(';')[0];
+    if (!/^image\/(jpeg|png|webp)$/.test(media)) return null;
+    const data = Buffer.from(await img.arrayBuffer()).toString('base64');
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 200, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: media, data } }, { type: 'text', text: ROOM_PROMPT }] }] }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r.ok) return null;
+    const j = await r.json().catch(() => ({}));
+    const text = (j.content || []).map((c) => c.text || '').join('');
+    const m = text.match(/\{[\s\S]*\}/); if (!m) return null;
+    const o = JSON.parse(m[0]);
+    const out = { room: String(o.room || ''), tone: String(o.tone || ''), feel: String(o.feel || ''), good: o.good === true };
+    if (roomMem.size > 3000) roomMem.clear();
+    roomMem.set(url, out);
+    return out;
+  } catch (e) { return null; }
+}
+
 const STYLE_CODE = Object.fromEntries(Object.entries(CODE_STYLE).map(([c, k]) => [k, c]));
 // 'CR~' -> { code: 'CR', sure: false }; 'NA' or unknown -> null.
 function parse(tag) { if (!tag || tag === 'NA') return null; const code = tag.replace('~', ''); return CODE_STYLE[code] ? { code, k: CODE_STYLE[code], sure: !tag.endsWith('~') } : null; }
-module.exports = { tagAll, loadAll, readOne, parse, CODE_STYLE, STYLE_CODE, MODEL };
+module.exports = { tagAll, loadAll, readOne, readRoom, parse, CODE_STYLE, STYLE_CODE, MODEL };

@@ -169,7 +169,8 @@ async function handle(req, res) {
 
   const noteLines = [
     'StyleDNA quiz result',
-    'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : ''),
+    'Home style: ' + (archetype || 'n/a') + (styleNext ? ', leans ' + styleNext : '') + (clip(body.signature, 60) ? ' (' + clip(body.signature, 60) + ')' : ''),
+    ...(clip(body.inside, 80) ? ['Inside they love: ' + clip(body.inside, 80)] : []),
     'Budget: ' + (budget ? budget.label : 'n/a'),
     'Looking in: ' + (where || areas.join(', ') || 'anywhere in DFW'),
     'Home type: ' + (homeType || 'open to any'),

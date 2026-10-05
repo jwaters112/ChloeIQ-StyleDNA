@@ -21,6 +21,21 @@ module.exports = async (req, res) => {
     try {
       if (b.action === 'deck') return res.status(200).json(await deck.buildDeck(b));
       if (b.action === 'availability') return res.status(200).json(await deck.availability(b, String(b.k || '')));
+      // The "inside" round: up to 6 room photos from the homes they loved, one per room type where possible.
+      if (b.action === 'inside') {
+        if (list.length > 1 && list.filter((t) => now - t < 60000).length > 20) return res.status(429).json({ ok: false });
+        const ins = (hits.get('in:' + ip) || []).filter((t) => now - t < 60000); ins.push(now); hits.set('in:' + ip, ins);
+        if (ins.length > 4) return res.status(429).json({ ok: false });
+        const phototag = require('./_lib/phototag');
+        const homes = (Array.isArray(b.homes) ? b.homes : []).slice(0, 5);
+        const jobs = [];
+        homes.forEach((h) => (Array.isArray(h && h.photos) ? h.photos : []).slice(1, 5).forEach((u) => { if (typeof u === 'string' && /^https:\/\/img\.chime\.me\//.test(u)) jobs.push({ id: String(h.id || ''), k: String(h.k || ''), url: u }); }));
+        const reads = await Promise.all(jobs.slice(0, 16).map(async (x) => Object.assign(x, await phototag.readRoom(x.url) || {})));
+        const ok = reads.filter((x) => x.good && ['kitchen', 'living', 'dining', 'primary', 'bath', 'office'].includes(x.room));
+        const order = ['kitchen', 'living', 'primary', 'bath', 'dining', 'office'], pick = [], used = new Set();
+        for (let round = 0; round < 3 && pick.length < 6; round++) order.forEach((room) => { const x = ok.find((y) => y.room === room && !used.has(y.url) && pick.filter((p) => p.id === y.id).length <= round); if (x && pick.length < 6) { used.add(x.url); pick.push(x); } });
+        return res.status(200).json({ ok: true, rooms: pick.map((x) => ({ id: x.id, k: x.k, url: x.url, room: x.room, tone: x.tone, feel: x.feel })) });
+      }
       // Test site only: re-read a spread of pool homes with the current photo reader, without saving.
       if (b.action === 'tagsample' && process.env.VERCEL_ENV !== 'production') {
         const store = require('./_lib/boards'), phototag = require('./_lib/phototag');
