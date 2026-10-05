@@ -75,7 +75,7 @@ async function readOne(url, why) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, max_tokens: 60, messages: [{ role: 'user', content: [
+      body: JSON.stringify({ model: MODEL, max_tokens: 400, messages: [{ role: 'user', content: [
         { type: 'image', source: { type: 'base64', media_type: media, data } }, { type: 'text', text: PROMPT }] }] }),
       signal: AbortSignal.timeout(30000),
     });
@@ -84,7 +84,7 @@ async function readOne(url, why) {
     if (!r.ok) { why.reason = 'api ' + r.status + ' ' + (j && j.error && j.error.message); console.warn('photo read failed', why.reason); return null; }
     const text = (j.content || []).map((c) => c.text || '').join('');
     const m = text.match(/"ext"\s*:\s*"([A-Z]{2})"/), v = (text.match(/"visible"\s*:\s*"(\w+)"/) || [])[1], cf = (text.match(/"conf"\s*:\s*"(\w+)"/) || [])[1];
-    if (!m || !CODES.has(m[1])) { why.reason = 'answer ' + text.slice(0, 120); return null; }
+    if (!m || !CODES.has(m[1])) { why.reason = 'answer [' + (j.stop_reason || '') + '] ' + JSON.stringify(j.content || []).slice(0, 160); return null; }
     if (m[1] === 'NA' || v !== 'full' || cf === 'low') return 'NA';
     return cf === 'high' ? m[1] : m[1] + '~';
     }
