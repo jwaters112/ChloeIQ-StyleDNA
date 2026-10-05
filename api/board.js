@@ -6,6 +6,7 @@
 const store = require('./_lib/boards');
 const mailer = require('./_lib/mailer');
 const lofty = require('./_lib/lofty');
+const idx = require('./_lib/idx');
 const hot = require('./_lib/hot');
 const leadFrom = (body) => { const l = body.lead || {}; return lofty.leadTokenOk(l.id, l.t) ? Number(l.id) : null; };
 
@@ -286,6 +287,8 @@ async function handle(req, res) {
         price: money(d.price), beds: clip(d.beds, 4), baths: clip(d.baths, 5), sqft: clip(d.sqft, 7).replace(/\D/g, '') };
     } else {
       info = link ? await describeLink(link) : { url: '', address: typed };
+      // A typed address that's on the market becomes the real listing (photo, price, status, alerts).
+      if (!link) { const hit = await idx.findListing(typed); if (hit) info = { url: hit.url, address: hit.address, mls: hit.mls }; }
     }
     if (!info) return res.status(400).json({ ok: false, error: 'bad_link' });
     // joshwaters.com links carry Lofty's listing id: fill in status, photo and any missing facts from Lofty.
