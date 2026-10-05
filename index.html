@@ -2031,7 +2031,7 @@
         // The full city list for each county, from real listings (adds towns the short list misses).
         // Merged on the next redraw of the where screen, never underneath a finger mid-tap.
         let moreCities = null;
-        fetch('/api/address?cities=1').then(r => r.json()).then(j => {
+        fetch('/api/address?cities=3').then(r => r.json()).then(j => {
             moreCities = (j && j.cities) || null;
             const ws = document.getElementById('whereScreen');
             if (!ws.classList.contains('active') || !selectedCounties.length) mergeCities();
