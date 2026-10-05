@@ -1966,6 +1966,8 @@
                 const ks = Object.keys(n).sort((a, b) => n[b] - n[a]).slice(0, 3);
                 let left = 100;
                 const parts = ks.map((k, i) => { const pct = i === ks.length - 1 && ks.reduce((t, x) => t + n[x], 0) === loves.length ? left : Math.round(n[k] / loves.length * 100); left -= pct; return `${pct}% ${styleLabel(k)}`; });
+                const shownN = ks.reduce((t, x) => t + n[x], 0);
+                if (shownN < loves.length) parts.push(`${Math.round((loves.length - shownN) / loves.length * 100)}% other`);
                 rows.push(['Your mix', parts.join(' · ')]);
             }
             const mat = topTrait(loves, 'mat'), st = topTrait(loves, 'st'), big = topTrait(loves, 'lot');
