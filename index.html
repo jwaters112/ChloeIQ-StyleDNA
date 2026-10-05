@@ -1150,7 +1150,7 @@
         .results-sticky-header { position: static; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 56px 24px 0; }
         .results-archetype { max-width: 440px; margin: 0 auto; text-align: left; }
         .archetype-kicker { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--silver); margin-bottom: 10px; }
-        .archetype-name { font-size: 40px; line-height: 1.1; color: var(--gold); margin: 0; }
+        .archetype-name { font-size: 34px; line-height: 1.12; color: var(--gold); margin: 0; text-wrap: balance; }
         .results-content { max-width: 440px; margin: 0 auto; padding: 16px 24px 40px; }
         .results-section { margin-bottom: 0; padding: 32px 0; border-top: 1px solid var(--line); }
         .results-section:first-child { border-top: 0; padding-top: 0; }
@@ -1312,7 +1312,11 @@
         .loosen-q { font-size: 14px; color: var(--silver); margin: 0 0 8px; }
         .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
         .loosen-chip span { color: var(--gold); font-size: 13px; white-space: nowrap; }
-        .another-area { display: block; margin: 10px auto 0; }
+        .another-area { display: block; margin: 10px auto 0; order: 5; }
+        .how-love { order: 1; margin: 6px 0 18px; border-top: 1px solid rgba(255,255,255,.1); }
+        .how-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 14px; }
+        .how-row span { color: var(--silver); white-space: nowrap; }
+        .how-row b { font-weight: 500; color: var(--soft-white); text-align: right; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1533,6 +1537,7 @@
                         Based on your budget and StyleDNA, here are your perfect matches
                     </div>
                     <p class="results-description" id="archetypeDescription"></p>
+                    <div class="how-love" id="howLove" hidden></div>
                     <div class="avail" id="availBlock">
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
                         <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See homes for sale</a>
@@ -1844,6 +1849,53 @@
             barndo:       { label: 'Barndominium', desc: 'Metal barn-style home, wide open inside' }
         };
         const STYLE_KEYS = Object.keys(STYLE_INFO);
+        // The signature result: a name built from their style and the material they kept loving,
+        // and one line about their taste. Only about how a home looks and works, never about people.
+        const STYLE_SIG = {
+            traditional:  { n: { _: 'The Timeless Traditional', stone: 'The Stone Front Traditional', brick: 'The Classic Brick Traditional' }, line: 'You appreciate a home that looks settled and sure of itself, with a classic front and rooms that make sense.' },
+            transitional: { n: { _: 'The Soft Modern Transitional', stone: 'The Limestone Transitional', brick: 'The Light Brick Transitional' }, line: 'You appreciate quiet confidence: classic shapes, clean finishes and nothing extra.' },
+            farmhouse:    { n: { _: 'The Black and White Farmhouse', brick: 'The White Brick Farmhouse', siding: 'The Board and Batten Farmhouse', stone: 'The Stone and Steel Farmhouse' }, line: 'You appreciate crisp contrast and simple gables, a fresh take on a familiar shape.' },
+            modern:       { n: { _: 'The Clean Line Modern', stone: 'The Stone and Glass Modern', stucco: 'The White Stucco Modern', siding: 'The Wood and Glass Modern' }, line: 'You appreciate clean lines, big glass and a home that lets the light do the work.' },
+            craftsman:    { n: { _: 'The Front Porch Craftsman', stone: 'The Stone Pier Craftsman' }, line: 'You appreciate handmade detail, a real front porch and a home with character up close.' },
+            ranch:        { n: { _: 'The Long and Low Ranch', stone: 'The Stone Ranch', big: 'The Wide Open Ranch' }, line: 'You appreciate life on one level, long and low, with room to breathe.' },
+            midcentury:   { n: { _: 'The Low Slung Mid-Century', stone: 'The Stone and Glass Mid-Century' }, line: 'You appreciate low rooflines, walls of glass and design that has aged beautifully.' },
+            tudor:        { n: { _: 'The Storybook Tudor', stone: 'The Stone and Timber Tudor' }, line: 'You appreciate steep gables, rich brick and stone, and a front that tells a story.' },
+            mediterranean:{ n: { _: 'The Tile Roof Mediterranean', stucco: 'The Sunlit Stucco Mediterranean' }, line: 'You appreciate warm stucco, tile roofs and arches that feel like an escape.' },
+            french:       { n: { _: 'The Grand French Country', stone: 'The Limestone French Country' }, line: 'You appreciate formal symmetry, tall rooflines and old world polish.' },
+            colonial:     { n: { _: 'The Stately Colonial', brick: 'The Red Brick Colonial' }, line: 'You appreciate balance and proportion, a centered front door and a stately presence.' },
+            cottage:      { n: { _: 'The Painted Brick Cottage', stone: 'The Stone Cottage' }, line: 'You appreciate smaller scale with big charm, where every detail is close at hand.' },
+            hillcountry:  { n: { _: 'The Limestone Hill Country', big: 'The Wide Porch Hill Country' }, line: 'You appreciate Texas limestone, metal roofs and porches made for long evenings.' },
+            barndo:       { n: { _: 'The Wide Open Barndominium', big: 'The Open Acreage Barndominium' }, line: 'You appreciate wide open space, simple steel lines and a home built to work hard.' },
+        };
+        const MAT_WORD = { stone: 'stone', brick: 'brick', stucco: 'stucco', siding: 'siding and wood' };
+        function topTrait(list, f) {
+            const n = {}; list.forEach(h => { const v = h.t && h.t[f]; if (v) n[v] = (n[v] || 0) + 1; });
+            const best = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+            return best && n[best] >= 2 && n[best] >= list.length * 0.5 ? best : '';
+        }
+        function signature(k) {
+            const sig = STYLE_SIG[k] || STYLE_SIG.traditional;
+            const mine = loves.filter(h => h.k === k), pool = mine.length >= 2 ? mine : loves;
+            const mat = topTrait(pool, 'mat'), big = topTrait(pool, 'lot');
+            return { name: (mat && sig.n[mat]) || (big && sig.n.big) || sig.n._, line: sig.line };
+        }
+        // "How you love it": the mix of styles they loved, what they kept choosing, and where they lingered.
+        function howYouLove() {
+            const rows = [];
+            if (loves.length >= 2) {
+                const n = {}; loves.forEach(h => { n[h.k] = (n[h.k] || 0) + 1; });
+                const ks = Object.keys(n).sort((a, b) => n[b] - n[a]).slice(0, 3);
+                let left = 100;
+                const parts = ks.map((k, i) => { const pct = i === ks.length - 1 && ks.reduce((t, x) => t + n[x], 0) === loves.length ? left : Math.round(n[k] / loves.length * 100); left -= pct; return `${pct}% ${styleLabel(k)}`; });
+                rows.push(['Your mix', parts.join(' · ')]);
+            }
+            const mat = topTrait(loves, 'mat'), st = topTrait(loves, 'st'), big = topTrait(loves, 'lot');
+            const drawn = [mat && MAT_WORD[mat] + ' fronts', st === 'one' ? 'one-story homes' : st === 'two' ? 'two-story homes' : '', big && 'an acre or more'].filter(Boolean);
+            if (drawn.length) rows.push(['You kept choosing', drawn.join(', ')]);
+            const longest = loves.filter(h => h._ms).sort((a, b) => b._ms - a._ms)[0];
+            if (longest && longest._ms >= 2500) rows.push(['You lingered on', `a ${styleLabel(longest.k)} in ${longest.city || 'DFW'}`]);
+            return rows;
+        }
         const styleLabel = (k) => (STYLE_INFO[k] && STYLE_INFO[k].label) || '';
         // Counties first, then the cities in them.
         const COUNTY_CITIES = {
@@ -2188,7 +2240,7 @@
             const top = Math.max(0, ...Object.values(lk));
             return top >= 4 && top >= 0.6 * loves.length;
         }
-        const TRAIT_WORD = { mat: { stone: 'stone', stucco: 'stucco', brick: 'brick', siding: 'siding' }, st: { one: 'one story', two: 'two story' }, lot: { big: 'big lot' } };
+        const TRAIT_WORD = { mat: { stone: 'stone', stucco: 'stucco', brick: 'brick', siding: 'siding' }, st: { one: 'one-story', two: 'two-story' }, lot: { big: 'big lot' } };
         function updateLean() {
             const el = document.getElementById('swipeLean'); if (!el) return;
             let text = '';
@@ -2433,10 +2485,14 @@
         function listText(arr) { return arr.length ? arr.join(', ') : ''; }
         function showResults() {
             const info = STYLE_INFO[userArchetype] || STYLE_INFO.traditional;
-            document.getElementById('archetypeName').textContent = info.label;
+            const sig = signature(userArchetype);
+            document.getElementById('archetypeName').textContent = sig.name;
             const lean = document.getElementById('styleLean');
-            lean.hidden = !styleNext; lean.textContent = styleNext ? 'with a lean toward ' + styleLabel(styleNext) : '';
-            document.getElementById('archetypeDescription').textContent = info.desc + '.';
+            lean.hidden = false; lean.textContent = info.label + ' architecture' + (styleNext ? ', with a lean toward ' + styleLabel(styleNext) : '');
+            document.getElementById('archetypeDescription').textContent = sig.line;
+            const how = howYouLove();
+            document.getElementById('howLove').hidden = !how.length;
+            document.getElementById('howLove').innerHTML = how.map(r => `<div class="how-row"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('');
             const nLove = loves.length + (loves.length === 1 ? ' love' : ' loves');
             const nPass = passes.length + (passes.length === 1 ? ' pass' : ' passes');
             document.getElementById('budgetNote').textContent = loves.length || passes.length ? `Based on ${currentHomes.length} real homes for sale: ${nLove} and ${nPass}.` : '';
