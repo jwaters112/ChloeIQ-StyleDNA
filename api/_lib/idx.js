@@ -5,7 +5,7 @@ const SITE_ID = 176518;
 const HEADERS = { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0 (StyleDNA; +https://homestyledna.com)', Referer: SITE + '/listing' };
 const cache = new Map();
 
-async function getJson(url, ms) {
+async function getJson(url, ms, again) {
   const hit = cache.get(url);
   if (hit && Date.now() - hit.t < 10 * 60000) return hit.v;
   try {
@@ -14,11 +14,11 @@ async function getJson(url, ms) {
     const text = await r.text();
     if (!r.ok) { last += ' ' + text.slice(0, 200); console.warn('idx lookup failed', last); return null; }
     let v; try { v = JSON.parse(text); } catch (e) { last += ' not json: ' + text.slice(0, 200); console.warn('idx lookup not json', last); return null; }
-    if (!Array.isArray(v) && !(v && v.listings)) { console.warn('idx lookup odd', text.slice(0, 300)); return v; }
+    if (!Array.isArray(v) && !(v && v.listings)) { console.warn('idx lookup odd', text.slice(0, 300)); return again ? v : getJson(url, ms, true); }
     if (cache.size > 500) cache.clear();
     cache.set(url, { t: Date.now(), v });
     return v;
-  } catch (e) { last = 'ERR ' + (e && e.message); return null; }
+  } catch (e) { last = 'ERR ' + (e && e.message); console.warn('idx lookup error', last); return again ? null : getJson(url, ms, true); }
 }
 let last = '';
 
