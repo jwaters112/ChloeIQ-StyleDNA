@@ -132,7 +132,13 @@ async function handle(req, res) {
   // Every area they picked (the form's area first), at most 6.
   const areas = [...new Set([area, ...(Array.isArray(body.areas) ? body.areas : []).map((a) => clip(a, 60))].filter(Boolean))].slice(0, 6);
   const budgetKey = Number(body.budget);
-  const budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
+  let budget = Number.isInteger(budgetKey) && Object.prototype.hasOwnProperty.call(BUDGETS, budgetKey) ? BUDGETS[budgetKey] : null;
+  // Several budget bands picked: one label for the note, and the full span for Lofty's price range.
+  const bands = (Array.isArray(body.budgets) ? body.budgets : []).map(Number).filter((n) => Number.isInteger(n) && BUDGETS[n]).sort((a, b) => a - b);
+  if (bands.length > 1) {
+    const lo = BUDGETS[bands[0]], hi = BUDGETS[bands[bands.length - 1]];
+    budget = { label: bands.map((n) => BUDGETS[n].label).join(', '), priceMin: lo.priceMin, priceMax: hi.priceMax };
+  }
   const consent = body.consent === true;
   const prefs = (body.preferences && typeof body.preferences === 'object') ? body.preferences : {};
   const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {};
@@ -152,14 +158,14 @@ async function handle(req, res) {
     condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Secluded, more privacy' } };
   const musts = Object.entries(crit.must).filter(([, v]) => v === 'must').map(([k]) => MUST_LABEL[k]);
   const nices = Object.entries(crit.must).filter(([, v]) => v === 'nice').map(([k]) => MUST_LABEL[k]);
-  const picks = Object.entries(crit.picks).map(([k, v]) => PICK_LABEL[k] && PICK_LABEL[k][v]).filter(Boolean);
+  const picks = Object.entries(crit.picks).flatMap(([k, v]) => (Array.isArray(v) ? v : [v]).map((x) => PICK_LABEL[k] && PICK_LABEL[k][x])).filter(Boolean);
   const lovedHomes = (Array.isArray(body.lovedHomes) ? body.lovedHomes : []).slice(0, 12)
     .map((h) => h && typeof h === 'object' ? { label: clip(h.label, 40), address: clip(h.address, 90), url: /^https:\/\/joshwaters\.com\//.test(String(h.url || '')) ? clip(h.url, 300) : '' } : null).filter((h) => h && h.address);
   const where = [crit.counties.length ? crit.counties.join(', ') + (crit.counties.length > 1 ? ' counties' : ' County') : '', crit.cities.join(', ')].filter(Boolean).join(': ');
 
   const tags = ['StyleDNA Quiz'];
   if (archetype) tags.push(clip('StyleDNA: ' + archetype, 64));
-  if (budget) tags.push(clip('Budget: ' + budget.label, 64));
+  if (bands.length > 1) bands.forEach((n) => tags.push(clip('Budget: ' + BUDGETS[n].label, 64))); else if (budget) tags.push(clip('Budget: ' + budget.label, 64));
   areas.forEach((a) => tags.push(clip('Area: ' + a, 64)));
   crit.counties.forEach((c) => tags.push(clip('County: ' + c, 64)));
   musts.forEach((m) => tags.push(clip('Must have: ' + m, 64)));

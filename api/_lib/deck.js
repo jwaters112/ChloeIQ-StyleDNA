@@ -19,13 +19,19 @@ function criteria(b) {
   const must = {}, picks = {};
   ['pool', 'acres', 'gameroom', 'suite', 'access'].forEach((k) => { const v = b.must && b.must[k]; if (LEVEL.has(v)) must[k] = v; });
   const allowed = { exterior: ['brick', 'stone', 'stucco', 'siding'], layout: ['open', 'separate'], condition: ['ready', 'updates', 'project'], hoa: ['no', 'yes'], setting: ['near', 'secluded'] };
-  Object.entries(allowed).forEach(([k, vals]) => { const v = b.picks && b.picks[k]; if (vals.includes(v)) picks[k] = v; });
-  return { counties, cities, price: PRICES.has(b.price) ? b.price : '', type: TYPES.has(b.type) ? b.type : '', must, picks };
+  // Quick picks can have more than one answer each (older saves send a single value).
+  Object.entries(allowed).forEach(([k, vals]) => { const v = b.picks && b.picks[k]; const list = (Array.isArray(v) ? v : [v]).filter((x) => vals.includes(x)); if (list.length) picks[k] = [...new Set(list)]; });
+  // Several budget bands and home types can be picked; the search runs over the full span, then each home is checked.
+  const prices = (Array.isArray(b.prices) ? b.prices : [b.price]).filter((x) => PRICES.has(x));
+  const types = (Array.isArray(b.types) ? b.types : [b.type]).filter((x) => TYPES.has(x));
+  const span = prices.length ? [Math.min(...prices.map((x) => Number(x.split(',')[0]) || 0)), prices.some((x) => !x.split(',')[1]) ? 0 : Math.max(...prices.map((x) => Number(x.split(',')[1]) || 0))] : null;
+  const price = span ? (span[0] || '') + ',' + (span[1] || '') : '';
+  return { counties, cities, price: price === ',' ? '' : price, prices: [...new Set(prices)], type: types.length === 1 ? types[0] : '', types: [...new Set(types)], must, picks };
 }
 
 function baseCond(c, countiesOverride) {
   const cond = {};
-  if (c.type) cond.propertytype = [c.type];
+  if (c.types && c.types.length) cond.propertytype = c.types;
   if (c.price) cond.price = c.price;
   const counties = countiesOverride || c.counties;
   if (!countiesOverride && c.cities.length) cond.location = { city: c.cities.map((x) => x + ', TX') };
@@ -62,7 +68,7 @@ function fit(l, c) {
   Object.entries(c.must).forEach(([k, lvl]) => {
     if (has[k](l)) { score += lvl === 'must' ? 3 : 1; hits.push(FEATURE_LABEL[k]); } else if (lvl === 'must') score -= 2;
   });
-  Object.entries(c.picks).forEach(([k, v]) => { if (pickHas[k] && pickHas[k][v] && pickHas[k][v](l)) score += 1; });
+  Object.entries(c.picks).forEach(([k, vals]) => { if ((Array.isArray(vals) ? vals : [vals]).some((v) => pickHas[k] && pickHas[k][v] && pickHas[k][v](l))) score += 1; });
   return { score, hits };
 }
 
@@ -80,7 +86,8 @@ function areaCenter(c) {
 }
 function stylesFor(c) {
   // Condos and townhomes don't come as barndominiums or acreage ranches.
-  return STYLES.filter((s) => !(c.type && c.type !== 'Single Family Home' && ['barndo', 'hillcountry'].includes(s.k)));
+  const onlyAttached = c.types && c.types.length && !c.types.includes('Single Family Home');
+  return STYLES.filter((s) => !(onlyAttached && ['barndo', 'hillcountry'].includes(s.k)));
 }
 const factsLine = (l) => [l.city, l.beds && l.beds + ' bd', l.baths && l.baths + ' ba', l.acres >= 1 ? l.acres.toFixed(1).replace(/\.0$/, '') + ' acres' : '', l.pool ? 'Pool' : ''].filter(Boolean).join(' · ');
 // Traits the quiz learns from as people swipe, beyond the style itself.
@@ -97,7 +104,8 @@ function traits(l) {
 const ROOM_LABEL = { living: 'Living room', kitchen: 'Kitchen', primary_bath: 'Primary bath', pool: 'Pool', game: 'Game room', aerial: 'From above' };
 function cardPhotos(l, c, rooms) {
   const r = rooms && rooms[l.id];
-  if (!r) return { photos: (l.photos || []).slice(0, 5), plabels: [] };
+  // Not sorted yet: front photo only, so a floor plan, map or sign can never show on a card.
+  if (!r) return { photos: [l.photo], plabels: ['Front'] };
   const slots = ['living', 'kitchen', 'primary_bath'];
   const wants = (k) => c.must[k] === 'must' || c.must[k] === 'nice';
   if (wants('pool')) slots.push('pool');
@@ -118,8 +126,9 @@ function card(l, s, c, near, rooms) {
 const DECK_SIZE = 20;
 const TYPE_RE = { 'Single Family Home': /single family/i, Townhouse: /town/i, Condo: /condo/i };
 function inSearch(l, c, cities) {
-  if (c.price) { const [lo, hi] = c.price.split(',').map((x) => Number(x) || 0); if ((lo && l.price < lo) || (hi && l.price > hi)) return false; }
-  if (c.type && l.ptype && TYPE_RE[c.type] && !TYPE_RE[c.type].test(l.ptype)) return false;
+  const bands = c.prices && c.prices.length ? c.prices : c.price ? [c.price] : [];
+  if (bands.length && !bands.some((b) => { const [lo, hi] = b.split(',').map((x) => Number(x) || 0); return !((lo && l.price < lo) || (hi && l.price > hi)); })) return false;
+  if (c.types && c.types.length && l.ptype && !c.types.some((t) => TYPE_RE[t] && TYPE_RE[t].test(l.ptype))) return false;
   if (cities && cities.size && !cities.has(String(l.city || '').toLowerCase())) return false;
   if (c.must.acres === 'must' && !(l.acres >= 1)) return false;
   return true;

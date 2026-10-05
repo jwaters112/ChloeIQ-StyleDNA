@@ -20,6 +20,28 @@ module.exports = async (req, res) => {
     if (!b || typeof b !== 'object') return res.status(400).json({ ok: false });
     try {
       if (b.action === 'deck') return res.status(200).json(await deck.buildDeck(b));
+      // All of one home's photos for the in-app viewer: sorted by room when we have them, else the listing's own.
+      if (b.action === 'gallery') {
+        const roomsLib = require('./_lib/rooms'), store = require('./_lib/boards');
+        const id = String(b.id || '').replace(/\D/g, '').slice(0, 20);
+        const front = /^https:\/\/img\.chime\.me\//.test(String(b.photo || '')) ? String(b.photo) : '';
+        const r = (await roomsLib.loadAll().catch(() => ({})))[id];
+        const ORDER = [['living', 'Living room'], ['kitchen', 'Kitchen'], ['dining', 'Dining'], ['primary_bed', 'Primary bedroom'], ['primary_bath', 'Primary bath'], ['bed', 'Bedroom'], ['bath', 'Bath'], ['game', 'Game room'], ['office', 'Office'], ['pool', 'Pool'], ['rear', 'Backyard'], ['aerial', 'From above']];
+        const out = front ? [{ u: front, t: 'Front' }] : [];
+        const seen = new Set(out.map((x) => x.u));
+        if (r) ORDER.forEach(([k, t]) => (r[k] || []).forEach((u) => { if (!seen.has(u)) { seen.add(u); out.push({ u, t }); } }));
+        else if (/^[A-Za-z]+$/.test(String(b.county || ''))) {
+          const cur = await store.readIn('pool', 'pics' + String(b.county).replace(/ county$/i, '')).catch(() => null);
+          ((cur && cur.doc && cur.doc.p && cur.doc.p[id]) || []).slice(0, 20).forEach((u) => { if (!seen.has(u)) { seen.add(u); out.push({ u, t: '' }); } });
+        }
+        if (out.length <= 1 && typeof b.address === 'string' && b.address.length > 8) {
+          const r2 = await idx.search({ location: { streetAddress: [b.address.slice(0, 120)] } }, 3).catch(() => null);
+          const l = r2 && r2.list.find((x) => x.id === id);
+          ((l && l.pics) || []).slice(0, 20).forEach((u) => { if (!seen.has(u)) { seen.add(u); out.push({ u, t: '' }); } });
+        }
+        res.setHeader('Cache-Control', 'public, max-age=600');
+        return res.status(200).json({ ok: true, photos: out });
+      }
       if (b.action === 'availability') return res.status(200).json(await deck.availability(b, String(b.k || '')));
       // The "inside" round: up to 6 room photos from the homes they loved, one per room type where possible.
       if (b.action === 'inside') {
