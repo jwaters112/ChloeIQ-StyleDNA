@@ -11,7 +11,7 @@ const hot = require('./_lib/hot');
 const leadFrom = (body) => { const l = body.lead || {}; return lofty.leadTokenOk(l.id, l.t) ? Number(l.id) : null; };
 
 const MAX_MEMBERS = 8, MAX_HOMES = 150, MAX_COMMENTS = 60, MAX_EVENTS = 150;
-const ARCHES = ['curator', 'sanctuary', 'architect', 'custodian', 'visionary', 'authenticist'];
+const ARCHES = ['curator', 'sanctuary', 'architect', 'custodian', 'visionary', 'authenticist'].concat(require('./_lib/styles').STYLES.map((s) => s.k));
 const FETCH_HOSTS = ['joshwaters.com', 'www.joshwaters.com', 'www.realtor.com', 'realtor.com', 'www.zillow.com', 'zillow.com'];
 
 const clip = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).replace(/\s+/g, ' ').trim().slice(0, n) : '';
@@ -187,7 +187,8 @@ async function handle(req, res) {
       criteria: {
         archetype: prof.archetype, budget: Number.isInteger(c.budget) ? c.budget : null, budgetLabel: clip(c.budgetLabel, 30),
         homeType: clip(c.homeType, 30), homeTypeLabel: clip(c.homeTypeLabel, 30), area: clip(c.area, 60),
-        areas: (Array.isArray(c.areas) ? c.areas : (c.area ? [c.area] : [])).slice(0, 6).map((a) => clip(a, 60)).filter(Boolean),
+        areas: (Array.isArray(c.areas) ? c.areas : (c.area ? [c.area] : [])).slice(0, 12).map((a) => clip(a, 60)).filter(Boolean),
+        ...(() => { const k = require('./_lib/deck').criteria(c); return { counties: k.counties, cities: k.cities, must: k.must, picks: k.picks }; })(),
       },
       members: [member], homes: [], events: [], subs: [],
     };
