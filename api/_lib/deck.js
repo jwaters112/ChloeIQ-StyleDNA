@@ -4,6 +4,7 @@ const idx = require('./idx');
 const { STYLES, BY_KEY, COUNTIES } = require('./styles');
 const pool = require('./pool');
 const phototag = require('./phototag');
+const roomsLib = require('./rooms');
 
 const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
 const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
@@ -90,9 +91,27 @@ function traits(l) {
   const year = new Date().getFullYear();
   return { mat, st, lot: l.acres >= 1 ? 'big' : '', era: l.built ? (l.built >= year - 8 ? 'new' : l.built < 1975 ? 'classic' : 'est') : '', pool: l.pool ? 'yes' : '' };
 }
-function card(l, s, c, near) {
+// The photos a swipe card shows, in a set order: the front (its style), living room, kitchen, primary bath,
+// then the features they asked for when this home has a photo of them, and an aerial when they want acreage.
+// A home without a sorted photo for a slot simply skips it.
+const ROOM_LABEL = { living: 'Living room', kitchen: 'Kitchen', primary_bath: 'Primary bath', pool: 'Pool', game: 'Game room', aerial: 'From above' };
+function cardPhotos(l, c, rooms) {
+  const r = rooms && rooms[l.id];
+  if (!r) return { photos: (l.photos || []).slice(0, 5), plabels: [] };
+  const slots = ['living', 'kitchen', 'primary_bath'];
+  const wants = (k) => c.must[k] === 'must' || c.must[k] === 'nice';
+  if (wants('pool')) slots.push('pool');
+  if (wants('gameroom')) slots.push('game');
+  if (wants('acres')) slots.push('aerial');
+  const photos = [l.photo], plabels = ['Front'], used = new Set([l.photo]);
+  slots.forEach((k) => { const u = (r[k] || []).find((x) => !used.has(x)); if (u) { used.add(u); photos.push(u); plabels.push(ROOM_LABEL[k]); } });
+  // Rooms for the "inside" round at the end of the deck.
+  const ins = {}; ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining'].forEach((k) => { if (r[k] && r[k][0]) ins[k] = r[k][0]; });
+  return { photos, plabels, ins };
+}
+function card(l, s, c, near, rooms) {
   const f = fit(l, c);
-  return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, photos: (l.photos || []).slice(0, 5), url: l.url, address: l.address, city: l.city, county: l.county,
+  return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, ...cardPhotos(l, c, rooms), url: l.url, address: l.address, city: l.city, county: l.county,
     price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, t: traits(l) };
 }
 
@@ -107,6 +126,7 @@ function inSearch(l, c, cities) {
 }
 async function buildDeck(input) {
   const c = criteria(input);
+  const rooms = await roomsLib.loadAll().catch(() => ({}));
   const styles = stylesFor(c);
   const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
@@ -114,7 +134,7 @@ async function buildDeck(input) {
     const cands = {}, seen = new Set();
     homes.forEach((l) => {
       if (seen.has(l.id) || !BY_KEY[l.k] || !styles.some((s) => s.k === l.k)) return; seen.add(l.id);
-      (cands[l.k] = cands[l.k] || []).push(Object.assign(card(l, BY_KEY[l.k], c, near), { _f: fit(l, c).score + Math.random() * 0.6 }));
+      (cands[l.k] = cands[l.k] || []).push(Object.assign(card(l, BY_KEY[l.k], c, near, rooms), { _f: fit(l, c).score + Math.random() * 0.6 + (rooms[l.id] ? 0.5 : 0) }));
     });
     Object.values(cands).forEach((a) => a.sort((x, y) => y._f - x._f));
     return cands;

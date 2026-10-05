@@ -1337,6 +1337,7 @@
         .hl-credit { font-size: 11px; color: #7d8382; }
         .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
         .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
+        .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(3,12,13,.72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -2204,12 +2205,20 @@
 
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
         function money(n) { n = Number(n) || 0; return n ? '$' + n.toLocaleString('en-US') : ''; }
-        function cardPhotos(home) { return [...new Set([home.photo].concat(home.photos || []).filter(Boolean))].slice(0, 5); }
+        // Photos in the order the server set (front, living room, kitchen, primary bath, their features), with labels.
+        function cardPhotos(home) {
+            const list = (home.photos && home.photos[0] === home.photo) ? home.photos.slice() : [home.photo].concat(home.photos || []);
+            const labels = (home.photos && home.photos[0] === home.photo) ? (home.plabels || []) : [''].concat(home.plabels || []);
+            const seen = new Set(), pics = [], lab = [];
+            list.forEach((u, i) => { if (u && !seen.has(u) && pics.length < 7) { seen.add(u); pics.push(u); lab.push(labels[i] || ''); } });
+            pics.labels = lab;
+            return pics;
+        }
         function buildSwipeCard(home) {
             const card = document.createElement('div');
             card.className = 'swipe-card';
             const pics = cardPhotos(home);
-            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
+            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div><span class="swipe-room" hidden></span>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
             const img = card.querySelector('img');
             img.alt = home.label + ' home in ' + (home.city || 'DFW');
             img.src = home.photo;
@@ -2226,6 +2235,8 @@
             card._pic = (card._pic + 1) % pics.length;
             card.querySelector('.swipe-card-img').src = pics[card._pic];
             card.querySelectorAll('.swipe-dots i').forEach((d, i) => d.classList.toggle('on', i === card._pic));
+            const lab = card.querySelector('.swipe-room'), t = (pics.labels || [])[card._pic];
+            if (lab) { lab.textContent = card._pic && t && t !== 'Front' ? t : ''; lab.hidden = !lab.textContent; }
             const h = currentHomes[currentSwipeIndex]; if (h) h._flips = (h._flips || 0) + 1;
             const nx = pics[(card._pic + 1) % pics.length]; if (nx) new Image().src = nx;
         }
@@ -2445,7 +2456,7 @@
             }
             prepareBranches();
             updateProgress();
-            if (currentSwipeIndex >= 9 && loves.length >= 2 && !inside.req) fetchInside();
+            if (currentSwipeIndex >= 9 && loves.length >= 2 && !inside.req && loves.filter(h => h.ins).length < 3) fetchInside();
 
             const container = document.getElementById('swipeContainer');
             container.querySelectorAll('.swipe-card.leaving').forEach(c => c.remove());
@@ -2534,11 +2545,31 @@
                 .then(r => r.json()).then(j => { const rooms = (j && j.rooms) || []; rooms.forEach(x => { new Image().src = x.url; }); return rooms; }).catch(() => []);
             return inside.req;
         }
+        // One room per loved home, rotating room types, so no house repeats. Uses the photos sorted nightly.
+        function roomsFromLoves() {
+            const order = ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining'], out = [];
+            const homes = loves.slice().reverse().filter(h => h.ins && Object.keys(h.ins).length);
+            homes.forEach((h, i) => {
+                if (out.length >= 6) return;
+                for (let j = 0; j < order.length; j++) {
+                    const room = order[(i + j) % order.length];
+                    if (h.ins[room]) { out.push({ id: h.id, k: h.k, url: h.ins[room], room: room === 'primary_bath' ? 'bath' : room === 'primary_bed' ? 'primary' : room, tone: '', feel: '' }); break; }
+                }
+            });
+            return out;
+        }
         async function maybeInside() {
             if (loves.length < 2) return false;
-            let rooms = await Promise.race([inside.req || fetchInside() || Promise.resolve([]), new Promise(ok => setTimeout(() => ok(null), 9000))]);
+            let rooms = roomsFromLoves();
+            if (rooms.length < 3) {
+                const got = await Promise.race([inside.req || fetchInside() || Promise.resolve([]), new Promise(ok => setTimeout(() => ok(null), 9000))]);
+                const seenH = new Set(); rooms = (got || []).filter(x => !seenH.has(x.id) && seenH.add(x.id));
+            }
             if (!rooms || rooms.length < 3) return false;
             inside.rooms = rooms; inside.liked = [];
+            // Read the look of each room in the background; it's ready long before they finish tapping.
+            if (rooms.some(x => !x.tone)) fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'inside', urls: rooms.map(x => x.url) }) })
+                .then(r => r.json()).then(j => { ((j && j.feel) || []).forEach(f => { const x = rooms.find(y => y.url === f.url); if (x) { x.tone = f.tone; x.feel = f.feel; } }); }).catch(() => {});
             document.getElementById('insideGrid').innerHTML = rooms.map((x, i) => `<button type="button" class="inside-pic" aria-pressed="false" onclick="toggleRoom(this, ${i})"><img src="${esc(x.url)}" alt="${esc(x.room === 'primary' ? 'bedroom' : x.room)} in a ${esc(styleLabel(x.k))} home"><span class="tick">&#10003;</span></button>`).join('');
             // Swap the waiting screen for the inside round, so Back returns to the last card.
             if (!document.getElementById('loadingScreen').classList.contains('active')) return false;

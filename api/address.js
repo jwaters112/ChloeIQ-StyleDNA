@@ -27,6 +27,12 @@ module.exports = async (req, res) => {
         const ins = (hits.get('in:' + ip) || []).filter((t) => now - t < 60000); ins.push(now); hits.set('in:' + ip, ins);
         if (ins.length > 4) return res.status(429).json({ ok: false });
         const phototag = require('./_lib/phototag');
+        // Just the look (tone and feel) of rooms already picked from sorted photos.
+        if (Array.isArray(b.urls)) {
+          const urls = b.urls.filter((u) => typeof u === 'string' && /^https:\/\/img\.chime\.me\//.test(u)).slice(0, 6);
+          const reads = await Promise.all(urls.map(async (u) => Object.assign({ url: u }, await phototag.readRoom(u) || {})));
+          return res.status(200).json({ ok: true, feel: reads.map((x) => ({ url: x.url, tone: x.tone || '', feel: x.feel || '' })) });
+        }
         const homes = (Array.isArray(b.homes) ? b.homes : []).slice(0, 5);
         const jobs = [];
         homes.forEach((h) => (Array.isArray(h && h.photos) ? h.photos : []).slice(1, 5).forEach((u) => { if (typeof u === 'string' && /^https:\/\/img\.chime\.me\//.test(u)) jobs.push({ id: String(h.id || ''), k: String(h.k || ''), url: u }); }));
