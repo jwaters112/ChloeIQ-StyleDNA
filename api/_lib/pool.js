@@ -29,6 +29,9 @@ async function buildCounty(county, tagBudget, ms) {
     if (meta[i].q.style && meta[i].k !== 'traditional') mlsSays[l.id] = meta[i].k;
   }));
   const all = [...byId.values()];
+  // Listing search failed or was throttled: keep yesterday's homes rather than saving an empty county.
+  const failed = results.filter((r) => !r).length;
+  if (!all.length || failed > results.length / 3) return { county, found: all.length, failed, skipped: 'search unavailable, kept existing' };
   const before = Object.keys(await phototag.loadAll()).length;
   const tags = await phototag.tagAll(all, tagBudget, ms);
   const read = Math.max(0, Object.keys(await phototag.loadAll()).length - before);
