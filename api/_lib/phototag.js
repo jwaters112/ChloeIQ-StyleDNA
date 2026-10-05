@@ -63,8 +63,10 @@ async function readOne(url) {
   if (!key || !/^https:\/\//.test(url)) return null;
   try {
     // Download the 800px photo ourselves; Claude's own URL fetching is rate limited.
-    const img = await fetch(url.replace('/w600_original_', '/w800_original_'), { signal: AbortSignal.timeout(8000) });
-    if (!img.ok) return null;
+    // Some photos don't come in the 800px size quickly; fall back to 600px.
+    let img = await fetch(url.replace('/w600_original_', '/w800_original_'), { signal: AbortSignal.timeout(7000) }).catch(() => null);
+    if (!img || !img.ok) img = await fetch(url.replace('/w800_original_', '/w600_original_'), { signal: AbortSignal.timeout(7000) }).catch(() => null);
+    if (!img || !img.ok) { console.warn('photo fetch failed', url.slice(0, 90)); return null; }
     const media = (img.headers.get('content-type') || 'image/jpeg').split(';')[0];
     if (!/^image\/(jpeg|png|webp|gif)$/.test(media)) return null;
     const data = Buffer.from(await img.arrayBuffer()).toString('base64');
@@ -74,7 +76,7 @@ async function readOne(url) {
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({ model: MODEL, max_tokens: 60, messages: [{ role: 'user', content: [
         { type: 'image', source: { type: 'base64', media_type: media, data } }, { type: 'text', text: PROMPT }] }] }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(30000),
     });
     const j = await r.json().catch(() => ({}));
     if (r.status === 429 || r.status === 529) { await new Promise((ok) => setTimeout(ok, 1500 * (attempt + 1))); continue; }
@@ -86,7 +88,7 @@ async function readOne(url) {
     return cf === 'high' ? m[1] : m[1] + '~';
     }
     return null;
-  } catch (e) { return null; }
+  } catch (e) { console.warn('photo read error', e && e.message); return null; }
 }
 
 // listings: [{ id, photo }]. Reads the ones not seen before (up to `budget`), within `ms`.
