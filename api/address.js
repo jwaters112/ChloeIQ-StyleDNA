@@ -43,9 +43,10 @@ module.exports = async (req, res) => {
         const counties = ['Dallas', 'Collin', 'Denton', 'Tarrant', 'Parker', 'Ellis', 'Rockwall', 'Hood'];
         const bands = [',400000', '400000,700000', '700000,1200000', '1200000,'];
         const found = await Promise.all(counties.map((c, i) => idx.search({ price: bands[i % 4], location: { county: [c] }, propertytype: ['Single Family Home'] }, 6, 1 + (b.page || 0))));
-        found.forEach((r) => (r ? r.list : []).slice(0, 3).forEach((l) => { if (picks.length < (b.n || 20) && l.pics && l.pics.length > 5) picks.push(l); }));
+        found.forEach((r) => (r ? r.list : []).slice(0, 3).forEach((l) => { if (picks.length < (b.from || 0) + (b.n || 20) && l.pics && l.pics.length > 5) picks.push(l); }));
+        const dbg = found.map((r) => r ? r.list.length + ':' + r.list.map((l) => (l.pics || []).length).join('/') : 'null');
         const out = await Promise.all(picks.slice(b.from || 0, (b.from || 0) + (b.n || 20)).map(async (l) => { const why = {}; const r = await roomsLib.sortHome(l.pics, why); return { id: l.id, address: l.address, price: l.price, acres: l.acres, pool: l.pool, n: l.pics.length, rooms: r, why: why.reason, usage: why.usage }; }));
-        return res.status(200).json({ ok: true, model: roomsLib.MODEL, out });
+        return res.status(200).json({ ok: true, model: roomsLib.MODEL, dbg, out });
       }
       // Test site only: re-read a spread of pool homes with the current photo reader, without saving.
       if (b.action === 'tagsample' && process.env.VERCEL_ENV !== 'production') {
