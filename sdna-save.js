@@ -67,13 +67,13 @@
     "@font-face{font-family:'SdnaM';font-weight:600;font-display:swap;src:url(" + APP + "/fonts/montserrat-latin-600-normal.woff2) format('woff2')}",
     "@font-face{font-family:'SdnaM';font-weight:600;font-style:italic;font-display:swap;src:url(" + APP + "/fonts/montserrat-latin-600-italic.woff2) format('woff2')}",
     ".sdna-root,.sdna-root *{box-sizing:border-box;font-family:'SdnaM',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:normal;text-transform:none;line-height:1.4}",
-    ".sdna-dock{position:fixed;left:50%;transform:translate3d(-50%,0,0);-webkit-backface-visibility:hidden;backface-visibility:hidden;will-change:transform;max-width:calc(100vw - 120px);white-space:nowrap;z-index:2147483000;display:flex;align-items:center;gap:0;background:rgba(3,12,13,.94);border:1px solid rgba(224,178,77,.55);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:hidden;transition:transform .25s ease,opacity .25s ease}",
+    ".sdna-dock{position:fixed;left:0;right:0;margin:0 auto;width:max-content;width:-webkit-max-content;max-width:calc(100vw - 120px);white-space:nowrap;z-index:2147483000;display:flex;align-items:center;gap:0;background:#030C0D;border:1px solid rgba(224,178,77,.55);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:hidden}",
     ".sdna-dock button{background:none;border:0;color:#F5F5F3;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:15px;font-weight:600}",
     ".sdna-dock button svg{width:18px;height:18px;flex-shrink:0}",
     ".sdna-dock .sdna-save svg{color:#E0B24D}",
     ".sdna-dock .sdna-save.done svg{fill:#E0B24D}",
     ".sdna-dock .sdna-board{border-left:1px solid rgba(163,167,166,.25);padding:12px 14px;color:#A3A7A6}",
-    ".sdna-dock.hide{transform:translate3d(-50%,120px,0);visibility:hidden;opacity:0;pointer-events:none}",
+    ".sdna-dock.hide{display:none}",
     ".sdna-veil{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s ease}",
     ".sdna-veil.on{opacity:1}",
     ".sdna-sheet{position:fixed;left:0;right:0;bottom:0;z-index:2147483002;margin:0 auto;max-width:520px;color:#F5F5F3;border-radius:22px 22px 0 0;border-top:1px solid rgba(163,167,166,.3);padding:12px 22px calc(26px + env(safe-area-inset-bottom));background:radial-gradient(ellipse 90% 70% at 0% 0%,#213D37 0%,#0E2926 35%,#030C0D 75%);transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}",
@@ -122,9 +122,13 @@
     }
     return lift;
   }
+  // Once we've lifted above the site's bottom bar on a page, stay there: Safari's toolbar sliding
+  // in and out changes the window height and must not make the button hop between two spots.
+  var liftMax = 0;
   function placeDock() {
     if (!dock) return;
-    var b = 'calc(' + (bottomOffset() + 16) + 'px + env(safe-area-inset-bottom))';
+    liftMax = Math.max(liftMax, bottomOffset());
+    var b = 'calc(' + (liftMax + 16) + 'px + env(safe-area-inset-bottom))';
     if (dock.style.bottom !== b) dock.style.bottom = b;
   }
   var placeTimer = null;
@@ -388,7 +392,7 @@
     pageSeen();
     var last = location.href;
     setInterval(function () {
-      if (location.href !== last) { last = location.href; takeConnFromHash(); closeSheet(); render(); pageSeen(); }
+      if (location.href !== last) { last = location.href; liftMax = 0; takeConnFromHash(); closeSheet(); render(); pageSeen(); }
     }, 600);
     window.addEventListener('resize', placeSoon);
     setTimeout(placeDock, 1500); setTimeout(placeDock, 4000);
