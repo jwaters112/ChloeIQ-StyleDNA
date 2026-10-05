@@ -90,6 +90,7 @@
     ".sdna-say button{background:none;border:0;color:#E0B24D;font-weight:600;font-size:15px;cursor:pointer}",
     ".sdna-btn{display:block;width:100%;text-align:center;text-decoration:none;background:#E0B24D;color:#030C0D !important;border:0;border-radius:999px;padding:15px 18px;font-size:16px;font-weight:600;cursor:pointer;margin:0 0 6px}",
     ".sdna-link{display:block;width:100%;text-align:center;background:none;border:0;color:#A3A7A6 !important;font-size:15px;padding:12px;cursor:pointer;text-decoration:none}",
+    ".sdna-remove{font-size:13px;padding:4px 12px 10px;color:#7d8382 !important}",
     ".sdna-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:12px;color:rgba(163,167,166,.7)}",
     ".sdna-note{font-size:13px;color:#E0B24D;margin:-8px 0 14px;min-height:1px}"
   ].join('');
@@ -249,8 +250,24 @@
         '<form class="sdna-say"><input maxlength="300" placeholder="Add a comment for your board"><button type="submit">Post</button></form><p class="sdna-note"></p>' +
         '<a class="sdna-btn" href="' + boardUrl(c) + '">Open my board</a>' +
         '<button class="sdna-link" type="button">Keep browsing</button>' +
+        (j.homeId && (!already || j.mine) ? '<button class="sdna-link sdna-remove" type="button">Remove from board</button>' : '') +
         '<div class="sdna-brand">StyleDNA by Dallas Collective Group</div>';
       s.querySelector('.sdna-link').onclick = function (e) { if (!echo(e)) closeSheet(); };
+      var rm = s.querySelector('.sdna-remove');
+      if (rm) rm.onclick = function (e) {
+        if (echo(e) || rm.disabled) return;
+        rm.disabled = true; rm.textContent = 'Removing\u2026';
+        post({ action: 'remove-home', id: c.id, key: c.key, homeId: j.homeId }).then(function (r) {
+          if (sheet !== s) return;
+          if (!r.ok && r.error !== 'no_home') { rm.disabled = false; rm.textContent = "Couldn't remove. Try again."; return; }
+          delete saved[url];
+          s.querySelector('.sdna-title').textContent = 'Removed from ' + name;
+          s.querySelector('.sdna-sub').textContent = 'You can save it again anytime.';
+          ['.sdna-say', '.sdna-note', '.sdna-remove'].forEach(function (q) { var x = s.querySelector(q); if (x) x.remove(); });
+          track('sdna_unsave', {});
+          render();
+        }, function () { rm.disabled = false; rm.textContent = "Couldn't remove. Try again."; });
+      };
       s.querySelector('form').onsubmit = function (e) {
         e.preventDefault();
         var inp = s.querySelector('input'), text = inp.value.trim(), note = s.querySelector('.sdna-note');

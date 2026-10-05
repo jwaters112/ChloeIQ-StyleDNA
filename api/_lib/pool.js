@@ -60,4 +60,30 @@ async function load(counties) {
   return out;
 }
 
-module.exports = { buildCounty, load, BANDS };
+// Every city with homes for sale in each county, read from real listings (a listing's own county,
+// so cities that cross county lines, like Frisco or Carrollton, show under each county they're in).
+const titleCase = (x) => String(x || '').toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\bMc([a-z])/g, (m, a) => 'Mc' + a.toUpperCase()).trim();
+async function buildCities() {
+  const jobs = [];
+  Object.keys(COUNTIES).forEach((county) => BANDS.forEach((price) => [1, 2].forEach((page) => jobs.push(() => idx.search({ price, location: { county: [county] } }, 100, page).then((r) => ({ county, r }))))));
+  const out = await each(jobs, 6);
+  const tally = {};
+  out.forEach(({ county, r }) => (r ? r.list : []).forEach((l) => {
+    if (!l.city || (l.county && String(l.county).replace(/ county$/i, '').toLowerCase() !== county.toLowerCase())) return;
+    const c = titleCase(l.city); const t = tally[county] = tally[county] || {}; t[c] = (t[c] || 0) + 1;
+  }));
+  const map = {};
+  Object.entries(tally).forEach(([county, t]) => { map[county] = Object.keys(t).filter((c) => t[c] >= 2).sort(); });
+  if (Object.keys(map).length >= 8) await store.upsert('pool', 'cities', (doc) => { doc.at = Date.now(); doc.v = 1; doc.map = map; });
+  citiesMem.t = 0;
+  return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, v.length]));
+}
+const citiesMem = { t: 0, map: null };
+async function cities() {
+  if (citiesMem.map && Date.now() - citiesMem.t < 30 * 60000) return citiesMem.map;
+  const cur = await store.readIn('pool', 'cities').catch(() => null);
+  citiesMem.map = (cur && cur.doc && cur.doc.map) || {}; citiesMem.t = Date.now();
+  return citiesMem.map;
+}
+
+module.exports = { buildCounty, load, BANDS, buildCities, cities };

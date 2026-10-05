@@ -183,11 +183,16 @@ async function availability(input, k) {
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
   const [here, mine] = await Promise.all([idx.search(Object.assign({}, baseCond(c), s.q), 1), pool.load(counties)]);
   const inArea = mine.filter((l) => inSearch(l, c, cities));
-  const verified = inArea.filter((l) => l.k === k);
-  const live = here ? here.count : 0;
+  // Must-haves the MLS search can't filter on (pool, game room...) only count homes that have them.
+  // The live count is scaled by how many homes in their area have them, so it stays an honest estimate.
+  const hard = Object.keys(c.must).filter((m) => c.must[m] === 'must' && m !== 'acres' && has[m]);
+  const ok = (l) => hard.every((m) => has[m](l));
+  const verified = inArea.filter((l) => l.k === k && ok(l));
+  let live = here ? here.count : 0, est = false;
+  if (hard.length && live) { const share = inArea.length >= 10 ? inArea.filter(ok).length / inArea.length : 0; live = Math.round(live * share); est = true; }
   const count = Math.max(verified.length, live);
   const homes = verified.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => b.f.score - a.f.score).slice(0, 6).map((x) => card(x.l, s, c));
-  const out = { ok: true, k, label: s.label, count, homes, ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, inArea: inArea.length, verified: verified.length, live } } : {}),
+  const out = { ok: true, k, label: s.label, count, est: est && live > verified.length, homes, ...(process.env.VERCEL_ENV !== 'production' ? { debug: { pool: mine.length, inArea: inArea.length, verified: verified.length, live } } : {}),
     // The MLS search finds this style by its label, which misses many homes; when the photos found more, link the area instead.
     url: live >= verified.length ? idx.searchUrl(Object.assign({}, baseCond(c), s.q)) : idx.searchUrl(baseCond(c)), styled: live >= verified.length };
   if (count < 3) {

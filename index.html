@@ -1308,6 +1308,11 @@
         .swipe-card-title { font-size: 14px !important; font-weight: 500; color: var(--gold); margin-bottom: 6px !important; }
         .swipe-card-description { font-size: 14px; }
         .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
+        .loosen { margin: 14px 0 0; }
+        .loosen-q { font-size: 14px; color: var(--silver); margin: 0 0 8px; }
+        .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
+        .loosen-chip span { color: var(--gold); font-size: 13px; white-space: nowrap; }
+        .another-area { display: block; margin: 10px auto 0; }
         .swipe-lean { min-height: 18px; text-align: center; font-size: 13px; letter-spacing: .3px; color: var(--silver); opacity: 0; transition: opacity .4s ease; margin: 0 0 4px; }
         .swipe-lean.show { opacity: 1; }
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
@@ -1404,9 +1409,9 @@
         <div class="screen preference-screen" id="whereScreen">
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
-                <h2 class="preference-headline">Where Are You Looking?</h2>
-                <p class="preference-subheading">Start with the county. Add cities if you want to narrow it down.</p>
-                <div class="progress-indicator">Step 1 of 4</div>
+                <h2 class="preference-headline" id="whereHead">Where Are You Looking?</h2>
+                <p class="preference-subheading" id="whereSub">Start with the county. Add cities if you want to narrow it down.</p>
+                <div class="progress-indicator" id="whereStep">Step 1 of 4</div>
                 <p class="chip-label">Counties <span class="chip-hint">Pick as many as you like</span></p>
                 <div class="chips" id="countyChips"></div>
                 <div id="cityBlock" hidden>
@@ -1414,8 +1419,8 @@
                     <div class="chips city-chips" id="cityChips"></div>
                 </div>
                 <p class="form-error" id="whereError" role="alert"></p>
-                <button class="pref-continue" onclick="finishWhere()">Continue</button>
-                <button class="text-link" type="button" onclick="anywhereDfw()">Not sure yet, show me all of DFW</button>
+                <button class="pref-continue" id="whereGo" onclick="finishWhere()">Continue</button>
+                <button class="text-link" id="whereAll" type="button" onclick="anywhereDfw()">Not sure yet, show me all of DFW</button>
             </div>
         </div>
 
@@ -1530,10 +1535,12 @@
                     <p class="results-description" id="archetypeDescription"></p>
                     <div class="avail" id="availBlock">
                         <p class="avail-line" id="availLine">Checking homes for sale in your areas...</p>
-                        <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See them on joshwaters.com</a>
+                        <a class="welcome-cta avail-go" id="availLink" href="https://joshwaters.com/listing" target="_blank" rel="noopener" hidden onclick="track('homes_clicked', { where: 'results', styled: 'yes', archetype: userArchetype })">See homes for sale</a>
+                        <div class="loosen" id="loosenBox" hidden></div>
                         <p class="avail-near" id="availNear" hidden></p>
                     </div>
                     <button class="btn-outline avail-save" onclick="captureEmail()">Send me homes that fit</button>
+                    <button class="text-link another-area" type="button" onclick="tryAnotherArea()">Try another area</button>
                 </div>
 
                 <div class="results-section board-return" id="boardReturn" hidden>
@@ -1904,6 +1911,12 @@
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             (document.getElementById(prev) || document.getElementById('welcomeScreen')).classList.add('active');
             window.scrollTo(0, 0);
+            if (prev === 'resultsScreen' && reswipe) {
+                // Backed out of "try another area": put their original area back.
+                selectedCounties = reswipe.counties; selectedCities = reswipe.cities;
+                if (reswipe.shown.length) { loves = reswipe.loves; passes = reswipe.passes; currentHomes = reswipe.shown; currentSwipeIndex = currentHomes.length; }
+                setWhereMode(false);
+            }
             // Back from the first question lands on the last card, with that answer undone.
             if (prev === 'swipeScreen' && currentSwipeIndex >= currentHomes.length) undoLastSwipe();
             if (prev === 'resultsScreen') document.getElementById('resultsBack').hidden = !screenHistory.includes('priceScreen');
@@ -1942,6 +1955,13 @@
             return b;
         }
 
+        // The full city list for each county, from real listings (adds towns the short list misses).
+        fetch('/api/address?cities=1').then(r => r.json()).then(j => {
+            Object.entries((j && j.cities) || {}).forEach(([county, list]) => {
+                if (COUNTY_CITIES[county] && Array.isArray(list)) COUNTY_CITIES[county] = [...new Set(COUNTY_CITIES[county].concat(list))];
+            });
+            if (document.getElementById('whereScreen').classList.contains('active')) renderWhere();
+        }).catch(() => {});
         // ---- Step 1: where ----
         function renderWhere() {
             document.getElementById('countyChips').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, selectedCounties.includes(c), () => {
@@ -1964,10 +1984,28 @@
                 err.textContent = 'Pick at least one county, or tap "show me all of DFW".'; err.classList.add('show');
                 return;
             }
-            track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length });
+            track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length, reswipe: reswipe ? 'yes' : 'no' });
+            if (reswipe) { startSwiping(document.getElementById('whereGo'), document.getElementById('whereError')); return; }
             showScreen('priceScreen', true);
         }
         function anywhereDfw() { selectedCounties = []; selectedCities = []; renderWhere(); track('where_set', { counties: 'all' }); showScreen('priceScreen', true); }
+        // From the results: pick a different area and swipe about 8 homes there; the result folds those in.
+        let reswipe = null;
+        function setWhereMode(on) {
+            reswipe = on ? (reswipe || { loves: loves.slice(), passes: passes.slice(), shown: currentHomes.slice(), counties: selectedCounties.slice(), cities: selectedCities.slice() }) : null;
+            document.getElementById('whereHead').textContent = on ? 'Try Another Area' : 'Where Are You Looking?';
+            document.getElementById('whereSub').textContent = on ? "Pick a new area and we'll show you about 8 homes there." : 'Start with the county. Add cities if you want to narrow it down.';
+            document.getElementById('whereStep').hidden = !!on;
+            document.getElementById('whereAll').hidden = !!on;
+            document.getElementById('whereGo').textContent = on ? 'Show me homes' : 'Continue';
+        }
+        function tryAnotherArea() {
+            setWhereMode(true);
+            selectedCities = [];
+            renderWhere();
+            track('another_area_opened', { archetype: userArchetype });
+            showScreen('whereScreen', true);
+        }
         function whereLabel() {
             if (selectedCities.length) return selectedCities.join(', ');
             if (selectedCounties.length) return selectedCounties.join(', ') + (selectedCounties.length > 1 ? ' counties' : ' County');
@@ -2026,8 +2064,9 @@
         function searchCriteria() {
             return { counties: selectedCounties, cities: selectedCities, price: PRICE_RANGES[selectedPrice] || '', type: selectedHomeType, must, picks };
         }
-        async function startSwiping() {
-            const btn = document.getElementById('startSwipeBtn'), err = document.getElementById('deckError');
+        async function startSwiping(btnEl, errEl) {
+            const btn = btnEl || document.getElementById('startSwipeBtn'), err = errEl || document.getElementById('deckError');
+            const label = btn.textContent;
             err.textContent = ''; err.classList.remove('show');
             btn.disabled = true; btn.textContent = 'Finding homes...';
             track('deck_requested', { counties: selectedCounties.join('|') || 'all', musts: Object.keys(must).length, picks: Object.keys(picks).length });
@@ -2041,13 +2080,14 @@
                     return;
                 }
                 deckInfo = j;
-                cands = j.cards;
+                const seenIds = new Set(reswipe ? reswipe.shown.map(h => h.id) : []);
+                cands = j.cards.filter(h => !seenIds.has(h.id));
                 loves = []; passes = [];
                 showScreen('swipeScreen', true);
                 initializeSwipe();
             } catch (e) {
                 err.textContent = "We couldn't load homes just now. Please try again in a moment."; err.classList.add('show');
-            } finally { btn.disabled = false; btn.textContent = 'Start swiping'; }
+            } finally { btn.disabled = false; btn.textContent = label; }
         }
 
         // ---- the result: the style they loved most, by real homes ----
@@ -2139,6 +2179,7 @@
             if (h && h.photos && h.photos[0]) new Image().src = h.photos[0];
         }
         function clearRead() {
+            if (reswipe) return false;
             const n = currentSwipeIndex;
             if (n < MIN_CARDS || n < Math.min(MIN_CARDS, deckTarget)) return false;
             const lk = {}; loves.forEach(h => { lk[h.k] = (lk[h.k] || 0) + 1; });
@@ -2186,7 +2227,7 @@
             container.innerHTML = '<div class="swipe-indicators"><span class="swipe-indicator swipe-indicator-left" id="indicatorLeft">✕</span><span class="swipe-indicator swipe-indicator-right" id="indicatorRight">♥︎</span></div>';
             currentSwipeIndex = 0;
             swipeLocked = false; endedEarly = false;
-            deckTarget = Math.min(MAX_CARDS, cands.length);
+            deckTarget = Math.min(reswipe ? 8 : MAX_CARDS, cands.length);
             currentHomes = [];
             const first = pickNext([], [], []);
             if (first) currentHomes.push(first);
@@ -2289,6 +2330,12 @@
                 endedEarly = currentSwipeIndex < deckTarget && currentSwipeIndex < currentHomes.length;
                 currentHomes.length = currentSwipeIndex;
                 updateProgress(true);
+                if (reswipe) {
+                    track('another_area_done', { counties: selectedCounties.join('|') || 'all', loves: loves.length });
+                    loves = reswipe.loves.concat(loves); passes = reswipe.passes.concat(passes);
+                    currentHomes = reswipe.shown.concat(currentHomes); currentSwipeIndex = currentHomes.length;
+                    setWhereMode(false);
+                }
                 swipeLocked = false; goToLoading(); return;
             }
             prepareBranches();
@@ -2363,7 +2410,7 @@
         }
 
         function updateProgress(finished) {
-            const total = finished ? currentSwipeIndex : deckTarget;
+            const total = finished ? currentSwipeIndex : Math.max(deckTarget, currentSwipeIndex);
             document.getElementById('progressFill').style.width = (total ? Math.min(100, currentSwipeIndex / total * 100) : 0) + '%';
             document.getElementById('progressText').textContent = `${currentSwipeIndex}/${total}`;
             updateUndo();
@@ -2430,24 +2477,50 @@
                 avail = j;
                 const where = whereLabel() === 'All of DFW' ? 'across DFW' : 'in ' + whereLabel();
                 renderMore(j);
-                const linkText = j.styled ? `See ${label} homes on joshwaters.com` : 'See homes for sale in your areas';
+                const linkText = j.styled && !j.est ? `See ${j.count.toLocaleString('en-US')} ${j.count === 1 ? 'home' : 'homes'} for sale` : 'See homes for sale';
                 if (j.count >= 3) {
-                    line.innerHTML = `<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range.`;
+                    line.innerHTML = `${j.est ? 'About ' : ''}<b>${j.count.toLocaleString('en-US')}</b> ${esc(label)} homes for sale ${esc(where)} in your range${Object.values(must).includes('must') ? ' with your must-haves' : ''}.`;
                     link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false;
                 } else {
                     line.textContent = j.count ? `Only ${j.count} ${label} ${j.count === 1 ? 'home is' : 'homes are'} for sale ${where} in your range right now.` : `No ${label} homes are for sale ${where} in your range right now.`;
-                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = j.styled ? (j.count === 1 ? 'See it' : 'See them') : linkText; link.hidden = false; }
+                    if (j.count) { link.href = j.url + boardFragment(); link.textContent = linkText; link.hidden = false; }
+                    offerLoosen(k);
                     if (j.nearest) {
                         near.innerHTML = `The closest place with ${esc(label)} homes in your range is <a href="${esc(j.nearest.url + boardFragment())}" target="_blank" rel="noopener">${esc(j.nearest.city)}</a>. Josh can also watch your areas and send new ones as they list.`;
                         near.hidden = false;
                     }
                 }
             } catch (e) {
-                line.textContent = 'Homes in your style are on joshwaters.com.';
+                line.textContent = 'Homes in your style are for sale now.';
                 link.href = homesUrl(true); link.textContent = 'See homes for sale'; link.hidden = false;
             }
         }
 
+        // Few homes: show how many more each must-have would open up if it became a nice-to-have. One tap applies it.
+        async function offerLoosen(k) {
+            const box = document.getElementById('loosenBox'); box.hidden = true; box.innerHTML = '';
+            const hard = Object.keys(must).filter(m => must[m] === 'must');
+            if (!hard.length) return;
+            const tries = await Promise.all(hard.slice(0, 4).map(async m => {
+                const c = searchCriteria(); c.must = Object.assign({}, must, { [m]: 'nice' });
+                try { const r = await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action: 'availability', k }, c)) }); const j = await r.json(); return { m, n: (j && j.count) || 0 }; } catch (e) { return { m, n: 0 }; }
+            }));
+            if (k !== userArchetype) return;
+            const base = (avail && avail.count) || 0;
+            const better = tries.filter(t => t.n > base).sort((a, b) => b.n - a.n);
+            if (!better.length) return;
+            box.innerHTML = '<div class="loosen-q">Open up your search?</div>' + better.map(t => `<button type="button" class="loosen-chip" onclick="loosen('${t.m}')">${esc(MUST_LABEL[t.m])} as a nice-to-have <span>${t.n.toLocaleString('en-US')} homes</span></button>`).join('');
+            box.hidden = false;
+        }
+        function loosen(m) {
+            must[m] = 'nice';
+            track('must_loosened', { must: m, archetype: userArchetype });
+            document.getElementById('pMust').textContent = listText(Object.keys(must).filter(x => must[x] === 'must').map(x => MUST_LABEL[x]));
+            document.getElementById('pMustRow').hidden = !Object.values(must).includes('must');
+            document.getElementById('pNice').textContent = listText(Object.keys(must).filter(x => must[x] === 'nice').map(x => MUST_LABEL[x]));
+            document.getElementById('pNiceRow').hidden = false;
+            loadAvailability();
+        }
         function homeCard(h, where) {
             return `<a class="home-match-card" href="${esc(h.url + boardFragment())}" target="_blank" rel="noopener" onclick="track('${where}_home_clicked', { style: '${esc(h.k)}' })">
                     <img class="home-match-image" src="${esc(h.photo)}" alt="${esc(h.label + ' home, ' + h.address)}" loading="lazy">

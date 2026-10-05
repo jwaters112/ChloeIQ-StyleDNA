@@ -370,6 +370,8 @@ module.exports = async (req, res) => {
     const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
     const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
     let budget = Number(q.budget) || 1500; report.pool = [];
+    if (!only1 || q.cities) { try { report.cities = await poolLib.buildCities(); } catch (e) { report.cities = { error: String(e && e.message) }; } }
+    if (q.cities === 'only') return res.status(200).json(report);
     for (const c of list) {
       const left = 270000 - (Date.now() - started);
       if (left < 30000) { report.pool.push({ county: c, skipped: 'out of time' }); continue; }
