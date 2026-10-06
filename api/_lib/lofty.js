@@ -134,4 +134,10 @@ function ctAt(days, hour, minute) {
   return `${ymd}T${String(hour).padStart(2, '0')}:${String(minute || 0).padStart(2, '0')}:00${ctOffset(now)}`;
 }
 
-module.exports = { listingsByMls, listingById, leadIdByEmail, addNote, leadToken, leadTokenOk, createTask, activities, lead, attachProperty, ctAt };
+// Stop Lofty's automatic emails (listing alerts, market reports) for a lead. Personal emails still go through.
+async function unsubscribe(leadId) {
+  if (!leadId) return false;
+  const j = await jsonPost('/leads/' + Number(leadId), { unsubscription: true }, 'PUT');
+  return !!j;
+}
+module.exports = { unsubscribe, listingsByMls, listingById, leadIdByEmail, addNote, leadToken, leadTokenOk, createTask, activities, lead, attachProperty, ctAt };

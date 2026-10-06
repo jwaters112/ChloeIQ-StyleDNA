@@ -1942,6 +1942,10 @@
                         <textarea class="form-input form-textarea" id="dreamInput" rows="2" maxlength="300" placeholder="Single story, big backyard, quiet street, room for a home office"></textarea>
                     </div>
 
+                    <label class="consent-row" for="emailAlertsInput">
+                        <input type="checkbox" id="emailAlertsInput">
+                        <span>Email me new homes that match my search. You can unsubscribe anytime.</span>
+                    </label>
                     <label class="consent-row" for="consentInput">
                         <input type="checkbox" id="consentInput">
                         <span>Yes, Josh Waters with Dallas Collective Group, brokered by REAL Broker, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
@@ -3512,6 +3516,7 @@
                 area: neighborhood,
                 areas: [...new Set([neighborhood, ...myAreas()])].filter(Boolean).slice(0, 6),
                 consent: document.getElementById('consentInput').checked,
+                emailAlerts: document.getElementById('emailAlertsInput').checked,
                 website: document.getElementById('sdnaTrap').value,
                 homeType: selTypes.size ? selectedHomeTypeLabel : '',
                 dream: document.getElementById('dreamInput').value.trim().slice(0, 300),

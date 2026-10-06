@@ -144,6 +144,8 @@ async function handle(req, res) {
     budget = { label: bands.map((n) => BUDGETS[n].label).join(', '), priceMin: lo.priceMin, priceMax: hi.priceMax };
   }
   const consent = body.consent === true;
+  // Listing emails only when they asked for them. Without it, Lofty gets no search to build alerts from.
+  const emailAlerts = body.emailAlerts === true;
   const prefs = (body.preferences && typeof body.preferences === 'object') ? body.preferences : {};
   const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {};
   const loved = list(body.loved);
@@ -207,6 +209,7 @@ async function handle(req, res) {
     lovedHomes.length ? 'Homes they loved in the quiz:\n' + lovedHomes.map((h) => `- ${h.label ? h.label + ': ' : ''}${h.address}${h.url ? ' ' + h.url : ''}`).join('\n') : 'Loved: none',
     passed.length ? 'Passed on: ' + [...new Set(passed)].join(', ') : '',
     'Call/text consent: ' + (phoneDigits ? (consent ? 'yes' : 'no') : 'no phone given'),
+    'Listing emails: ' + (emailAlerts ? 'yes, asked for new matches by email' : 'no, unsubscribed from automated emails (personal email is fine)'),
   ].filter(Boolean);
   // Their top matches on the market right now, so Josh can open the call with real homes.
   const styleKey = clip(body.style, 20);
@@ -250,7 +253,7 @@ async function handle(req, res) {
     lead.phones = [clip(phoneDigits, 20)];
     if (!consent) { lead.cannotCall = true; lead.cannotText = true; }
   }
-  if (budget || areas.length) {
+  if (emailAlerts && (budget || areas.length)) {
     lead.inquiry = {};
     if (budget && budget.priceMin) lead.inquiry.priceMin = budget.priceMin;
     if (budget && budget.priceMax) lead.inquiry.priceMax = budget.priceMax;
@@ -266,6 +269,7 @@ async function handle(req, res) {
   const existing = await lofty.leadIdByEmail(email);
   if (isUpdate && !existing) return res.status(200).json({ ok: true, skipped: true }); // never create a lead from an update
   if (existing) {
+    if (!emailAlerts && !isUpdate) await lofty.unsubscribe(existing);
     await lofty.addNote(existing, [isUpdate ? 'StyleDNA search updated on the results page' : 'StyleDNA quiz taken again', ...noteLines.slice(1)].join('\n'));
     recentEmails.set(email, now);
     await linkMember(body.member, existing);
@@ -290,6 +294,7 @@ async function handle(req, res) {
     let leadId = null;
     try { leadId = JSON.parse(text).leadId || null; } catch (e) {}
     if (!leadId) leadId = await lofty.leadIdByEmail(email);
+    if (!emailAlerts && leadId) await lofty.unsubscribe(leadId);
     // Already on a board in this browser: tie that board member to this Lofty lead.
     await linkMember(body.member, leadId);
     await rememberSharer(body.sid, leadId, name);
