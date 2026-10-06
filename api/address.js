@@ -124,6 +124,12 @@ module.exports = async (req, res) => {
 <body><p><a href="${e(go)}">Take the StyleDNA quiz</a></p><script>location.replace(${JSON.stringify(go)});</script></body></html>`);
   }
   if (req.query && req.query.fields && process.env.VERCEL_ENV !== 'production') {
+    if (req.query.cond) {
+      // Try search conditions and report the counts, to learn which filter keys the search honors.
+      let tries = []; try { tries = JSON.parse(String(req.query.cond)); } catch (e) { return res.status(400).json({ ok: false }); }
+      const out = await Promise.all(tries.slice(0, 12).map(async (t) => { const r = await idx.search(Object.assign({ location: { county: ['Collin'] } }, t), 3); return { t, count: r ? r.count : null, sample: r ? r.list.map((l) => [l.beds, l.baths, l.sqft, l.built, l.acres, l.stories, l.hoa]) : null }; }));
+      return res.status(200).json({ ok: true, out });
+    }
     const raw = await idx.rawSample({ price: '600000,900000', location: { county: ['Collin'] } }, 3);
     return res.status(200).json({ ok: true, listings: (raw || []).map((l) => { const o = Object.assign({}, l); delete o.listingPictures; delete o.detailsDescribe; return o; }) });
   }
