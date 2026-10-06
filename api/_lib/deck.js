@@ -128,10 +128,12 @@ function cardPhotos(l, c, rooms) {
   const rm = {}; ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining', 'pool', 'rear', 'aerial', 'game', 'office'].forEach((k) => { const u = (r[k] || []).find((x) => x !== l.photo); if (u) rm[k] = u; });
   return { photos, plabels, ins, rm };
 }
+// Must-haves this home doesn't have (only ones we can check from the listing).
+const missing = (l, c) => Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m] && !has[m](l));
 function card(l, s, c, near, rooms) {
   const f = fit(l, c);
   return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, ...cardPhotos(l, c, rooms), url: l.url, address: l.address, city: l.city, county: l.county,
-    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, t: traits(l) };
+    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, miss: missing(l, c), t: traits(l) };
 }
 
 const DECK_SIZE = 20;
@@ -144,7 +146,19 @@ function inSearch(l, c, cities) {
   if (c.must.acres === 'must' && !(l.acres >= 1)) return false;
   return true;
 }
+// Swipe cards follow their must-haves when there are enough matching homes for a full deck. When there
+// aren't, the closest homes fill in and each says what it's missing, so it reads as a style card, not a match.
+const STRICT_MIN = 14;
 async function buildDeck(input) {
+  const c = criteria(input);
+  const hard = Object.keys(c.must).some((m) => c.must[m] === 'must' && has[m]);
+  if (hard) {
+    const strict = await buildDeckFor(input, true);
+    if (strict.cards.filter((x) => !x.probe).length >= STRICT_MIN) return Object.assign(strict, { mustOnly: true });
+  }
+  return buildDeckFor(input, false);
+}
+async function buildDeckFor(input, strict) {
   const c = criteria(input);
   const rooms = await roomsLib.loadAll().catch(() => ({}));
   const styles = stylesFor(c);
@@ -160,6 +174,7 @@ async function buildDeck(input) {
       if (seen.has(l.id) || !BY_KEY[l.k] || !styles.some((s) => s.k === l.k)) return; seen.add(l.id);
       const cd = card(l, BY_KEY[l.k], c, near, rooms);
       if (cd.photos.length < minPhotos) return;
+      if (strict && cd.miss.length) return;
       (cands[l.k] = cands[l.k] || []).push(Object.assign(cd, { _f: fit(l, c).score + Math.random() * 0.6 }));
     });
     Object.values(cands).forEach((a) => a.sort((x, y) => y._f - x._f));

@@ -1451,6 +1451,7 @@
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
         .swipe-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); }
         .swipe-dots i.on { background: #fff; }
+        .swipe-card-miss { position: absolute; top: 14px; right: 14px; background: rgba(3,12,13,.8); color: #F5F5F3; font-size: 11px; font-weight: 600; letter-spacing: .4px; padding: 5px 9px; border-radius: 999px; z-index: 2; }
         .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(3,12,13,.8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
         .style-lean { font-size: 16px; color: var(--silver); margin: 6px 0 0; }
         .avail { margin: 4px 0 18px; text-align: left; }
@@ -2481,11 +2482,17 @@
             pics.labels = pics.codes.map(c => c === 'front' ? 'Front' : (ROOM_NAME[c] || ''));
             return pics;
         }
+        // When the deck had to fill in with homes missing a must-have, the card says so.
+        const MISS_WORD = { pool: 'No pool', acres: 'Under 1 acre', gameroom: 'No game room', suite: 'No guest suite', access: 'Not one story', office: 'No office', primarydown: 'Primary not down', garage3: 'Under 3-car garage', outdoor: 'No outdoor living', shop: 'No shop or RV parking', newer: 'Built before 2015' };
+        function missTag(home) {
+            const m = (home.miss || []).filter(k => must[k] === 'must' && MISS_WORD[k]);
+            return m.length === 1 ? MISS_WORD[m[0]] : m.length > 1 ? `Missing ${m.length} must-haves` : '';
+        }
         function buildSwipeCard(home) {
             const card = document.createElement('div');
             card.className = 'swipe-card';
             const pics = cardPhotos(home);
-            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div><span class="swipe-room" hidden></span>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
+            card.innerHTML = `<img class="swipe-card-img" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">${pics.length > 1 ? `<div class="swipe-dots">${pics.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div><span class="swipe-room" hidden></span>` : ''}${home.near ? '<span class="swipe-card-near">Nearby</span>' : ''}${missTag(home) ? `<span class="swipe-card-miss">${esc(missTag(home))}</span>` : ''}<div class="swipe-card-overlay"></div><div class="swipe-card-info"><div class="swipe-card-style">${esc(home.label)}</div><div class="swipe-card-title">${esc(home.desc)}</div><div class="swipe-card-description">${esc([money(home.price), home.facts].filter(Boolean).join(' · '))}</div>${home.office ? `<div class="swipe-card-credit">Listing courtesy of ${esc(home.office)}</div>` : ''}</div>`;
             const img = card.querySelector('img');
             img.alt = home.label + ' home in ' + (home.city || 'DFW');
             img.src = home.photo;
@@ -2538,15 +2545,17 @@
             if (n < 6 || Math.random() < 0.2) {
                 const min = Math.min(...ok.map(h => seen[h.k] || 0));
                 const c = ok.filter(h => (seen[h.k] || 0) === min);
-                const local = c.filter(h => !h.near);
-                const from = local.length && Math.random() < 0.8 ? local : c;
+                const fits = c.filter(h => !(h.miss || []).length);
+                const c2 = fits.length ? fits : c;
+                const local = c2.filter(h => !h.near);
+                const from = local.length && Math.random() < 0.8 ? local : c2;
                 return from[Math.floor(Math.random() * from.length)];
             }
             const w = weights(L, P);
             let best = null, bs = -1e9;
             ok.forEach(h => {
                 const t = h.t || {};
-                const sc = (w.k[h.k] || 0) + TRAITS.reduce((s, f) => s + (t[f] ? (w[f][t[f]] || 0) * 0.5 : 0), 0) - (h.near ? 0.4 : 0) + Math.random() * 1.2;
+                const sc = (w.k[h.k] || 0) + TRAITS.reduce((s, f) => s + (t[f] ? (w[f][t[f]] || 0) * 0.5 : 0), 0) - (h.near ? 0.4 : 0) - ((h.miss || []).length ? 1.5 : 0) + Math.random() * 1.2;
                 if (sc > bs) { bs = sc; best = h; }
             });
             return best;
