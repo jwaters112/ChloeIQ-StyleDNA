@@ -123,6 +123,43 @@ module.exports = async (req, res) => {
 <meta http-equiv="refresh" content="0;url=${e(go)}"><style>body{background:#030C0D;color:#A3A7A6;font-family:sans-serif;text-align:center;padding:40vh 20px}a{color:#E0B24D}</style></head>
 <body><p><a href="${e(go)}">Take the StyleDNA quiz</a></p><script>location.replace(${JSON.stringify(go)});</script></body></html>`);
   }
+  // Test site only: read finishes from inside photos for a fixed spread of 20 pool homes, saved for review.
+  if (req.query && (req.query.finishrun || req.query.finishreview) && process.env.VERCEL_ENV !== 'production') {
+    const store = require('./_lib/boards'), roomsLib = require('./_lib/rooms'), fin = require('./_lib/finish');
+    const modelKey = req.query.model === 'haiku' ? 'haiku' : 'sonnet', docId = 'finishtest' + modelKey;
+    if (req.query.finishphoto) {
+      // One test photo as small base64, for spot-checking a reading.
+      const cur = await store.readIn('pool', 'finishtestsonnet').catch(() => null);
+      const row = ((cur && cur.doc && cur.doc.rows) || [])[Number(req.query.finishphoto) - 1];
+      const u = row && row.rooms && row.rooms[String(req.query.room || 'living')];
+      if (!u) return res.status(404).json({ ok: false });
+      const r = await fetch(u.replace('/w800_original_', '/w400_original_')).catch(() => null);
+      if (!r || !r.ok) return res.status(502).json({ ok: false });
+      return res.status(200).json({ ok: true, b64: Buffer.from(await r.arrayBuffer()).toString('base64') });
+    }
+    if (req.query.finishreview) {
+      const cur = await store.readIn('pool', docId).catch(() => null);
+      const rows = ((cur && cur.doc && cur.doc.rows) || []).filter(Boolean);
+      const e = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Finish test (${modelKey})</title><style>body{background:#030C0D;color:#F5F5F3;font-family:-apple-system,sans-serif;margin:0;padding:20px}h1{font-size:20px}.h{border-top:1px solid #333;padding:18px 0}.ph{display:flex;gap:8px;overflow-x:auto}.ph img{height:180px;border-radius:8px}.t{font-size:14px;color:#cfd2d1;line-height:1.7;margin-top:8px}b{color:#E0B24D;font-weight:600}</style></head><body><h1>Finish test: ${rows.length} homes, ${e(modelKey)}</h1>` +
+        rows.map((r, i) => `<div class="h"><div>${i + 1}. ${e(r.address)}</div><div class="ph">${['kitchen', 'living', 'primary_bath'].map((k) => r.rooms && r.rooms[k] ? `<img src="${e(r.rooms[k])}" alt="${k}">` : '').join('')}</div><div class="t">${r.tags ? Object.entries(r.tags).map(([k, v]) => `${e(k)}: <b>${e(v)}</b>`).join(' &nbsp; ') : 'Not read: ' + e(r.why)}</div></div>`).join('') + '</body></html>';
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send(html);
+    }
+    // Pick the same 20 homes every time: up to 3 sorted homes per county, spread across counties.
+    const counties = ['Dallas', 'Collin', 'Denton', 'Tarrant', 'Rockwall', 'Ellis', 'Parker', 'Johnson'];
+    const [docs, rooms] = await Promise.all([Promise.all(counties.map((c) => store.readIn('pool', c).catch(() => null))), roomsLib.loadAll()]);
+    const picks = [];
+    for (let round = 0; round < 4 && picks.length < 20; round++) docs.forEach((d) => {
+      const homes = ((d && d.doc && d.doc.homes) || []).filter((h) => { const r = rooms[h.id]; return r && r.kitchen && r.living && r.primary_bath; });
+      const h = homes[round * 7]; if (h && picks.length < 20) picks.push({ h, r: rooms[h.id] });
+    });
+    const from = Number(req.query.from) || 0, n = Math.min(5, Number(req.query.n) || 5);
+    const batch = picks.slice(from, from + n);
+    const out = await Promise.all(batch.map(async ({ h, r }) => { const why = {}; const roomsUsed = { kitchen: r.kitchen[0], living: r.living[0], primary_bath: r.primary_bath[0] }; const tags = await fin.readFinishes(roomsUsed, modelKey, why); return { i: picks.indexOf(picks.find((p) => p.h.id === h.id)), id: h.id, address: h.address, rooms: roomsUsed, tags, why: why.reason || '', usage: why.usage || null }; }));
+    await store.upsert('pool', docId, (doc) => { doc.at = Date.now(); doc.rows = doc.rows || []; out.forEach((o) => { doc.rows[o.i] = o; }); doc.rows = doc.rows.map((x) => x || null); });
+    return res.status(200).json({ ok: true, total: picks.length, model: modelKey, out: out.map((o) => ({ i: o.i, address: o.address, tags: o.tags, why: o.why, usage: o.usage })) });
+  }
   if (req.query && req.query.fields && process.env.VERCEL_ENV !== 'production') {
     if (req.query.cond) {
       // Try search conditions and report the counts, to learn which filter keys the search honors.

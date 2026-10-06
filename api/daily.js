@@ -379,6 +379,20 @@ module.exports = async (req, res) => {
     console.log('rooms run', JSON.stringify(report.rooms));
     return res.status(200).json(report);
   }
+  if (part === 'finish') {
+    // Read finishes from inside photos for pool homes not read yet (runs after the room sort).
+    const started = Date.now();
+    const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);
+    const list = only1 ? [only1] : Object.keys(require('./_lib/styles').COUNTIES);
+    let budget = Number(q.budget) || 400; report.finish = [];
+    for (const c of list) {
+      const left = 270000 - (Date.now() - started);
+      if (left < 30000 || budget <= 0) { report.finish.push({ county: c, skipped: 'out of time' }); continue; }
+      try { const r = await poolLib.finishCounty(c, budget, left - 20000); report.finish.push(r); budget -= (r.read || 0) + (r.failed || 0); } catch (e) { report.finish.push({ county: c, error: String(e && e.message) }); }
+    }
+    console.log('finish run', JSON.stringify(report.finish));
+    return res.status(200).json(report);
+  }
   if (part === 'pool') {
     const started = Date.now();
     const only1 = process.env.VERCEL_ENV === 'production' ? null : (q.county || null);

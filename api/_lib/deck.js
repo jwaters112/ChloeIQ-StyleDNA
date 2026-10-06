@@ -5,6 +5,7 @@ const { STYLES, BY_KEY, COUNTIES } = require('./styles');
 const pool = require('./pool');
 const phototag = require('./phototag');
 const roomsLib = require('./rooms');
+const finLib = require('./finish');
 
 const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
 const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
@@ -45,10 +46,19 @@ const SPEC = {
   nohoa: { label: 'No HOA', g: 'The house', d: (l) => l.hoa === false },
   reduced: { label: 'Price reduced', g: 'The house', d: (l) => l.reduced === true },
   openhouse: { label: 'Open house scheduled', g: 'The house', d: (l) => l.openh === true },
+  // Read from the inside photos (kitchen, living room, primary bath). Only the finishes that proved reliable in testing.
+  cabwhite: { label: 'White kitchen cabinets', g: 'From photos', p: (f) => f.cab === 'white' },
+  cabwood: { label: 'Wood-tone kitchen cabinets', g: 'From photos', p: (f) => /wood/.test(f.cab || '') },
+  nocarpet: { label: 'No carpet in living areas', g: 'From photos', p: (f) => f.carpet === false },
+  updated: { label: 'Updated or new look', g: 'From photos', p: (f) => f.look === 'new or recently updated' },
 };
 const SPEC_LEVEL = new Set(['must', 'nice', 'never']);
 // 'yes' when a data field confirms it, 'says' when only the description mentions it, '' when neither.
-function specHas(k, l) { const it = SPEC[k]; if (!it) return ''; if (it.d && it.d(l)) return 'yes'; return it.r && it.r.test(l.remarks || '') ? 'says' : ''; }
+function specHas(k, l) {
+  const it = SPEC[k]; if (!it) return '';
+  if (it.p) return l.fin && !l.fin.none && it.p(l.fin) ? 'photo' : '';
+  if (it.d && it.d(l)) return 'yes'; return it.r && it.r.test(l.remarks || '') ? 'says' : '';
+}
 const RANGE_KEYS = { bedsMin: [0, 10], bathsMin: [0, 10], sqftMin: [0, 20000], sqftMax: [0, 20000], acresMin: [0, 500], acresMax: [0, 500], builtMin: [1900, YEAR + 2], builtMax: [1900, YEAR + 2] };
 function inRange(l, r) {
   if (!r) return true;
@@ -57,13 +67,13 @@ function inRange(l, r) {
 }
 // What a home has and lacks against their checklist, for the results list.
 function specRead(l, c) {
-  const yes = [], says = [], no = [], bad = [];
+  const yes = [], says = [], photo = [], no = [], bad = [];
   Object.entries(c.feat || {}).forEach(([k, v]) => {
     const h = specHas(k, l), lab = SPEC[k].label;
     if (v === 'never') { if (h) bad.push(lab); return; }
-    if (h === 'yes') yes.push(lab); else if (h === 'says') says.push(lab); else if (v === 'must') no.push(lab);
+    if (h === 'yes') yes.push(lab); else if (h === 'says') says.push(lab); else if (h === 'photo') photo.push(lab); else if (v === 'must') no.push(lab);
   });
-  return { yes, says, no, bad };
+  return { yes, says, photo, no, bad };
 }
 
 // Whatever the browser sends, keep only values we know.
@@ -233,6 +243,8 @@ async function buildDeck(input) {
 async function buildDeckFor(input, strict) {
   const c = criteria(input);
   const rooms = await roomsLib.loadAll().catch(() => ({}));
+  const fins = Object.values(c.feat || {}).length ? await finLib.loadAll().catch(() => ({})) : {};
+  const withFin = (list) => list.map((l) => (fins[l.id] && !l.fin ? Object.assign({}, l, { fin: fins[l.id] }) : l));
   const styles = stylesFor(c);
   const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
@@ -252,7 +264,7 @@ async function buildDeckFor(input, strict) {
     Object.values(cands).forEach((a) => a.sort((x, y) => y._f - x._f));
     return cands;
   };
-  let homes = (await pool.load(counties)).filter((l) => inSearch(l, c, cities));
+  let homes = withFin((await pool.load(counties)).filter((l) => inSearch(l, c, cities)));
   let source = 'pool';
   if (!homes.length && !(await pool.load(counties)).length) {
     // Pool not built for these counties yet: look live, and read photos now (slower, first time only).
@@ -329,14 +341,16 @@ async function availability(input, k) {
   const counties = c.counties.length ? c.counties : Object.keys(COUNTIES);
   const cities = new Set(c.cities.map((x) => x.toLowerCase()));
   const cond = Object.assign({}, baseCond(c), s.q);
-  const [first, mine, tags] = await Promise.all([idx.search(cond, PAGE, 1), pool.load(counties), phototag.loadAll().catch(() => ({}))]);
+  const [first, mine0, tags, fins] = await Promise.all([idx.search(cond, PAGE, 1), pool.load(counties), phototag.loadAll().catch(() => ({})), Object.keys(c.feat || {}).length ? finLib.loadAll().catch(() => ({})) : {}]);
+  const addFin = (l) => (fins[l.id] && !l.fin ? Object.assign({}, l, { fin: fins[l.id] }) : l);
+  const mine = mine0.map(addFin);
   const liveTotal = first ? first.count : 0;
   const pages = [first];
   if (first && liveTotal > PAGE) {
     const more = await Promise.all(Array.from({ length: Math.min(LIST_PAGES, Math.ceil(liveTotal / PAGE)) - 1 }, (_, i) => idx.search(cond, PAGE, i + 2)));
     pages.push(...more);
   }
-  const liveList = []; pages.forEach((r) => (r ? r.list : []).forEach((l) => liveList.push(l)));
+  const liveList = []; pages.forEach((r) => (r ? r.list : []).forEach((l) => liveList.push(addFin(l))));
   const hard = Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m]);
   const okFeat = (l) => Object.entries(c.feat || {}).every(([fk, v]) => v === 'never' ? !specHas(fk, l) : v === 'must' ? !!specHas(fk, l) : true);
   const ok = (l) => hard.every((m) => has[m](l)) && okFeat(l);

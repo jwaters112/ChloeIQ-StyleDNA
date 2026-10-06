@@ -3075,6 +3075,7 @@
                         ${h.hits && h.hits.length ? `<span class="hl-has">${esc('Has ' + h.hits.join(', ').toLowerCase())}</span>` : ''}
                         ${h.sp && h.sp.yes.length ? `<span class="hl-has">${esc('Confirmed: ' + h.sp.yes.join(', '))}</span>` : ''}
                         ${h.sp && h.sp.says.length ? `<span class="hl-says">${esc('Listing says: ' + h.sp.says.join(', '))}</span>` : ''}
+                        ${h.sp && h.sp.photo && h.sp.photo.length ? `<span class="hl-says">${esc('From photos: ' + h.sp.photo.join(', '))}</span>` : ''}
                         ${h.office ? `<span class="hl-credit">Listing courtesy of ${esc(h.office)}</span>` : ''}
                     </span>
                 </a>`; };
@@ -3108,7 +3109,8 @@
             ['Kitchen and finishes', [['island', 'Kitchen island'], ['gas', 'Gas cooking'], ['doubleoven', 'Double ovens'], ['walkin', 'Walk-in pantry'], ['butler', "Butler's pantry"], ['wood', 'Wood floors']]],
             ['Lot and outside', [['culdesac', 'Cul-de-sac'], ['corner', 'Corner lot'], ['greenbelt', 'Backs to greenbelt or open space'], ['covered', 'Covered patio'], ['outkitchen', 'Outdoor kitchen'], ['roompool', 'Room for a pool'], ['waterfront', 'Waterfront']]],
             ['Garage', [['sidegarage', 'Side or rear entry garage'], ['tandem', 'Tandem garage space'], ['oversized', 'Oversized garage or workshop'], ['ev', 'EV charging']]],
-            ['The house', [['newcon', 'New construction'], ['detached', 'No shared walls'], ['nohoa', 'No HOA'], ['reduced', 'Price reduced'], ['openhouse', 'Open house scheduled']]]
+            ['The house', [['newcon', 'New construction'], ['detached', 'No shared walls'], ['nohoa', 'No HOA'], ['reduced', 'Price reduced'], ['openhouse', 'Open house scheduled']]],
+            ['From the photos', [['cabwhite', 'White kitchen cabinets'], ['cabwood', 'Wood-tone kitchen cabinets'], ['nocarpet', 'No carpet in living areas'], ['updated', 'Updated or new look']]]
         ];
         const SPEC_LABEL = Object.fromEntries(SPEC_ITEMS.flatMap(([, items]) => items));
         const RANGE_OPTS = {
@@ -3129,7 +3131,7 @@
         }
         // The "Get specific" panel: ranges, a keyword, then the checklist with Must / Nice / Never.
         function renderSpecific(nodes, label) {
-            nodes.push(Object.assign(document.createElement('p'), { className: 'spec-note', textContent: 'Set only what matters. Must and Never are strict. Each home shows whether the listing data confirms it or the description mentions it.' }));
+            nodes.push(Object.assign(document.createElement('p'), { className: 'spec-note', textContent: 'Set only what matters. Must and Never are strict. Each home shows whether the listing data confirms it, the description mentions it, or we read it from the photos.' }));
             const grid = document.createElement('div'); grid.className = 'spec-grid';
             Object.keys(RANGE_OPTS).forEach(k => {
                 const w = document.createElement('div');
