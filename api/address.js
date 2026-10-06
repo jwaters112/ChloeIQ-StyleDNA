@@ -129,7 +129,7 @@ module.exports = async (req, res) => {
     const modelKey = req.query.model === 'haiku' ? 'haiku' : 'sonnet', docId = 'finishtest' + modelKey;
     if (req.query.finishreview) {
       const cur = await store.readIn('pool', docId).catch(() => null);
-      const rows = (cur && cur.doc && cur.doc.rows) || [];
+      const rows = ((cur && cur.doc && cur.doc.rows) || []).filter(Boolean);
       const e = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Finish test (${modelKey})</title><style>body{background:#030C0D;color:#F5F5F3;font-family:-apple-system,sans-serif;margin:0;padding:20px}h1{font-size:20px}.h{border-top:1px solid #333;padding:18px 0}.ph{display:flex;gap:8px;overflow-x:auto}.ph img{height:180px;border-radius:8px}.t{font-size:14px;color:#cfd2d1;line-height:1.7;margin-top:8px}b{color:#E0B24D;font-weight:600}</style></head><body><h1>Finish test: ${rows.length} homes, ${e(modelKey)}</h1>` +
         rows.map((r, i) => `<div class="h"><div>${i + 1}. ${e(r.address)}</div><div class="ph">${['kitchen', 'living', 'primary_bath'].map((k) => r.rooms && r.rooms[k] ? `<img src="${e(r.rooms[k])}" alt="${k}">` : '').join('')}</div><div class="t">${r.tags ? Object.entries(r.tags).map(([k, v]) => `${e(k)}: <b>${e(v)}</b>`).join(' &nbsp; ') : 'Not read: ' + e(r.why)}</div></div>`).join('') + '</body></html>';
