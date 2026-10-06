@@ -127,6 +127,16 @@ module.exports = async (req, res) => {
   if (req.query && (req.query.finishrun || req.query.finishreview) && process.env.VERCEL_ENV !== 'production') {
     const store = require('./_lib/boards'), roomsLib = require('./_lib/rooms'), fin = require('./_lib/finish');
     const modelKey = req.query.model === 'haiku' ? 'haiku' : 'sonnet', docId = 'finishtest' + modelKey;
+    if (req.query.finishphoto) {
+      // One test photo as small base64, for spot-checking a reading.
+      const cur = await store.readIn('pool', 'finishtestsonnet').catch(() => null);
+      const row = ((cur && cur.doc && cur.doc.rows) || [])[Number(req.query.finishphoto) - 1];
+      const u = row && row.rooms && row.rooms[String(req.query.room || 'living')];
+      if (!u) return res.status(404).json({ ok: false });
+      const r = await fetch(u.replace('/w800_original_', '/w400_original_')).catch(() => null);
+      if (!r || !r.ok) return res.status(502).json({ ok: false });
+      return res.status(200).json({ ok: true, b64: Buffer.from(await r.arrayBuffer()).toString('base64') });
+    }
     if (req.query.finishreview) {
       const cur = await store.readIn('pool', docId).catch(() => null);
       const rows = ((cur && cur.doc && cur.doc.rows) || []).filter(Boolean);
