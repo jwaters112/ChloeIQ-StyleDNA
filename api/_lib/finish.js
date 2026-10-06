@@ -39,7 +39,7 @@ async function readFinishes(rooms, modelKey, why) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_tokens: 400, messages: [{ role: 'user', content }] }), signal: AbortSignal.timeout(25000),
+      body: JSON.stringify({ model, max_tokens: 1500, thinking: { type: 'disabled' }, messages: [{ role: 'user', content }] }), signal: AbortSignal.timeout(25000),
     }).catch((e) => ({ ok: false, status: 0, json: async () => ({ error: { message: e.message } }) }));
     if (r.status === 429 || r.status === 529) { await new Promise((ok) => setTimeout(ok, 1500 * (attempt + 1))); continue; }
     const j = await r.json().catch(() => ({}));
