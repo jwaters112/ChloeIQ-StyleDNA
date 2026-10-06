@@ -124,7 +124,9 @@ function cardPhotos(l, c, rooms) {
   slots.forEach((k) => { const u = (r[k] || []).find((x) => !used.has(x)); if (u) { used.add(u); photos.push(u); plabels.push(ROOM_LABEL[k]); } });
   // Rooms for the "inside" round at the end of the deck.
   const ins = {}; ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining'].forEach((k) => { if (r[k] && r[k][0]) ins[k] = r[k][0]; });
-  return { photos, plabels, ins };
+  // Every sorted room, one photo each, so the phone can show more or fewer and lead with the rooms this person stops on.
+  const rm = {}; ['living', 'kitchen', 'primary_bath', 'primary_bed', 'dining', 'pool', 'rear', 'aerial', 'game', 'office'].forEach((k) => { const u = (r[k] || []).find((x) => x !== l.photo); if (u) rm[k] = u; });
+  return { photos, plabels, ins, rm };
 }
 function card(l, s, c, near, rooms) {
   const f = fit(l, c);
