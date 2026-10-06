@@ -52,4 +52,41 @@ async function readFinishes(rooms, modelKey, why) {
   why.reason = 'busy';
   return null;
 }
-module.exports = { readFinishes, MODELS };
+// ---- stored readings, one small record per listing, sharded like the room sort ----
+const store = require('./boards');
+const SPACE = 'fin1', SHARDS = 10;
+const shardOf = (id) => 'fin' + (Number(String(id).replace(/\D/g, '').slice(-3)) % SHARDS || 0);
+const mem = { at: 0, all: {} };
+async function loadAll() {
+  if (Date.now() - mem.at < 5 * 60000) return mem.all;
+  const docs = await Promise.all(Array.from({ length: SHARDS }, (_, i) => store.readIn(SPACE, 'fin' + i).catch(() => null)));
+  const all = {}; docs.forEach((d) => Object.assign(all, (d && d.doc && d.doc.f) || {}));
+  mem.at = Date.now(); mem.all = all; return all;
+}
+// Keep only the finishes the site uses, in short form.
+const slimTags = (t) => ({ cab: t.cabinets || 'unclear', carpet: t.carpet_living, island: t.island, look: t.look || 'unclear', at: Date.now() });
+async function save(fresh) {
+  const by = {}; Object.entries(fresh).forEach(([id, v]) => { (by[shardOf(id)] = by[shardOf(id)] || {})[id] = v; });
+  await Promise.all(Object.entries(by).map(([sh, f]) => store.upsert(SPACE, sh, (doc) => { doc.f = Object.assign(doc.f || {}, f); }).catch((e) => console.warn('finish save failed', e && e.message))));
+  Object.assign(mem.all, fresh);
+}
+// homes: [{ id, rooms }]. Reads the ones not read yet, up to budget, within ms.
+async function readAll(homes, budget, ms) {
+  const known = await loadAll();
+  const todo = homes.filter((h) => h && h.id && h.rooms && !known[h.id]).slice(0, budget || 0);
+  const fresh = {}, stopAt = Date.now() + (ms || 60000);
+  let i = 0, failed = 0, inTok = 0, outTok = 0;
+  await Promise.all(Array.from({ length: Math.min(6, todo.length) }, async () => {
+    while (i < todo.length && Date.now() < stopAt) {
+      const h = todo[i++], why = {};
+      const t = await readFinishes(h.rooms, 'sonnet', why);
+      if (why.usage) { inTok += why.usage.input_tokens || 0; outTok += why.usage.output_tokens || 0; }
+      if (t) fresh[h.id] = slimTags(t);
+      else if (why.reason === 'not enough inside photos') fresh[h.id] = { none: 1, at: Date.now() };
+      else failed++;
+    }
+  }));
+  if (Object.keys(fresh).length) await save(fresh);
+  return { read: Object.keys(fresh).length, failed, left: Math.max(0, todo.length - Object.keys(fresh).length - failed), inTok, outTok };
+}
+module.exports = { readFinishes, MODELS, loadAll, readAll };

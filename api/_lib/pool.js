@@ -131,4 +131,14 @@ async function sortCounty(county, budget, ms) {
   return Object.assign({ county, homes: list.length, done: list.filter((l) => known[l.id]).length }, r);
 }
 
-module.exports = { buildCounty, load, BANDS, buildCities, cities, sortCounty };
+// Read finishes (cabinets, carpet, island, how updated) from the sorted inside photos of a county's pool homes.
+async function finishCounty(county, budget, ms) {
+  const fin = require('./finish');
+  const [homes, rooms] = await Promise.all([load([county]), rooms_loadAll()]);
+  const list = homes.map((h) => { const r = rooms[h.id] || {}; const rr = { kitchen: (r.kitchen || [])[0], living: (r.living || [])[0], primary_bath: (r.primary_bath || [])[0] }; return Object.values(rr).filter(Boolean).length >= 2 ? { id: h.id, rooms: rr } : null; }).filter(Boolean);
+  const r = await fin.readAll(list, budget, ms);
+  const known = await fin.loadAll();
+  return Object.assign({ county, homes: homes.length, withPhotos: list.length, done: list.filter((h) => known[h.id]).length }, r);
+}
+const rooms_loadAll = () => rooms.loadAll();
+module.exports = { buildCounty, load, BANDS, buildCities, cities, sortCounty, finishCounty };
