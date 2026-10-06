@@ -157,7 +157,7 @@ async function handle(req, res) {
   // StyleDNA v2: architectural style from real homes, must-haves and quick picks.
   const crit = deckLib.criteria(body.search || {});
   const styleNext = clip(body.styleNext, 40);
-  const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features', office: 'Home office', primarydown: 'Primary bedroom downstairs', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV/boat parking', newer: 'Built 2015 or later' };
+  const MUST_LABEL = { onestory: 'Single story', pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite or in-law quarters', access: 'Accessible features', office: 'Home office', primarydown: 'Primary bedroom downstairs', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV/boat parking', newer: 'Built 2015 or later' };
   const PICK_LABEL = { exterior: { brick: 'Brick', stone: 'Stone', stucco: 'Stucco', siding: 'Siding' }, layout: { open: 'Open concept', separate: 'Separate rooms' },
     condition: { ready: 'Move-in ready', updates: 'Some updates OK', project: 'Open to a project' }, hoa: { no: 'No HOA', yes: 'HOA preferred' }, setting: { near: 'Close to shops and dining', secluded: 'Secluded, more privacy' } };
   const musts = Object.entries(crit.must).filter(([, v]) => v === 'must').map(([k]) => MUST_LABEL[k]);

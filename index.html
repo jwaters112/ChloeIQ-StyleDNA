@@ -1288,6 +1288,13 @@
         .swipe-undo:not(:disabled):hover { color: var(--soft-white); border-color: var(--line-strong); }
         .results-screen { position: relative; }
         /* StyleDNA v2 */
+        .city-find { position: relative; margin: 0 0 22px; }
+        .city-find .form-input { text-align: left; margin: 0; }
+        .city-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: #0B1A1A; border: 1px solid rgba(224,178,77,.35); border-radius: 12px; overflow: hidden; z-index: 20; }
+        .city-find-list button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #F5F5F3; font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+        .city-find-list button:last-child { border-bottom: 0; }
+        .city-find-list button span { color: var(--silver); font-size: 13px; }
+        .city-find-list .none { padding: 12px 14px; color: var(--silver); font-size: 14px; }
         .city-chips .chip, #countyChips .chip { padding: 9px 14px; font-size: 14px; }
         #cityBlock { margin-top: -8px; }
         .must-list { display: flex; flex-direction: column; margin-bottom: 28px; }
@@ -1544,8 +1551,9 @@
             <button class="back-btn" type="button" onclick="goBack()" aria-label="Go back">&#8249;</button>
             <div class="preference-content">
                 <h2 class="preference-headline" id="whereHead">Where Are You Looking?</h2>
-                <p class="preference-subheading" id="whereSub">Start with the county. Add cities if you want to narrow it down.</p>
+                <p class="preference-subheading" id="whereSub">Type a city, or pick a county. Add cities if you want to narrow it down.</p>
                 <div class="progress-indicator" id="whereStep">Step 1 of 4</div>
+                <div id="cityFind"></div>
                 <p class="chip-label">Counties <span class="chip-hint">Pick as many as you like</span></p>
                 <div class="chips" id="countyChips"></div>
                 <div id="cityBlock" hidden>
@@ -2098,7 +2106,8 @@
             { k: 'acres', label: 'An acre or more', hint: 'Room to spread out' },
             { k: 'gameroom', label: 'Game or media room', hint: 'A second living area upstairs or down' },
             { k: 'suite', label: 'Guest suite or in-law quarters', hint: 'A second living space with its own bath' },
-            { k: 'access', label: 'Accessible features', hint: 'Single story, no-step entry, wider doors' },
+            { k: 'onestory', label: 'Single story', hint: 'Everything on one level' },
+            { k: 'access', label: 'Accessible features', hint: 'No-step entry, wider doors' },
             { k: 'office', label: 'Home office', hint: 'A room with a door for work' },
             { k: 'primarydown', label: 'Primary bedroom downstairs', hint: 'Main bedroom on the first floor' },
             { k: 'garage3', label: '3+ car garage', hint: 'Room for cars, storage or a gym' },
@@ -2106,9 +2115,9 @@
             { k: 'shop', label: 'Shop or RV/boat parking', hint: 'Workshop, barn or a spot for the RV or boat' },
             { k: 'newer', label: 'Newer build', hint: 'Built 2015 or later' }
         ];
-        const MUST_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features', office: 'Home office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015+' };
+        const MUST_LABEL = { onestory: 'Single story', pool: 'Pool', acres: '1+ acre', gameroom: 'Game or media room', suite: 'Guest suite', access: 'Accessible features', office: 'Home office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015+' };
         // Most-picked must-haves show first (learned from recent quizzes); the rest sit behind "More options".
-        let mustOrder = ['pool', 'acres', 'gameroom', 'office', 'primarydown', 'outdoor', 'suite', 'garage3', 'shop', 'newer', 'access'], mustMore = false;
+        let mustOrder = ['pool', 'onestory', 'acres', 'gameroom', 'office', 'primarydown', 'outdoor', 'suite', 'garage3', 'shop', 'newer', 'access'], mustMore = false;
         fetch('/api/stats?trend=musts').then(r => r.json()).then(j => {
             const c = (j && j.musts) || {}, total = Object.values(c).reduce((t, n) => t + n, 0);
             if (total < 20) return; // not enough quizzes yet to trust the order
@@ -2218,11 +2227,47 @@
             });
             moreCities = null;
         }
+        // Type a city without knowing its county (handy for people relocating). Picking one selects the
+        // city and every county it sits in, so the rest of the search works the same.
+        const countiesOf = (city) => Object.keys(COUNTY_CITIES).filter(k => COUNTY_CITIES[k].some(c => c.toLowerCase() === city.toLowerCase()));
+        const countyWords = (ks) => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] + ' counties' : (ks[0] || '') + ' County';
+        function cityFinder(onPick) {
+            mergeCities();
+            const wrap = document.createElement('div'); wrap.className = 'city-find';
+            wrap.innerHTML = '<input class="form-input" type="text" placeholder="Know the city? Type it here" autocomplete="off" autocapitalize="words" aria-label="Search for a city"><div class="city-find-list" hidden></div>';
+            const inp = wrap.querySelector('input'), list = wrap.querySelector('.city-find-list');
+            const all = () => [...new Set(Object.values(COUNTY_CITIES).flat())].sort();
+            inp.oninput = () => {
+                const q = inp.value.trim().toLowerCase();
+                if (q.length < 2) { list.hidden = true; return; }
+                const hits = all().filter(c => c.toLowerCase().startsWith(q) || c.toLowerCase().split(/[\s-]/).some(w => w.startsWith(q))).slice(0, 6);
+                list.replaceChildren(...(hits.length ? hits.map(c => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `${esc(c)}<span>${esc(countyWords(countiesOf(c)))}</span>`; b.onclick = () => { inp.value = ''; list.hidden = true; onPick(c); }; return b; }) : [Object.assign(document.createElement('div'), { className: 'none', textContent: 'No match in the DFW area yet. Try a nearby city or pick a county.' })]));
+                list.hidden = false;
+            };
+            inp.onblur = () => setTimeout(() => { list.hidden = true; }, 200);
+            return wrap;
+        }
+        // Counties that were picked for them by typing a city drop off again when that city is removed.
+        let autoCounties = new Set();
+        function pickCityAnywhere(city) {
+            countiesOf(city).forEach(k => { if (!selectedCounties.includes(k)) { selectedCounties = selectedCounties.concat(k); autoCounties.add(k); } });
+            if (!selectedCities.includes(city)) selectedCities = selectedCities.concat(city).slice(-12);
+            track('city_typed', { city });
+            renderWhere();
+        }
+        function pruneAutoCounties() {
+            [...autoCounties].forEach(k => {
+                if (!selectedCities.some(c => countiesOf(c).includes(k))) { selectedCounties = selectedCounties.filter(x => x !== k); autoCounties.delete(k); }
+            });
+        }
         // ---- Step 1: where ----
         function renderWhere() {
             mergeCities();
+            const cf = document.getElementById('cityFind');
+            if (cf && !cf.firstChild) cf.append(cityFinder(pickCityAnywhere));
             document.getElementById('countyChips').replaceChildren(...Object.keys(COUNTY_CITIES).map(c => chip(c, selectedCounties.includes(c), () => {
                 selectedCounties = selectedCounties.includes(c) ? selectedCounties.filter(x => x !== c) : selectedCounties.concat(c);
+                autoCounties.delete(c);
                 const keep = new Set(selectedCounties.flatMap(x => COUNTY_CITIES[x]));
                 selectedCities = selectedCities.filter(x => keep.has(x));
                 renderWhere();
@@ -2231,6 +2276,7 @@
             document.getElementById('cityBlock').hidden = !cities.length;
             document.getElementById('cityChips').replaceChildren(...cities.map(c => chip(c, selectedCities.includes(c), () => {
                 selectedCities = selectedCities.includes(c) ? selectedCities.filter(x => x !== c) : selectedCities.concat(c).slice(-12);
+                pruneAutoCounties();
                 renderWhere();
             })));
             const err = document.getElementById('whereError'); err.textContent = ''; err.classList.remove('show');
@@ -2238,7 +2284,7 @@
         function finishWhere() {
             if (!selectedCounties.length) {
                 const err = document.getElementById('whereError');
-                err.textContent = 'Pick at least one county, or tap "show me all of DFW".'; err.classList.add('show');
+                err.textContent = 'Type a city or pick a county, or tap "show me all of DFW".'; err.classList.add('show');
                 return;
             }
             track('where_set', { counties: selectedCounties.join('|'), cities: selectedCities.length, reswipe: reswipe ? 'yes' : 'no' });
@@ -2251,7 +2297,7 @@
         function setWhereMode(on) {
             reswipe = on ? (reswipe || { loves: loves.slice(), passes: passes.slice(), shown: currentHomes.slice(), counties: selectedCounties.slice(), cities: selectedCities.slice() }) : null;
             document.getElementById('whereHead').textContent = on ? 'Try Another Area' : 'Where Are You Looking?';
-            document.getElementById('whereSub').textContent = on ? "Pick a new area and we'll show you about 8 homes there." : 'Start with the county. Add cities if you want to narrow it down.';
+            document.getElementById('whereSub').textContent = on ? "Pick a new area and we'll show you about 8 homes there." : 'Type a city, or pick a county. Add cities if you want to narrow it down.';
             document.getElementById('whereStep').hidden = !!on;
             document.getElementById('whereAll').hidden = !!on;
             document.getElementById('whereGo').textContent = on ? 'Show me homes' : 'Continue';
@@ -2483,7 +2529,7 @@
             return pics;
         }
         // When the deck had to fill in with homes missing a must-have, the card says so.
-        const MISS_WORD = { pool: 'No pool', acres: 'Under 1 acre', gameroom: 'No game room', suite: 'No guest suite', access: 'Not one story', office: 'No office', primarydown: 'Primary not down', garage3: 'Under 3-car garage', outdoor: 'No outdoor living', shop: 'No shop or RV parking', newer: 'Built before 2015' };
+        const MISS_WORD = { onestory: 'Not single story', pool: 'No pool', acres: 'Under 1 acre', gameroom: 'No game room', suite: 'No guest suite', access: 'Not one story', office: 'No office', primarydown: 'Primary not down', garage3: 'Under 3-car garage', outdoor: 'No outdoor living', shop: 'No shop or RV parking', newer: 'Built before 2015' };
         function missTag(home) {
             const m = (home.miss || []).filter(k => must[k] === 'must' && MISS_WORD[k]);
             return m.length === 1 ? MISS_WORD[m[0]] : m.length > 1 ? `Missing ${m.length} must-haves` : '';
@@ -3068,6 +3114,11 @@
             const label = (t) => Object.assign(document.createElement('p'), { className: 'chip-label', textContent: t });
             const nodes = [];
             if (part === 'area') {
+                nodes.push(cityFinder((city) => {
+                    countiesOf(city).forEach(k => { if (!draft.counties.includes(k)) draft.counties = draft.counties.concat(k); });
+                    if (!draft.cities.includes(city)) draft.cities = draft.cities.concat(city).slice(-12);
+                    redo();
+                }));
                 const c = box(); Object.keys(COUNTY_CITIES).forEach(k => c.append(chip(k, draft.counties.includes(k), () => {
                     draft.counties = draft.counties.includes(k) ? draft.counties.filter(x => x !== k) : draft.counties.concat(k);
                     const keep = new Set(draft.counties.flatMap(x => COUNTY_CITIES[x])); draft.cities = draft.cities.filter(x => keep.has(x)); redo();

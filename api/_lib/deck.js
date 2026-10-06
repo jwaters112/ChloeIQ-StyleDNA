@@ -9,7 +9,7 @@ const roomsLib = require('./rooms');
 const PRICES = new Set([',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,']);
 const TYPES = new Set(['Single Family Home', 'Townhouse', 'Condo']);
 const LEVEL = new Set(['must', 'nice']);
-const MUST_KEYS = ['pool', 'acres', 'gameroom', 'suite', 'access', 'office', 'primarydown', 'garage3', 'outdoor', 'shop', 'newer'];
+const MUST_KEYS = ['onestory', 'pool', 'acres', 'gameroom', 'suite', 'access', 'office', 'primarydown', 'garage3', 'outdoor', 'shop', 'newer'];
 const clip = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
 
 // Whatever the browser sends, keep only values we know.
@@ -47,6 +47,8 @@ const has = {
   acres: (l) => l.acres >= 1,
   gameroom: (l) => /game ?room|media room|theater|theatre|bonus room/.test(l.remarks),
   suite: (l) => /guest suite|in-law|mother-in-law|casita|guest quarters|guest house|second primary|dual primar|next ?gen|multi-?gen/.test(l.remarks),
+  // Single story: the listing's story count, or the remarks when the count is blank.
+  onestory: (l) => { const st = String(l.stories || '').trim(); return st ? /^(one|1|single)( story| level)?$/i.test(st) : /\b(single|one)[- ](story|level)\b/i.test(l.remarks || ''); },
   access: (l) => /^(one|1)$/i.test(l.stories) || /single[- ]story|one[- ]story|wheelchair|no[- ]step|wide doorways|accessib/.test(l.remarks),
   office: (l) => /\b(home office|study|private office|office)\b/.test(l.remarks),
   primarydown: (l) => /^(one|1)$/i.test(l.stories) || /(primary|master|owner'?s?)( bedroom| suite| retreat)? (is )?(down|downstairs|on the (first|main) (floor|level))|(first|main)[- ](floor|level) (primary|master|owner)|(primary|master) (bedroom |suite )?down\b/.test(l.remarks),
@@ -69,7 +71,7 @@ const pickHas = {
     secluded: (l) => l.acres >= 1 || /secluded|private (lot|setting|retreat)|wooded|tree-?lined|cul-de-sac|peaceful/.test(l.remarks),
   },
 };
-const FEATURE_LABEL = { pool: 'Pool', acres: '1+ acre', gameroom: 'Game room', suite: 'Guest suite', access: 'One story', office: 'Office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015 or later' };
+const FEATURE_LABEL = { onestory: 'Single story', pool: 'Pool', acres: '1+ acre', gameroom: 'Game room', suite: 'Guest suite', access: 'One story', office: 'Office', primarydown: 'Primary down', garage3: '3+ car garage', outdoor: 'Outdoor living', shop: 'Shop or RV parking', newer: 'Built 2015 or later' };
 function fit(l, c) {
   let score = 0; const hits = [];
   Object.entries(c.must).forEach(([k, lvl]) => {
