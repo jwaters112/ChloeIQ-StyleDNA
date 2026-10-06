@@ -76,7 +76,13 @@ function slim(l) {
     acres: num(m.chimeLotAcreage), pool: /yes/i.test(m.chimePrivatePoolFlag || m.chimePool || ''),
     stories: String(m.chimeStory || ''), hoa: /yes/i.test(m.chimeHoaFlag || ''), materials: String(m.chimeMaterials || ''),
     ptype: String(l.secondaryType || l.propertyType || ''),
-    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 700),
+    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 1200),
+    // For the detailed checklist: appliances and parking, porch, fireplace, attached or not, condition, status flags.
+    feat: [m.chimeAppliance, m.chimeParkingType].filter(Boolean).join(',').toLowerCase().slice(0, 400),
+    porch: String(m.chimePorchType || '').toLowerCase(), fireplace: /yes/i.test(m.chimeFireplaceFlag || ''),
+    attached: String(m.chimePropertyAttached || ''), newcon: /new/i.test(m.chimeConstructionStatus || m.chimePropertyCondition || ''),
+    waterfront: /yes/i.test(l.waterfrontFlag || ''), reduced: num(l.oldPrice) > num(l.price) && num(l.price) > 0,
+    openh: !!(l.openHouseFlag || (Array.isArray(l.openHouseSchedules) && l.openHouseSchedules.length)), dom: num(l.daysOnList),
   };
 }
 // cond: the site's search condition. Returns { count, list } or null when the site didn't answer.

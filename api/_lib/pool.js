@@ -9,7 +9,7 @@ const { STYLES, COUNTIES } = require('./styles');
 
 const BANDS = [',300000', '300000,500000', '500000,750000', '750000,1000000', '1000000,'];
 const PER_QUERY = 12;
-const KEEP = ['id', 'mls', 'url', 'address', 'street', 'city', 'county', 'zip', 'price', 'beds', 'baths', 'sqft', 'built', 'photo', 'photos', 'office', 'lat', 'lng', 'acres', 'pool', 'stories', 'hoa', 'materials', 'ptype', 'remarks'];
+const KEEP = ['id', 'mls', 'url', 'address', 'street', 'city', 'county', 'zip', 'price', 'beds', 'baths', 'sqft', 'built', 'photo', 'photos', 'office', 'lat', 'lng', 'acres', 'pool', 'stories', 'hoa', 'materials', 'ptype', 'remarks', 'feat', 'porch', 'fireplace', 'attached', 'newcon', 'waterfront', 'reduced', 'openh', 'dom'];
 
 async function each(tasks, n) {
   const out = new Array(tasks.length); let i = 0;

@@ -165,6 +165,13 @@ async function handle(req, res) {
   const picks = Object.entries(crit.picks).flatMap(([k, v]) => (Array.isArray(v) ? v : [v]).map((x) => PICK_LABEL[k] && PICK_LABEL[k][x])).filter(Boolean);
   const lovedHomes = (Array.isArray(body.lovedHomes) ? body.lovedHomes : []).slice(0, 12)
     .map((h) => h && typeof h === 'object' ? { label: clip(h.label, 40), address: clip(h.address, 90), url: /^https:\/\/joshwaters\.com\//.test(String(h.url || '')) ? clip(h.url, 300) : '' } : null).filter((h) => h && h.address);
+  // The detailed checklist, ranges and keyword from "Get specific".
+  const SPEC = deckLib.SPEC || {};
+  const specBy = (lvl) => Object.entries(crit.feat || {}).filter(([, v]) => v === lvl).map(([k]) => SPEC[k] && SPEC[k].label).filter(Boolean);
+  const specMust = specBy('must'), specNice = specBy('nice'), specNever = specBy('never');
+  const r = crit.rng || {}, n0 = (x) => Number(x).toLocaleString('en-US'), span = (lo, hi, unit) => lo && hi ? `${n0(lo)} to ${n0(hi)}${unit}` : lo ? `${n0(lo)}+${unit}` : hi ? `up to ${n0(hi)}${unit}` : '';
+  const ranges = [r.bedsMin ? r.bedsMin + '+ beds' : '', r.bathsMin ? r.bathsMin + '+ baths' : '', span(r.sqftMin, r.sqftMax, ' sq ft'), span(r.acresMin, r.acresMax, ' acres'), r.builtMin || r.builtMax ? 'built ' + (r.builtMin && r.builtMax ? r.builtMin + ' to ' + r.builtMax : r.builtMin ? r.builtMin + ' or later' : r.builtMax + ' or earlier') : ''].filter(Boolean);
+  const specCount = specMust.length + specNice.length + specNever.length + ranges.length + (crit.keyword ? 1 : 0);
   const where = [crit.counties.length ? crit.counties.join(', ') + (crit.counties.length > 1 ? ' counties' : ' County') : '', crit.cities.join(', ')].filter(Boolean).join(': ');
 
   const tags = ['StyleDNA Quiz'];
@@ -175,6 +182,7 @@ async function handle(req, res) {
   musts.forEach((m) => tags.push(clip('Must have: ' + m, 64)));
   if (homeType) tags.push(clip('Home type: ' + homeType, 64));
   if (body.buildOpen === true) tags.push('Open to build or renovate');
+  if (specCount >= 5) tags.push('Detailed buyer');
   if (partnerArch) tags.push('Partner compare');
   if (clip(body.board, 24)) tags.push('Home board');
 
@@ -190,6 +198,12 @@ async function handle(req, res) {
     'Must have: ' + (musts.join(', ') || 'nothing required'),
     nices.length ? 'Nice to have: ' + nices.join(', ') : '',
     picks.length ? 'Picks: ' + picks.join(', ') : '',
+    ...(specCount ? [`Detailed buyer: ${specCount} specifics set`] : []),
+    ranges.length ? 'Specifics, size and age: ' + ranges.join(', ') : '',
+    specMust.length ? 'Specifics, must: ' + specMust.join(', ') : '',
+    specNice.length ? 'Specifics, nice: ' + specNice.join(', ') : '',
+    specNever.length ? 'Specifics, never: ' + specNever.join(', ') : '',
+    crit.keyword ? 'Keyword: ' + crit.keyword : '',
     lovedHomes.length ? 'Homes they loved in the quiz:\n' + lovedHomes.map((h) => `- ${h.label ? h.label + ': ' : ''}${h.address}${h.url ? ' ' + h.url : ''}`).join('\n') : 'Loved: none',
     passed.length ? 'Passed on: ' + [...new Set(passed)].join(', ') : '',
     'Call/text consent: ' + (phoneDigits ? (consent ? 'yes' : 'no') : 'no phone given'),
