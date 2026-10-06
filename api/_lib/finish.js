@@ -46,7 +46,7 @@ async function readFinishes(rooms, modelKey, why) {
     if (!r.ok) { why.reason = 'api ' + r.status + ' ' + (j && j.error && j.error.message); return null; }
     const text = (j.content || []).map((c) => c.text || '').join('');
     const m = text.match(/\{[\s\S]*\}/);
-    if (!m) { why.reason = 'answer'; return null; }
+    if (!m) { why.reason = 'answer ' + (j.stop_reason || '') + ' ' + JSON.stringify((j.content || []).map((c) => c.type)) + ' ' + text.slice(0, 160); return null; }
     try { why.usage = j.usage; why.model = model; return JSON.parse(m[0]); } catch (e) { why.reason = 'json'; return null; }
   }
   why.reason = 'busy';
