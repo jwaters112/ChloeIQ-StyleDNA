@@ -93,4 +93,11 @@ function searchUrl(cond) {
   return `${SITE}/listing?listingSource=${encodeURIComponent('all listings')}&condition=${encodeURIComponent(JSON.stringify(c))}&page=1`;
 }
 
-module.exports = { suggest, findListing, search, searchUrl, slim, lastError: () => last };
+// Preview-only: the raw fields of a few listings, to see what the feed carries.
+async function rawSample(cond, n) {
+  const c = Object.assign({ purchasetype: ['For Sale'] }, cond);
+  const url = `${SITE}/api-site/search/realTimeListings?listingSort=RELEVANCE&page=1&pageSize=${n || 3}&isSearching=true&siteId=${SITE_ID}&listingSource=all%20listings&condition=${encodeURIComponent(JSON.stringify(c))}&uiConfig=%7B%7D&mobile=false&mapSearch=false`;
+  const j = await getJson(url, 8000);
+  return j && Array.isArray(j.listings) ? j.listings : null;
+}
+module.exports = { suggest, findListing, search, searchUrl, slim, rawSample, lastError: () => last };

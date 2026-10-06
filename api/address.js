@@ -123,6 +123,10 @@ module.exports = async (req, res) => {
 <meta http-equiv="refresh" content="0;url=${e(go)}"><style>body{background:#030C0D;color:#A3A7A6;font-family:sans-serif;text-align:center;padding:40vh 20px}a{color:#E0B24D}</style></head>
 <body><p><a href="${e(go)}">Take the StyleDNA quiz</a></p><script>location.replace(${JSON.stringify(go)});</script></body></html>`);
   }
+  if (req.query && req.query.fields && process.env.VERCEL_ENV !== 'production') {
+    const raw = await idx.rawSample({ price: '600000,900000', location: { county: ['Collin'] } }, 3);
+    return res.status(200).json({ ok: true, listings: (raw || []).map((l) => { const o = Object.assign({}, l); delete o.listingPictures; delete o.detailsDescribe; return o; }) });
+  }
   if (req.query && req.query.cities) {
     const map = await require('./_lib/pool').cities().catch(() => ({}));
     res.setHeader('Cache-Control', Object.keys(map).length ? 'public, max-age=600' : 'no-store');
