@@ -76,7 +76,13 @@ function slim(l) {
     acres: num(m.chimeLotAcreage), pool: /yes/i.test(m.chimePrivatePoolFlag || m.chimePool || ''),
     stories: String(m.chimeStory || ''), hoa: /yes/i.test(m.chimeHoaFlag || ''), materials: String(m.chimeMaterials || ''),
     ptype: String(l.secondaryType || l.propertyType || ''),
-    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 700),
+    remarks: String(l.detailsDescribe || '').toLowerCase().slice(0, 1200),
+    // For the detailed checklist: appliances and parking, porch, fireplace, attached or not, condition, status flags.
+    feat: [m.chimeAppliance, m.chimeParkingType].filter(Boolean).join(',').toLowerCase().slice(0, 400),
+    porch: String(m.chimePorchType || '').toLowerCase(), fireplace: /yes/i.test(m.chimeFireplaceFlag || ''),
+    attached: String(m.chimePropertyAttached || ''), newcon: /new/i.test(m.chimeConstructionStatus || m.chimePropertyCondition || ''),
+    waterfront: /yes/i.test(l.waterfrontFlag || ''), reduced: num(l.oldPrice) > num(l.price) && num(l.price) > 0,
+    openh: !!(l.openHouseFlag || (Array.isArray(l.openHouseSchedules) && l.openHouseSchedules.length)), dom: num(l.daysOnList),
   };
 }
 // cond: the site's search condition. Returns { count, list } or null when the site didn't answer.
@@ -93,4 +99,11 @@ function searchUrl(cond) {
   return `${SITE}/listing?listingSource=${encodeURIComponent('all listings')}&condition=${encodeURIComponent(JSON.stringify(c))}&page=1`;
 }
 
-module.exports = { suggest, findListing, search, searchUrl, slim, lastError: () => last };
+// Preview-only: the raw fields of a few listings, to see what the feed carries.
+async function rawSample(cond, n) {
+  const c = Object.assign({ purchasetype: ['For Sale'] }, cond);
+  const url = `${SITE}/api-site/search/realTimeListings?listingSort=RELEVANCE&page=1&pageSize=${n || 3}&isSearching=true&siteId=${SITE_ID}&listingSource=all%20listings&condition=${encodeURIComponent(JSON.stringify(c))}&uiConfig=%7B%7D&mobile=false&mapSearch=false`;
+  const j = await getJson(url, 8000);
+  return j && Array.isArray(j.listings) ? j.listings : null;
+}
+module.exports = { suggest, findListing, search, searchUrl, slim, rawSample, lastError: () => last };

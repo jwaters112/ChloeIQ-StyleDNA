@@ -12,6 +12,60 @@ const LEVEL = new Set(['must', 'nice']);
 const MUST_KEYS = ['onestory', 'pool', 'acres', 'gameroom', 'suite', 'access', 'office', 'primarydown', 'garage3', 'outdoor', 'shop', 'newer'];
 const clip = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
 
+// ---- "Get specific": a detailed checklist (Must / Nice / Never), ranges and a keyword ----
+// Each item is checked from the listing's data fields first ("confirmed"), then from the listing
+// description ("the listing says"). Items we can't check reliably aren't offered.
+const YEAR = new Date().getFullYear();
+const SPEC = {
+  splitbeds: { label: 'Split bedrooms', g: 'Layout', r: /split[- ](bed|bedroom|floor ?plan|plan)|split bedrooms/ },
+  guestdown: { label: 'Guest suite or bedroom down', g: 'Layout', r: /(guest|second|2nd|secondary) (bed(room)?|suite)s? (is |are )?(down|downstairs|on the (first|main))|guest suite down|(in-?law|mother-?in-?law) (suite|quarters)/ },
+  living2: { label: 'Two or more living areas', g: 'Layout', r: /(second|2nd|two|additional|upstairs|downstairs) living|game ?room|media room|bonus room|flex room|\bloft\b/ },
+  media: { label: 'Media room or theater', g: 'Layout', r: /media room|theater|theatre/ },
+  ceilings: { label: 'Tall ceilings (10 ft+)', g: 'Layout', r: /\b(1\d|2\d) ?(ft|foot|feet|')? ?(tall |high )?ceilings?|(high|soaring|tall|vaulted|cathedral) ceilings?/ },
+  fireplace: { label: 'Fireplace', g: 'Layout', d: (l) => l.fireplace === true, r: /fireplace/ },
+  island: { label: 'Kitchen island', g: 'Kitchen and finishes', r: /island/ },
+  gas: { label: 'Gas cooking', g: 'Kitchen and finishes', d: (l) => /gas (cooktop|range|oven)/.test(l.feat || ''), r: /gas (cooktop|range|stove|cooking)/ },
+  doubleoven: { label: 'Double ovens', g: 'Kitchen and finishes', d: (l) => /double oven/.test(l.feat || ''), r: /double ovens?|dual ovens?/ },
+  walkin: { label: 'Walk-in pantry', g: 'Kitchen and finishes', r: /walk[- ]in pantry/ },
+  butler: { label: "Butler's pantry", g: 'Kitchen and finishes', r: /butler'?s? pantry/ },
+  wood: { label: 'Wood floors', g: 'Kitchen and finishes', r: /hardwood|wood floors?|engineered wood|wide[- ]plank/ },
+  culdesac: { label: 'Cul-de-sac', g: 'Lot and outside', r: /cul[- ]de[- ]sac/ },
+  corner: { label: 'Corner lot', g: 'Lot and outside', r: /corner lot/ },
+  greenbelt: { label: 'Backs to greenbelt or open space', g: 'Lot and outside', r: /green ?belt|backs (up )?to (a |the )?(park|creek|pond|lake|open space|trees|woods|nature|golf|preserve)|open space behind|no (rear|back(yard)?) neighbors|no neighbors behind/ },
+  covered: { label: 'Covered patio', g: 'Lot and outside', d: (l) => /covered/.test(l.porch || ''), r: /covered (patio|porch|back porch|outdoor|deck)/ },
+  outkitchen: { label: 'Outdoor kitchen', g: 'Lot and outside', r: /outdoor kitchen|summer kitchen|built[- ]in grill/ },
+  roompool: { label: 'Room for a pool', g: 'Lot and outside', r: /room for (a )?pool|space for (a )?pool|pool[- ]sized/ },
+  waterfront: { label: 'Waterfront', g: 'Lot and outside', d: (l) => l.waterfront === true, r: /waterfront|lakefront|lake front/ },
+  sidegarage: { label: 'Side or rear entry garage', g: 'Garage', d: (l) => /garage faces (side|rear)/.test(l.feat || ''), r: /(side|rear)[- ]entry garage|j[- ]swing/ },
+  tandem: { label: 'Tandem garage space', g: 'Garage', d: (l) => /tandem/.test(l.feat || ''), r: /tandem/ },
+  oversized: { label: 'Oversized garage or workshop', g: 'Garage', d: (l) => /oversized/.test(l.feat || ''), r: /oversized garage|workshop/ },
+  ev: { label: 'EV charging', g: 'Garage', d: (l) => /electric vehicle/.test(l.feat || ''), r: /\bev charg|electric vehicle/ },
+  newcon: { label: 'New construction', g: 'The house', d: (l) => l.newcon === true || (l.built && l.built >= YEAR - 1), r: /new construction|never lived in/ },
+  detached: { label: 'No shared walls', g: 'The house', d: (l) => l.attached ? l.attached === 'No' : /single family/i.test(l.ptype || '') },
+  nohoa: { label: 'No HOA', g: 'The house', d: (l) => l.hoa === false },
+  reduced: { label: 'Price reduced', g: 'The house', d: (l) => l.reduced === true },
+  openhouse: { label: 'Open house scheduled', g: 'The house', d: (l) => l.openh === true },
+};
+const SPEC_LEVEL = new Set(['must', 'nice', 'never']);
+// 'yes' when a data field confirms it, 'says' when only the description mentions it, '' when neither.
+function specHas(k, l) { const it = SPEC[k]; if (!it) return ''; if (it.d && it.d(l)) return 'yes'; return it.r && it.r.test(l.remarks || '') ? 'says' : ''; }
+const RANGE_KEYS = { bedsMin: [0, 10], bathsMin: [0, 10], sqftMin: [0, 20000], sqftMax: [0, 20000], acresMin: [0, 500], acresMax: [0, 500], builtMin: [1900, YEAR + 2], builtMax: [1900, YEAR + 2] };
+function inRange(l, r) {
+  if (!r) return true;
+  const out = (v, lo, hi) => v > 0 && ((lo && v < lo) || (hi && v > hi));
+  return !(out(l.beds, r.bedsMin) || out(l.baths, r.bathsMin) || out(l.sqft, r.sqftMin, r.sqftMax) || out(l.acres, r.acresMin, r.acresMax) || out(l.built, r.builtMin, r.builtMax));
+}
+// What a home has and lacks against their checklist, for the results list.
+function specRead(l, c) {
+  const yes = [], says = [], no = [], bad = [];
+  Object.entries(c.feat || {}).forEach(([k, v]) => {
+    const h = specHas(k, l), lab = SPEC[k].label;
+    if (v === 'never') { if (h) bad.push(lab); return; }
+    if (h === 'yes') yes.push(lab); else if (h === 'says') says.push(lab); else if (v === 'must') no.push(lab);
+  });
+  return { yes, says, no, bad };
+}
+
 // Whatever the browser sends, keep only values we know.
 function criteria(b) {
   b = b || {};
@@ -27,7 +81,11 @@ function criteria(b) {
   const types = (Array.isArray(b.types) ? b.types : [b.type]).filter((x) => TYPES.has(x));
   const span = prices.length ? [Math.min(...prices.map((x) => Number(x.split(',')[0]) || 0)), prices.some((x) => !x.split(',')[1]) ? 0 : Math.max(...prices.map((x) => Number(x.split(',')[1]) || 0))] : null;
   const price = span ? (span[0] || '') + ',' + (span[1] || '') : '';
-  return { counties, cities, price: price === ',' ? '' : price, prices: [...new Set(prices)], type: types.length === 1 ? types[0] : '', types: [...new Set(types)], must, picks };
+  const feat = {}; Object.keys(SPEC).forEach((k) => { const v = b.feat && b.feat[k]; if (SPEC_LEVEL.has(v)) feat[k] = v; });
+  const rng = {}; Object.entries(RANGE_KEYS).forEach(([k, [lo, hi]]) => { const v = Number(b.rng && b.rng[k]); if (Number.isFinite(v) && v > lo && v <= hi) rng[k] = v; });
+  ['sqft', 'acres', 'built'].forEach((k) => { if (rng[k + 'Min'] && rng[k + 'Max'] && rng[k + 'Min'] > rng[k + 'Max']) delete rng[k + 'Max']; });
+  const keyword = clip(String(b.keyword || ''), 40).replace(/[^A-Za-z0-9 '&-]/g, '').trim();
+  return { counties, cities, price: price === ',' ? '' : price, prices: [...new Set(prices)], type: types.length === 1 ? types[0] : '', types: [...new Set(types)], must, picks, feat, rng, keyword };
 }
 
 function baseCond(c, countiesOverride) {
@@ -38,6 +96,14 @@ function baseCond(c, countiesOverride) {
   if (!countiesOverride && c.cities.length) cond.location = { city: c.cities.map((x) => x + ', TX') };
   else cond.location = { county: counties.length ? counties : Object.keys(COUNTIES) };
   if (c.must.acres === 'must') cond.acres = '1,';
+  // Ranges and a keyword go straight into the listing search, so counts are exact.
+  const r = c.rng || {}, span = (lo, hi) => (lo || '') + ',' + (hi || '');
+  if (r.bedsMin) cond.beds = r.bedsMin + ',';
+  if (r.bathsMin) cond.baths = r.bathsMin + ',';
+  if (r.sqftMin || r.sqftMax) cond.sqft = span(r.sqftMin, r.sqftMax);
+  if (r.builtMin || r.builtMax) cond.yearbuilt = span(r.builtMin, r.builtMax);
+  if (r.acresMin || r.acresMax) cond.acres = span(Math.max(r.acresMin || 0, c.must.acres === 'must' ? 1 : 0) || '', r.acresMax);
+  if (c.keyword) cond.keyword = [c.keyword];
   return cond;
 }
 
@@ -77,6 +143,7 @@ function fit(l, c) {
   Object.entries(c.must).forEach(([k, lvl]) => {
     if (has[k](l)) { score += lvl === 'must' ? 3 : 1; hits.push(FEATURE_LABEL[k]); } else if (lvl === 'must') score -= 2;
   });
+  Object.entries(c.feat || {}).forEach(([k, lvl]) => { if (lvl === 'never') return; if (specHas(k, l)) { score += lvl === 'must' ? 2 : 1; } });
   Object.entries(c.picks).forEach(([k, vals]) => { if ((Array.isArray(vals) ? vals : [vals]).some((v) => pickHas[k] && pickHas[k][v] && pickHas[k][v](l))) score += 1; });
   return { score, hits };
 }
@@ -131,11 +198,12 @@ function cardPhotos(l, c, rooms) {
   return { photos, plabels, ins, rm };
 }
 // Must-haves this home doesn't have (only ones we can check from the listing).
-const missing = (l, c) => Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m] && !has[m](l));
+const missing = (l, c) => Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m] && !has[m](l))
+  .concat(Object.keys(c.feat || {}).filter((k) => (c.feat[k] === 'must') === !specHas(k, l) && c.feat[k] !== 'nice'));
 function card(l, s, c, near, rooms) {
   const f = fit(l, c);
   return { id: l.id, k: s.k, label: s.label, desc: s.desc, photo: l.photo, ...cardPhotos(l, c, rooms), url: l.url, address: l.address, city: l.city, county: l.county,
-    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, miss: missing(l, c), t: traits(l) };
+    price: l.price, beds: l.beds, baths: l.baths, sqft: l.sqft, acres: l.acres, pool: l.pool, office: l.office, facts: factsLine(l), hits: f.hits, near: !!near, miss: missing(l, c), t: traits(l), ...(Object.keys(c.feat || {}).length ? { sp: specRead(l, c) } : {}) };
 }
 
 const DECK_SIZE = 20;
@@ -146,6 +214,8 @@ function inSearch(l, c, cities) {
   if (c.types && c.types.length && l.ptype && !c.types.some((t) => TYPE_RE[t] && TYPE_RE[t].test(l.ptype))) return false;
   if (cities && cities.size && !cities.has(String(l.city || '').toLowerCase())) return false;
   if (c.must.acres === 'must' && !(l.acres >= 1)) return false;
+  if (!inRange(l, c.rng)) return false;
+  if (c.keyword && l.remarks && !String(l.remarks).includes(c.keyword.toLowerCase())) return false;
   return true;
 }
 // Swipe cards follow their must-haves when there are enough matching homes for a full deck. When there
@@ -153,7 +223,7 @@ function inSearch(l, c, cities) {
 const STRICT_MIN = 14;
 async function buildDeck(input) {
   const c = criteria(input);
-  const hard = Object.keys(c.must).some((m) => c.must[m] === 'must' && has[m]);
+  const hard = Object.keys(c.must).some((m) => c.must[m] === 'must' && has[m]) || Object.values(c.feat || {}).some((v) => v !== 'nice');
   if (hard) {
     const strict = await buildDeckFor(input, true);
     if (strict.cards.filter((x) => !x.probe).length >= STRICT_MIN) return Object.assign(strict, { mustOnly: true });
@@ -268,7 +338,8 @@ async function availability(input, k) {
   }
   const liveList = []; pages.forEach((r) => (r ? r.list : []).forEach((l) => liveList.push(l)));
   const hard = Object.keys(c.must).filter((m) => c.must[m] === 'must' && has[m]);
-  const ok = (l) => hard.every((m) => has[m](l));
+  const okFeat = (l) => Object.entries(c.feat || {}).every(([fk, v]) => v === 'never' ? !specHas(fk, l) : v === 'must' ? !!specHas(fk, l) : true);
+  const ok = (l) => hard.every((m) => has[m](l)) && okFeat(l);
   const byId = new Map();
   mine.filter((l) => l.k === k && inSearch(l, c, cities)).forEach((l) => byId.set(l.id, l));
   liveList.forEach((l) => {
@@ -281,7 +352,7 @@ async function availability(input, k) {
   const fits = all.filter(ok);
   // The live search can return more homes than we read; only then is the count an estimate.
   const unread = Math.max(0, liveTotal - liveList.length);
-  const est = unread > 0 && hard.length > 0;
+  const est = unread > 0 && (hard.length > 0 || Object.keys(c.feat || {}).length > 0);
   const count = fits.length + (unread ? Math.round(unread * (all.length ? fits.length / all.length : 0)) : 0);
   const homes = fits.map((l) => ({ l, f: fit(l, c) })).sort((a, b) => (b.f.score - a.f.score) || ((a.l.price || 0) - (b.l.price || 0))).slice(0, LIST_MAX).map((x) => card(x.l, s, c));
   const out = { ok: true, k, label: s.label, count, est, homes, listed: homes.length,
@@ -301,4 +372,4 @@ async function availability(input, k) {
   return out;
 }
 
-module.exports = { criteria, buildDeck, availability, fit, baseCond };
+module.exports = { criteria, buildDeck, availability, fit, baseCond, SPEC, specHas };
