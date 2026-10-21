@@ -1,5 +1,5 @@
-# Keep internal tools and the photo-test page off the public site.
-# The daily StyleDNA run uses them from the quick-fixes preview link instead.
+# Keep internal tools off the site.
+# tag-test.html and api/tag-photo.js must ship so the quick-fixes preview link has the photo
+# tagging page the daily StyleDNA run uses. They are safe on the public site: api/tag-photo.js
+# returns 404 in production, so the page there can't spend API credits.
 tools/
-tag-test.html
-api/tag-photo.js
