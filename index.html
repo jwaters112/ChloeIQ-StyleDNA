@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/brand/brand.js"></script>
     <title>Discover Your Home StyleDNA | Dallas Collective Group</title>
     <link rel="preload" href="/fonts/montserrat-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/montserrat-latin-600-italic.woff2" as="font" type="font/woff2" crossorigin>
@@ -34,7 +35,9 @@
             --silver: #A3A7A6;
             --surface: #1E292B;
             --hairline: rgba(224, 178, 77, 0.35);
-            --glow: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(33, 61, 55, 0.95) 0%, rgba(14, 41, 38, 0.75) 30%, rgba(4, 24, 24, 0.4) 58%, rgba(3, 12, 13, 0) 80%), var(--obsidian);
+            --grgb: 224, 178, 77;
+            --brgb: 3, 12, 13;
+            --glow: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(33, 61, 55, 0.95) 0%, rgba(14, 41, 38, 0.75) 30%, rgba(4, 24, 24, 0.4) 58%, rgba(var(--brgb), 0) 80%), var(--obsidian);
 
             --primary-black: var(--obsidian);
             --primary-white: var(--soft-white);
@@ -155,7 +158,7 @@
         .welcome-cta:hover {
             background: var(--gold-highlight);
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(224, 178, 77, 0.18);
+            box-shadow: 0 10px 24px rgba(var(--grgb), 0.18);
         }
 
         /* ===== PREFERENCE SCREENS ===== */
@@ -224,7 +227,7 @@
 
         .pref-option:hover {
             border-color: var(--accent-gold);
-            background: rgba(224, 178, 77, 0.05);
+            background: rgba(var(--grgb), 0.05);
             transform: translateY(-2px);
         }
 
@@ -232,7 +235,7 @@
             background: var(--accent-gold);
             color: var(--primary-black);
             border-color: var(--accent-gold);
-            box-shadow: 0 10px 24px rgba(224, 178, 77, 0.18);
+            box-shadow: 0 10px 24px rgba(var(--grgb), 0.18);
         }
 
         .pref-checkbox {
@@ -270,7 +273,7 @@
         .pref-continue:hover {
             background: var(--gold-highlight);
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(224, 178, 77, 0.18);
+            box-shadow: 0 10px 24px rgba(var(--grgb), 0.18);
         }
 
         /* ===== SWIPE SCREEN ===== */
@@ -444,12 +447,12 @@
         }
 
         .swipe-indicator-left {
-            color: rgba(224, 178, 77, 0.3);
+            color: rgba(var(--grgb), 0.3);
             transform: rotate(-30deg);
         }
 
         .swipe-indicator-right {
-            color: rgba(224, 178, 77, 0.3);
+            color: rgba(var(--grgb), 0.3);
             transform: rotate(30deg);
         }
 
@@ -499,7 +502,7 @@
         }
 
         .swipe-button-yes:hover {
-            box-shadow: 0 0 30px rgba(224, 178, 77, 0.4);
+            box-shadow: 0 0 30px rgba(var(--grgb), 0.4);
         }
 
         /* ===== LOADING SCREEN ===== */
@@ -628,7 +631,7 @@
             color: var(--muted-taupe);
             margin-bottom: 24px;
             padding: 12px 16px;
-            background: rgba(224, 178, 77, 0.1);
+            background: rgba(var(--grgb), 0.1);
             border-left: 3px solid var(--accent-gold);
             border-radius: 2px;
         }
@@ -674,7 +677,7 @@
             overflow: hidden;
             margin-bottom: 16px;
             transition: all 0.3s ease;
-            border: 1px solid rgba(224, 178, 77, 0.1);
+            border: 1px solid rgba(var(--grgb), 0.1);
         }
 
         .home-match-card:hover {
@@ -772,7 +775,7 @@
         .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--accent-gold);
-            box-shadow: 0 0 0 3px rgba(224, 178, 77, 0.1);
+            box-shadow: 0 0 0 3px rgba(var(--grgb), 0.1);
         }
 
         .form-buttons {
@@ -804,7 +807,7 @@
         .btn-primary:hover {
             background: var(--gold-highlight);
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(224, 178, 77, 0.18);
+            box-shadow: 0 10px 24px rgba(var(--grgb), 0.18);
         }
 
         .btn-secondary {
@@ -888,7 +891,7 @@
         .form-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
         .value-bg { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
         .value-bg[hidden] { display: none; }
-        .value-sheet { width: 100%; max-width: 520px; background: #030C0D; border-top: 1px solid var(--line-strong); border-radius: 22px 22px 0 0; padding: 26px 22px calc(26px + env(safe-area-inset-bottom)); text-align: center; max-height: 92vh; overflow-y: auto; }
+        .value-sheet { width: 100%; max-width: 520px; background: var(--obsidian); border-top: 1px solid var(--line-strong); border-radius: 22px 22px 0 0; padding: 26px 22px calc(26px + env(safe-area-inset-bottom)); text-align: center; max-height: 92vh; overflow-y: auto; }
         .value-kicker { font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
         .value-title { font-size: 22px; font-weight: 600; margin: 0 0 10px; }
         .value-text { color: var(--silver, #A3A7A6); font-size: 15px; line-height: 1.55; margin: 0 0 18px; }
@@ -941,7 +944,7 @@
         .activation-cta:hover {
             background: var(--gold-highlight);
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(224, 178, 77, 0.18);
+            box-shadow: 0 10px 24px rgba(var(--grgb), 0.18);
         }
 
         /* ===== ANIMATIONS ===== */
@@ -1025,7 +1028,7 @@
             position: fixed;
             top: 16px;
             left: 16px;
-            background: rgba(224, 178, 77, 0.15);
+            background: rgba(var(--grgb), 0.15);
             border: 1.5px solid var(--accent-gold);
             color: var(--accent-gold);
             width: 44px;
@@ -1057,7 +1060,7 @@
         :root {
             --line: rgba(163, 167, 166, 0.16);
             --line-strong: rgba(163, 167, 166, 0.32);
-            --glow: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33, 61, 55, 0.55) 0%, rgba(14, 41, 38, 0.35) 35%, rgba(3, 12, 13, 0) 75%), var(--obsidian);
+            --glow: radial-gradient(ellipse 80% 45% at 0% 0%, rgba(33, 61, 55, 0.55) 0%, rgba(14, 41, 38, 0.35) 35%, rgba(var(--brgb), 0) 75%), var(--obsidian);
         }
         html, body { background: var(--obsidian); -webkit-font-smoothing: antialiased; }
         button, input, select, textarea { font-family: inherit; }
@@ -1128,13 +1131,13 @@
         .swipe-card { border-radius: 16px; border: 0; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
         .swipe-card-img { border-radius: 16px !important; }
         .swipe-card-overlay { border-radius: 16px; background: none; }
-        .swipe-card-info { padding: 28px 22px 22px; background: linear-gradient(180deg, rgba(3,12,13,0) 0%, rgba(3,12,13,0.82) 70%); }
+        .swipe-card-info { padding: 28px 22px 22px; background: linear-gradient(180deg, rgba(var(--brgb), 0) 0%, rgba(var(--brgb), 0.82) 70%); }
         .swipe-card-style { font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
         .swipe-card-title { font-size: 22px; font-style: normal; margin-bottom: 4px; }
         .swipe-card-description { font-size: 14px; color: rgba(245, 245, 243, 0.78); }
         .swipe-footer { gap: 28px; padding: 18px 20px 30px; }
         .swipe-button { width: 60px; height: 60px; font-size: 22px; border: 1px solid var(--line-strong); background: none; }
-        .swipe-button-yes { border-color: rgba(224, 178, 77, 0.6); }
+        .swipe-button-yes { border-color: rgba(var(--grgb), 0.6); }
         .swipe-button:hover { transform: none; border-color: var(--gold); box-shadow: none; }
 
         /* Loading */
@@ -1244,7 +1247,7 @@
         /* Activation */
         .activation-screen { background: var(--glow); justify-content: center; }
         .activation-content { max-width: 380px; }
-        .success-icon { width: 56px; height: 56px; margin: 0 auto 24px; border: 1px solid rgba(224, 178, 77, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .success-icon { width: 56px; height: 56px; margin: 0 auto 24px; border: 1px solid rgba(var(--grgb), 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .success-icon span { color: var(--gold); font-size: 22px; line-height: 1; }
         .activation-headline { font-size: 30px; }
         .activation-text { font-size: 16px; color: var(--silver); margin-bottom: 32px; }
@@ -1272,7 +1275,7 @@
         a.homes-all { text-align: right; }
 
         .examples-note { font-size: 13px; color: var(--silver); margin: -8px 0 18px; opacity: 0.85; }
-        .partner-invite { font-size: 15px; line-height: 1.6; color: var(--soft-white); margin: -12px 0 24px; padding: 14px 16px; border: 1px solid rgba(224, 178, 77, 0.35); border-radius: 12px; max-width: 340px; }
+        .partner-invite { font-size: 15px; line-height: 1.6; color: var(--soft-white); margin: -12px 0 24px; padding: 14px 16px; border: 1px solid rgba(var(--grgb), 0.35); border-radius: 12px; max-width: 340px; }
 
         .compare-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
         .compare-who { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--silver); margin-bottom: 4px; }
@@ -1290,7 +1293,7 @@
         /* StyleDNA v2 */
         .city-find { position: relative; margin: 0 0 22px; }
         .city-find .form-input { text-align: left; margin: 0; }
-        .city-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: #0B1A1A; border: 1px solid rgba(224,178,77,.35); border-radius: 12px; overflow: hidden; z-index: 20; }
+        .city-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--deep-ink); border: 1px solid rgba(var(--grgb), .35); border-radius: 12px; overflow: hidden; z-index: 20; }
         .city-find-list button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #F5F5F3; font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
         .city-find-list button:last-child { border-bottom: 0; }
         .city-find-list button span { color: var(--silver); font-size: 13px; }
@@ -1339,7 +1342,7 @@
         .inside-pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s ease; }
         .inside-pic::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 0 var(--gold); transition: box-shadow .15s ease; }
         .inside-pic.on::after { box-shadow: inset 0 0 0 3px var(--gold); }
-        .inside-pic .tick { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(3,12,13,.6); color: #fff; font-size: 14px; line-height: 24px; text-align: center; }
+        .inside-pic .tick { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(var(--brgb), .6); color: #fff; font-size: 14px; line-height: 24px; text-align: center; }
         .inside-pic.on .tick { background: var(--gold); color: #030c0d; }
         .avail-go { display: block; width: 100%; border: 0; cursor: pointer; font: inherit; }
         .home-list { margin: 14px 0 4px; }
@@ -1353,7 +1356,7 @@
         .hl-credit { font-size: 11px; color: #7d8382; }
         .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
         .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
-        .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(3,12,13,.72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
+        .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(var(--brgb), .72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
         .hero-actions { display: flex; gap: 10px; margin: 18px 0 0; }
         .hero-actions { align-items: stretch; }
         .hero-btn { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; padding: 14px 10px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--soft-white); font: inherit; cursor: pointer; text-align: center; margin: 0; }
@@ -1421,7 +1424,7 @@
         .hero-bg { position: absolute; left: 0; right: 0; top: 0; height: 420px; overflow: hidden; pointer-events: none; display: none; }
         .has-hero .hero-bg { display: block; }
         .hero-img { position: absolute; inset: 0; background-size: cover; background-position: center; transform-origin: 50% 60%; animation: heroZoom 22s ease-out forwards; }
-        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,12,13,.35) 0%, rgba(3,12,13,.25) 35%, rgba(3,12,13,.85) 78%, #030c0d 100%); }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(var(--brgb), .35) 0%, rgba(var(--brgb), .25) 35%, rgba(var(--brgb), .85) 78%, var(--obsidian) 100%); }
         @keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.12); } }
         .has-hero { padding-top: 190px !important; }
         .results-archetype { position: relative; z-index: 1; }
@@ -1431,7 +1434,7 @@
         .reveal[hidden] { display: none; }
         .reveal.out { opacity: 0; }
         .reveal-img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.08); transition: opacity 1.2s ease, transform 3s ease-out; }
-        .reveal-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(3,12,13,.55) 0%, rgba(3,12,13,.88) 70%); }
+        .reveal-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(var(--brgb), .55) 0%, rgba(var(--brgb), .88) 70%); }
         .reveal.show-img .reveal-img { opacity: 1; transform: scale(1); }
         .reveal-in { position: relative; text-align: center; padding: 0 28px; max-width: 440px; }
         .reveal-line { display: block; height: 1px; width: 0; margin: 0 auto 22px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width .7s ease; }
@@ -1467,8 +1470,8 @@
         .swipe-dots { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; z-index: 2; }
         .swipe-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); }
         .swipe-dots i.on { background: #fff; }
-        .swipe-card-miss { position: absolute; top: 14px; right: 14px; background: rgba(3,12,13,.8); color: #F5F5F3; font-size: 11px; font-weight: 600; letter-spacing: .4px; padding: 5px 9px; border-radius: 999px; z-index: 2; }
-        .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(3,12,13,.8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
+        .swipe-card-miss { position: absolute; top: 14px; right: 14px; background: rgba(var(--brgb), .8); color: #F5F5F3; font-size: 11px; font-weight: 600; letter-spacing: .4px; padding: 5px 9px; border-radius: 999px; z-index: 2; }
+        .swipe-card-near { position: absolute; top: 14px; left: 14px; background: rgba(var(--brgb), .8); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; }
         .style-lean { font-size: 16px; color: var(--silver); margin: 6px 0 0; }
         .avail { margin: 4px 0 18px; text-align: left; }
         .avail-line { font-size: 17px; line-height: 1.5; color: var(--soft-white); margin: 0 0 16px; }
@@ -1529,13 +1532,14 @@
 
     <!-- Theme color for mobile browser chrome -->
     <meta name="theme-color" content="#030C0D">
+    <link rel="stylesheet" href="/brand/brand.css">
 </head>
 <body>
     <div class="app-container">
         <!-- WELCOME SCREEN -->
         <div class="screen welcome-screen active" id="welcomeScreen">
             <div class="welcome-content">
-                <a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606"></a>
+                <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Josh Waters, The Agency Dallas Park Cities"><span class="am-name">THE AGENCY</span><span class="am-rule"></span><span class="am-sub">Dallas Park Cities</span></a>
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
                 <p class="welcome-subheading">Swipe through about 20 real homes for sale where you want to live. We'll name the style that's yours and show you where to find it.</p>
@@ -1548,8 +1552,8 @@
             </div>
             <footer class="welcome-footer">
                 <div class="legal">
-                    <p>Josh Waters, REALTOR&reg;, TX License 0833485<br>Dallas Collective Group<br>Brokered by Real Broker, LLC, License 9003138</p>
-                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
+                    <p>Josh Waters, REALTOR&reg;, TX License 0833485<br><span data-b="dcg">Dallas Collective Group<br></span><span data-b="agency">The Agency Dallas Park Cities<br></span>Brokered by Agency Dallas Park Cities, LLC, License 9013111</p><p class="franchise">An independently owned and operated franchisee of The Agency Real Estate Franchising, LLC.</p>
+                    <p class="legal-links"><a href="/brand/iabs-the-agency.pdf" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
                     <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </footer>
@@ -1797,17 +1801,17 @@
                 </div>
 
                 <div class="contact-block">
-                    <a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page" style="display:block"><img class="contact-lockup" src="/brand/dcg-lockup.webp" alt="The Dallas Collective Group, brokered by Real" width="600" height="606" loading="lazy"></a>
+                    <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="contact-lockup" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404" loading="lazy"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Josh Waters, The Agency Dallas Park Cities"><span class="am-name">THE AGENCY</span><span class="am-rule"></span><span class="am-sub">Dallas Park Cities</span></a>
                     <p class="contact-lead">Want a second set of eyes on homes that fit your style?</p>
                     <p class="contact-name">Josh Waters</p>
                     <p class="contact-role">REALTOR&reg; &middot; Real Estate Advisor</p>
-                    <p class="contact-lines"><a href="tel:+14696706232">469.670.6232</a><br><a href="mailto:josh@dallascollectivegroup.com">josh@dallascollectivegroup.com</a></p>
+                    <p class="contact-lines"><a href="tel:+14696706232">469.670.6232</a><br><a data-b="dcg" href="mailto:josh@dallascollectivegroup.com">josh@dallascollectivegroup.com</a><a data-b="agency" href="mailto:Josh.Waters@TheAgencyRe.com">Josh.Waters@TheAgencyRe.com</a></p>
                     <div class="social"><p class="social-title">Follow along</p><div class="social-row"><a class="social-icon" href="https://www.instagram.com/mrdallascollective/" target="_blank" rel="noopener" aria-label="Follow on Instagram" title="Instagram" onclick="track('social_clicked', { site: 'instagram' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/></svg></a><a class="social-icon" href="https://www.facebook.com/MrDallasCollective" target="_blank" rel="noopener" aria-label="Follow on Facebook" title="Facebook" onclick="track('social_clicked', { site: 'facebook' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a><a class="social-icon" href="https://www.youtube.com/@DallasCollectiveGroup?sub_confirmation=1" target="_blank" rel="noopener" aria-label="Follow on YouTube" title="YouTube" onclick="track('social_clicked', { site: 'youtube' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a><a class="social-icon" href="https://www.tiktok.com/@mrdallascollective" target="_blank" rel="noopener" aria-label="Follow on TikTok" title="TikTok" onclick="track('social_clicked', { site: 'tiktok' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a><a class="social-icon" href="https://www.linkedin.com/in/josh-waters-763a3624" target="_blank" rel="noopener" aria-label="Follow on LinkedIn" title="LinkedIn" onclick="track('social_clicked', { site: 'linkedin' })"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div></div>
                 </div>
 
                 <div class="legal">
-                    <p>Josh Waters, REALTOR&reg;, TX License 0833485<br>Dallas Collective Group<br>Brokered by Real Broker, LLC, License 9003138</p>
-                    <p class="legal-links"><a href="https://firebasestorage.googleapis.com/v0/b/poplco.appspot.com/o/42958207052-file-IvccKcI6CcCd%5EJosh%20Waters%20-%20IABS.pdf?alt=media" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
+                    <p>Josh Waters, REALTOR&reg;, TX License 0833485<br><span data-b="dcg">Dallas Collective Group<br></span><span data-b="agency">The Agency Dallas Park Cities<br></span>Brokered by Agency Dallas Park Cities, LLC, License 9013111</p><p class="franchise">An independently owned and operated franchisee of The Agency Real Estate Franchising, LLC.</p>
+                    <p class="legal-links"><a href="/brand/iabs-the-agency.pdf" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
                     <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </div>
@@ -1948,7 +1952,7 @@
                     </label>
                     <label class="consent-row" for="consentInput">
                         <input type="checkbox" id="consentInput">
-                        <span>Yes, Josh Waters with Dallas Collective Group, brokered by REAL Broker, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
+                        <span>Yes, Josh Waters with Dallas Collective Group, brokered by Agency Dallas Park Cities, LLC, may call or text me about homes that match my StyleDNA. Consent isn't required to use the quiz. Message and data rates may apply. Reply STOP to opt out.</span>
                     </label>
 
                     <p class="form-note">We save the homes you view on joshwaters.com so Josh can send better matches. <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a></p>

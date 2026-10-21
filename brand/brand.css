@@ -1,0 +1,60 @@
+/* Shared brand layer for StyleDNA pages. Loaded after each page's own styles.
+   DCG is the default look; The Agency look is turned on by brand.js (data-brand="agency"). */
+
+/* Show the right pieces for the look */
+:root:not([data-brand="agency"]) [data-b="agency"],
+:root[data-brand="agency"] [data-b="dcg"] { display: none !important; }
+
+/* DCG mark with the broker name on the same centered axis */
+.lockup { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.lockup .welcome-lockup, .lockup .contact-lockup, .lockup img.lockup { margin-bottom: 12px; }
+.welcome-content > .lockup { margin-bottom: 40px; }
+.contact-block > .lockup { margin-bottom: 26px; }
+.lockup-broker { margin: 0; line-height: 1.35; color: var(--soft-white); }
+.lockup-broker small { display: block; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--silver); margin-bottom: 3px; }
+.lockup-broker b { display: block; font-size: 14px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; white-space: nowrap; }
+.legal .franchise { font-size: 11px; opacity: 0.9; }
+
+/* The Agency wordmark, set in type until The Agency Dallas logo file is in /brand */
+.agency-mark { display: inline-flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--soft-white); line-height: 1; }
+.agency-mark .am-name { font-family: 'Noto Serif Display', Georgia, serif; font-weight: 400; font-size: 34px; letter-spacing: 7px; padding-left: 7px; }
+.agency-mark .am-rule { display: block; width: 44px; height: 1px; background: #ED2127; margin: 12px auto 10px; }
+.agency-mark .am-sub { font-family: 'Barlow Condensed', 'Roboto', sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 3.5px; padding-left: 3.5px; text-transform: uppercase; color: var(--silver); }
+.welcome-content > .agency-mark { margin-bottom: 44px; }
+.contact-block > .agency-mark { margin-bottom: 28px; }
+.agency-mark.sm .am-name { font-size: 18px; letter-spacing: 4px; padding-left: 4px; }
+.agency-mark.sm .am-rule { width: 26px; margin: 7px auto 6px; }
+.agency-mark.sm .am-sub { font-size: 10px; letter-spacing: 2.5px; padding-left: 2.5px; }
+
+/* ===== The Agency look: Brand Standards Manual (Mar 2023), dark =====
+   Black ground, Plaster text, warm Plaster accent, flat (no glow), square corners.
+   Agency Red sits only on the thin top rule and the wordmark rule. */
+:root[data-brand="agency"] {
+  --obsidian: #000000; --deep-ink: #0E0E0E; --emerald-shadow: #0E0E0E; --emerald: #161616; --emerald-lift: #222222;
+  --gold: #D8D5CC; --gold-shadow: #3A3A38; --gold-mid: #BDB9AE; --gold-highlight: #F7F8F6;
+  --soft-white: #F7F8F6; --silver: #A9AAA7; --surface: #161616;
+  --hairline: rgba(216, 213, 204, 0.35);
+  --line: rgba(169, 170, 167, 0.18); --line-strong: rgba(169, 170, 167, 0.36);
+  --grgb: 216, 213, 204; --brgb: 0, 0, 0;
+  --glow: var(--obsidian);
+}
+:root[data-brand="agency"] body::after { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 3px; background: #ED2127; z-index: 9999; pointer-events: none; }
+:root[data-brand="agency"] body,
+:root[data-brand="agency"] body * { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+:root[data-brand="agency"] h1, :root[data-brand="agency"] h2, :root[data-brand="agency"] h3,
+:root[data-brand="agency"] .agency-mark .am-name {
+  font-family: 'Noto Serif Display', Georgia, serif; font-weight: 400; letter-spacing: 0;
+}
+:root[data-brand="agency"] .agency-mark .am-name { letter-spacing: 7px; }
+:root[data-brand="agency"] .agency-mark.sm .am-name { letter-spacing: 4px; }
+:root[data-brand="agency"] .welcome-kicker span,
+:root[data-brand="agency"] .progress-indicator,
+:root[data-brand="agency"] .social-title,
+:root[data-brand="agency"] .agency-mark .am-sub,
+:root[data-brand="agency"] .lockup-broker small {
+  font-family: 'Barlow Condensed', 'Roboto', sans-serif; font-weight: 500; letter-spacing: 3px;
+}
+:root[data-brand="agency"] .welcome-cta, :root[data-brand="agency"] .pref-continue,
+:root[data-brand="agency"] .btn-primary, :root[data-brand="agency"] .activation-cta,
+:root[data-brand="agency"] .partner-invite, :root[data-brand="agency"] .pill,
+:root[data-brand="agency"] .btn { border-radius: 0; }

@@ -39,7 +39,7 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason, subje
       You're getting this because you turned on email alerts for ${esc(boardName)}.
       <a href="${esc(unsubUrl)}" style="color:#7A7F7E">Turn off email alerts</a>.<br>
       StyleDNA, ${ADDRESS}<br>
-      Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Real Broker, LLC.
+      Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Agency Dallas Park Cities, LLC.
     </div>
   </td></tr></table></body></html>`;
   const text = [hi, '', lead, '',
@@ -47,7 +47,7 @@ function renderAlert({ name, boardName, boardUrl, homes, unsubUrl, reason, subje
     '', `Open ${boardName}: ${boardUrl}`, '',
     `You're getting this because you turned on email alerts for ${boardName}.`,
     `Turn off email alerts: ${unsubUrl}`, `StyleDNA, ${ADDRESS}`,
-    'Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Real Broker, LLC.'].join('\n');
+    'Listing information from NTREIS, deemed reliable but not guaranteed. Josh Waters, REALTOR, Dallas Collective Group, brokered by Agency Dallas Park Cities, LLC.'].join('\n');
   const headers = { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' };
   return { subject, html, text, headers };
 }
