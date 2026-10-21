@@ -53,3 +53,57 @@ footer .agency-mark img { width: 150px; margin: 0 auto; }
 :root[data-brand="agency"] .btn-primary, :root[data-brand="agency"] .activation-cta,
 :root[data-brand="agency"] .partner-invite, :root[data-brand="agency"] .pill,
 :root[data-brand="agency"] .btn { border-radius: 0; }
+
+/* ===== Light / dark ===== */
+/* Logo files swap with the theme */
+:root:not([data-theme="light"]) img.on-light,
+:root[data-theme="light"] img.on-dark { display: none !important; }
+
+/* Footer toggle */
+.theme-toggle { display: inline-flex; gap: 0; margin: 14px auto 4px; border: 1px solid var(--line-strong); border-radius: 999px; overflow: hidden; }
+.theme-toggle button { background: none; border: 0; color: var(--silver); font: inherit; font-size: 12px; padding: 7px 14px; cursor: pointer; }
+.theme-toggle button + button { border-left: 1px solid var(--line-strong); }
+.theme-toggle button[aria-pressed="true"] { background: var(--gold); color: var(--obsidian); }
+:root[data-brand="agency"] .theme-toggle { border-radius: 0; }
+
+/* DCG light: soft white ground, faint emerald wash top-left, emerald ink, deep gold accent */
+:root[data-theme="light"] {
+  --obsidian: #F5F5F3; --deep-ink: #FFFFFF; --emerald-shadow: #ECEFEC; --emerald: #E7EEEA; --emerald-lift: #D5E2DC;
+  --gold: #8A6420; --gold-shadow: #674823; --gold-mid: #A97C30; --gold-highlight: #674823;
+  --soft-white: #0E2926; --silver: #56605E; --surface: #FFFFFF;
+  --hairline: rgba(138, 100, 32, 0.35);
+  --line: rgba(14, 41, 38, 0.12); --line-strong: rgba(14, 41, 38, 0.26);
+  --grgb: 138, 100, 32; --wrgb: 14, 41, 38; --err: #A8322A;
+  --glow: radial-gradient(ellipse 80% 45% at 0% 0%, #DCE7E1 0%, #E9EFEB 35%, rgba(245, 245, 243, 0) 75%), var(--obsidian);
+  color-scheme: light;
+}
+/* The Agency light: Plaster ground, black ink, Iron buttons, flat; red stays on the top rule and the logo */
+:root[data-brand="agency"][data-theme="light"] {
+  --obsidian: #F7F8F6; --deep-ink: #FFFFFF; --emerald-shadow: #EFEFEC; --emerald: #EDEDEA; --emerald-lift: #E2E3E0;
+  --gold: #1A1A19; --gold-shadow: #3A3A38; --gold-mid: #3A3A38; --gold-highlight: #3A3A38;
+  --soft-white: #000000; --silver: #5A5B58; --surface: #FFFFFF;
+  --hairline: rgba(0, 0, 0, 0.28);
+  --line: rgba(0, 0, 0, 0.12); --line-strong: rgba(0, 0, 0, 0.26);
+  --grgb: 0, 0, 0; --wrgb: 0, 0, 0; --err: #A8322A;
+  --glow: var(--obsidian);
+}
+
+/* Anything drawn over a photo keeps the dark-look colours so it stays readable */
+:root[data-theme="light"] .swipe-card, :root[data-theme="light"] .reveal,
+:root[data-theme="light"] .swipe-room, :root[data-theme="light"] .swipe-card-miss, :root[data-theme="light"] .swipe-card-near {
+  --soft-white: #F5F5F3; --primary-white: #F5F5F3; --silver: #C9CDCC; --muted-taupe: #C9CDCC;
+  --gold: #E0B24D; --accent-gold: #E0B24D; --gold-highlight: #F6CE72;
+}
+:root[data-brand="agency"][data-theme="light"] .swipe-card, :root[data-brand="agency"][data-theme="light"] .reveal,
+:root[data-brand="agency"][data-theme="light"] .swipe-card-near {
+  --soft-white: #F7F8F6; --primary-white: #F7F8F6; --gold: #D8D5CC; --accent-gold: #D8D5CC; --gold-highlight: #F7F8F6;
+}
+/* Results header photo: washed to the light ground so the writing sits on light */
+:root[data-theme="light"] .hero-bg::after {
+  background: linear-gradient(180deg, rgba(245, 245, 243, 0.62) 0%, rgba(245, 245, 243, 0.72) 35%, rgba(245, 245, 243, 0.94) 78%, var(--obsidian) 100%);
+}
+:root[data-brand="agency"][data-theme="light"] .hero-bg::after {
+  background: linear-gradient(180deg, rgba(247, 248, 246, 0.62) 0%, rgba(247, 248, 246, 0.72) 35%, rgba(247, 248, 246, 0.94) 78%, var(--obsidian) 100%);
+}
+:root[data-theme="light"] .swipe-card { box-shadow: 0 16px 40px rgba(14, 41, 38, 0.18); }
+:root[data-theme="light"] .has-hero .archetype-kicker { color: var(--silver); }

@@ -36,6 +36,7 @@
             --surface: #1E292B;
             --hairline: rgba(224, 178, 77, 0.35);
             --grgb: 224, 178, 77;
+            --wrgb: 255, 255, 255;
             --brgb: 3, 12, 13;
             --glow: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(33, 61, 55, 0.95) 0%, rgba(14, 41, 38, 0.75) 30%, rgba(4, 24, 24, 0.4) 58%, rgba(var(--brgb), 0) 80%), var(--obsidian);
 
@@ -1294,7 +1295,7 @@
         .city-find { position: relative; margin: 0 0 22px; }
         .city-find .form-input { text-align: left; margin: 0; }
         .city-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--deep-ink); border: 1px solid rgba(var(--grgb), .35); border-radius: 12px; overflow: hidden; z-index: 20; }
-        .city-find-list button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #F5F5F3; font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+        .city-find-list button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; border-bottom: 1px solid rgba(var(--wrgb), .06); color: #F5F5F3; font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
         .city-find-list button:last-child { border-bottom: 0; }
         .city-find-list button span { color: var(--silver); font-size: 13px; }
         .city-find-list .none { padding: 12px 14px; color: var(--silver); font-size: 14px; }
@@ -1329,12 +1330,12 @@
         .swipe-card-credit { font-size: 10px; color: rgba(245,245,243,.6); margin-top: 8px; }
         .loosen { margin: 14px 0 0; }
         .loosen-q { font-size: 14px; color: var(--silver); margin: 4px 0 8px; }
-        .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
+        .loosen-chip { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; background: transparent; border: 1px solid rgba(var(--wrgb), .18); color: var(--soft-white); border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 15px; text-align: left; margin: 0 0 8px; cursor: pointer; }
         .loosen-chip .loosen-gain { color: var(--gold); font-size: 14px; white-space: nowrap; }
         .loosen-done { font-size: 14px; color: var(--silver); margin: 0 0 10px; }
         .another-area { display: block; margin: 10px auto 0; order: 5; }
-        .how-love { order: 1; margin: 6px 0 18px; border-top: 1px solid rgba(255,255,255,.1); }
-        .how-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 14px; }
+        .how-love { order: 1; margin: 6px 0 18px; border-top: 1px solid rgba(var(--wrgb), .1); }
+        .how-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(var(--wrgb), .1); font-size: 14px; }
         .how-row span { color: var(--silver); white-space: nowrap; }
         .how-row b { font-weight: 500; color: var(--soft-white); text-align: right; }
         .inside-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 22px; }
@@ -1343,35 +1344,35 @@
         .inside-pic::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 0 var(--gold); transition: box-shadow .15s ease; }
         .inside-pic.on::after { box-shadow: inset 0 0 0 3px var(--gold); }
         .inside-pic .tick { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(var(--brgb), .6); color: #fff; font-size: 14px; line-height: 24px; text-align: center; }
-        .inside-pic.on .tick { background: var(--gold); color: #030c0d; }
+        .inside-pic.on .tick { background: var(--gold); color: var(--obsidian); }
         .avail-go { display: block; width: 100%; border: 0; cursor: pointer; font: inherit; }
         .home-list { margin: 14px 0 4px; }
         .hl-head { font-size: 13px; color: var(--silver); margin: 0 0 4px; }
-        .hl-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.1); text-decoration: none; color: inherit; }
+        .hl-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(var(--wrgb), .1); text-decoration: none; color: inherit; }
         .hl-row img { width: 104px; height: 78px; object-fit: cover; border-radius: 8px; flex: none; background: var(--surface); }
         .hl-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
         .hl-price { font-size: 16px; font-weight: 600; color: var(--soft-white); }
         .hl-sub { font-size: 13px; color: var(--silver); }
         .hl-has { font-size: 12px; color: var(--gold); }
         .hl-credit { font-size: 11px; color: #7d8382; }
-        .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
+        .hl-more { display: block; width: 100%; margin: 12px 0 0; padding: 12px; background: transparent; border: 1px solid rgba(var(--wrgb), .18); border-radius: 12px; color: var(--soft-white); font: inherit; font-size: 15px; cursor: pointer; }
         .hl-browse { display: block; text-align: center; font-size: 14px; color: var(--silver); padding: 14px 0 4px; text-decoration: underline; text-underline-offset: 3px; }
         .swipe-room { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); background: rgba(var(--brgb), .72); color: #fff; font-size: 12px; letter-spacing: .4px; padding: 4px 10px; border-radius: 999px; pointer-events: none; z-index: 2; }
         .hero-actions { display: flex; gap: 10px; margin: 18px 0 0; }
         .hero-actions { align-items: stretch; }
-        .hero-btn { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; padding: 14px 10px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--soft-white); font: inherit; cursor: pointer; text-align: center; margin: 0; }
+        .hero-btn { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; padding: 14px 10px 12px; border-radius: 18px; border: 1px solid rgba(var(--wrgb), .22); background: transparent; color: var(--soft-white); font: inherit; cursor: pointer; text-align: center; margin: 0; }
         .hero-btn svg { width: 22px; height: 22px; flex: none; margin-bottom: 2px; }
         .hb-t { font-size: 15px; font-weight: 600; line-height: 1.2; }
         .hb-s { font-size: 12px; color: var(--silver); line-height: 1.3; }
         .hero-btn.on { border-color: var(--gold); color: var(--gold); }
-        .compare-panel { margin: 14px 0 0; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: left; }
+        .compare-panel { margin: 14px 0 0; padding: 18px; border: 1px solid rgba(var(--wrgb), .12); border-radius: 16px; text-align: left; }
         .compare-panel .invite-block { margin: 0; padding: 0; border: 0; text-align: left; }
         .compare-panel .welcome-cta { display: block; width: 100%; margin: 12px 0 14px; }
         .compare-panel .board-start { margin-top: 4px; }
         .area-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 0 10px; font-size: 14px; color: var(--silver); }
         .area-now { min-width: 0; }
         .area-change { background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; padding: 4px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; flex: none; }
-        .area-panel { margin: 0 0 18px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .area-panel { margin: 0 0 18px; padding: 16px; border: 1px solid rgba(var(--wrgb), .12); border-radius: 16px; }
         .area-panel .chip-label { margin-top: 0; }
         .area-count { font-size: 16px; color: var(--soft-white); margin: 14px 0 12px; min-height: 22px; }
         .area-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
@@ -1379,7 +1380,7 @@
         .area-panel .text-link { display: block; margin: 6px auto 0; }
         .area-help { margin: 14px 0 0; }
         .area-help .btn-outline { width: 100%; }
-        .build-ask { margin: 16px 0 0; padding: 16px; border-radius: 14px; background: rgba(255,255,255,.04); }
+        .build-ask { margin: 16px 0 0; padding: 16px; border-radius: 14px; background: rgba(var(--wrgb), .04); }
         .build-row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
         .build-row .btn-outline { flex: 1; }
         .build-yes { font-size: 14px; color: var(--silver); margin: 12px 0 0; }
@@ -1392,8 +1393,8 @@
         .search-sum-v { font-size: 15px; color: var(--soft-white); }
         .search-sum[open] .search-sum-v { color: var(--silver); }
         .search-sum .profile-list { margin-top: 14px; }
-        .value-card { padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; text-align: center; }
-        .search-row { order: 1; margin: 0 0 18px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .value-card { padding: 18px; border: 1px solid rgba(var(--wrgb), .12); border-radius: 16px; text-align: center; }
+        .search-row { order: 1; margin: 0 0 18px; padding: 11px 0; border-bottom: 1px solid rgba(var(--wrgb), .1); }
         .search-row .search-sum summary { justify-content: space-between; font-size: 14px; }
         .search-row .search-sum-k { font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; }
         .search-row .search-sum-v { text-align: right; font-size: 14px; }
@@ -1403,7 +1404,7 @@
         .loved-pill { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
         #lovedBox { text-align: left; margin-top: 18px; }
         .how-love { margin-bottom: 0; }
-        .form-carry { font-size: 14px; color: var(--silver); margin: 4px 0 18px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; }
+        .form-carry { font-size: 14px; color: var(--silver); margin: 4px 0 18px; padding: 12px 14px; border: 1px solid rgba(var(--wrgb), .12); border-radius: 12px; }
         .hv { position: fixed; inset: 0; z-index: 9000; background: #030c0d; color: var(--soft-white); display: flex; flex-direction: column; overflow-y: auto; }
         .hv[hidden] { display: none; }
         .hv-top { display: flex; justify-content: space-between; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px 10px; }
@@ -1447,19 +1448,19 @@
         .reveal-name.shine { background: linear-gradient(100deg, var(--gold) 40%, #fff3c4 50%, var(--gold) 60%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: revealShine 1.2s ease forwards; }
         .reveal-name.shine span { color: transparent; }
         @keyframes revealShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
-        .cta-card { padding: 20px; border: 1px solid rgba(201,162,74,.45); border-radius: 18px; background: linear-gradient(160deg, rgba(201,162,74,.08), rgba(255,255,255,.02)); }
+        .cta-card { padding: 20px; border: 1px solid rgba(var(--grgb), .45); border-radius: 18px; background: linear-gradient(160deg, rgba(var(--grgb), .08), rgba(var(--wrgb), .02)); }
         .cta-h { font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--soft-white); margin: 0 0 12px; }
         .cta-list { list-style: none; padding: 0; margin: 0 0 16px; }
         .cta-list li { position: relative; padding: 0 0 0 20px; margin: 0 0 8px; font-size: 14px; color: var(--silver); line-height: 1.45; }
         .cta-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
         .cta-card .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
         .sx { margin: 12px 0 0; }
-        .sx-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "k c" "v c"; gap: 2px 12px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); align-items: center; }
+        .sx-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "k c" "v c"; gap: 2px 12px; padding: 10px 0; border-top: 1px solid rgba(var(--wrgb), .08); align-items: center; }
         .sx-k { grid-area: k; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--silver); }
         .sx-v { grid-area: v; font-size: 15px; color: var(--soft-white); min-width: 0; }
         .sx-c { grid-area: c; background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; }
         .sx-row.on .sx-c { visibility: hidden; }
-        .sx-panel { margin: 0 0 12px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; }
+        .sx-panel { margin: 0 0 12px; padding: 16px; border: 1px solid rgba(var(--wrgb), .12); border-radius: 16px; }
         .sx-panel .chip-label { margin-top: 4px; }
         .sx-panel .welcome-cta { display: block; width: 100%; border: 0; font: inherit; cursor: pointer; }
         .sx-panel .welcome-cta:disabled { opacity: .5; }
@@ -1539,7 +1540,7 @@
         <!-- WELCOME SCREEN -->
         <div class="screen welcome-screen active" id="welcomeScreen">
             <div class="welcome-content">
-                <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="The Agency Dallas"><img src="/brand/agency-dallas-white.webp" alt="The Agency Dallas" width="800" height="800"></a>
+                <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="welcome-lockup on-dark" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404"><img class="welcome-lockup on-light" src="/brand/dcg-mark-dark.webp" alt="The Dallas Collective Group" width="600" height="404"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="The Agency Dallas"><img class="on-dark" src="/brand/agency-dallas-white.webp" alt="The Agency Dallas" width="800" height="800"><img class="on-light" src="/brand/agency-dallas-red.webp" alt="The Agency Dallas" width="800" height="800"></a>
                 <div class="welcome-kicker"><i></i><span>StyleDNA</span><i></i></div>
                 <h1 class="welcome-headline">What's Your Home Style?</h1>
                 <p class="welcome-subheading">Swipe through about 20 real homes for sale where you want to live. We'll name the style that's yours and show you where to find it.</p>
@@ -1554,7 +1555,8 @@
                 <div class="legal">
                     <p>Josh Waters, REALTOR&reg;, TX License 0833485<br><span data-b="dcg">Dallas Collective Group<br></span><span data-b="agency">The Agency Dallas Park Cities<br></span>Brokered by Agency Dallas Park Cities, LLC, License 9013111</p><p class="franchise">An independently owned and operated franchisee of The Agency Real Estate Franchising, LLC.</p>
                     <p class="legal-links"><a href="/brand/iabs-the-agency.pdf" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
-                    <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
+                    <p class="theme-toggle" role="group" aria-label="Light or dark"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></p>
+                    <img class="legal-marks on-dark" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60"><img class="legal-marks on-light" src="/brand/eho-realtor-dark.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </footer>
         </div>
@@ -1801,7 +1803,7 @@
                 </div>
 
                 <div class="contact-block">
-                    <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="contact-lockup" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404" loading="lazy"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="The Agency Dallas"><img src="/brand/agency-dallas-white.webp" alt="The Agency Dallas" width="800" height="800"></a>
+                    <div class="lockup" data-b="dcg"><a class="logo-link" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="Dallas Collective Group home page"><img class="contact-lockup on-dark" src="/brand/dcg-mark.webp" alt="The Dallas Collective Group" width="600" height="404" loading="lazy"><img class="contact-lockup on-light" src="/brand/dcg-mark-dark.webp" alt="The Dallas Collective Group" width="600" height="404" loading="lazy"></a><p class="lockup-broker"><small>Brokered by</small><b>Agency Dallas Park Cities, LLC</b></p></div><a class="agency-mark" data-b="agency" href="https://joshwaters.com" target="_blank" rel="noopener" aria-label="The Agency Dallas"><img class="on-dark" src="/brand/agency-dallas-white.webp" alt="The Agency Dallas" width="800" height="800"><img class="on-light" src="/brand/agency-dallas-red.webp" alt="The Agency Dallas" width="800" height="800"></a>
                     <p class="contact-lead">Want a second set of eyes on homes that fit your style?</p>
                     <p class="contact-name">Josh Waters</p>
                     <p class="contact-role">REALTOR&reg; &middot; Real Estate Advisor</p>
@@ -1812,7 +1814,8 @@
                 <div class="legal">
                     <p>Josh Waters, REALTOR&reg;, TX License 0833485<br><span data-b="dcg">Dallas Collective Group<br></span><span data-b="agency">The Agency Dallas Park Cities<br></span>Brokered by Agency Dallas Park Cities, LLC, License 9013111</p><p class="franchise">An independently owned and operated franchisee of The Agency Real Estate Franchising, LLC.</p>
                     <p class="legal-links"><a href="/brand/iabs-the-agency.pdf" target="_blank" rel="noopener">Information About Brokerage Services</a><a href="https://www.trec.texas.gov/forms/consumer-protection-notice" target="_blank" rel="noopener">TREC Consumer Protection Notice</a><a href="/privacy.html">Privacy</a></p>
-                    <img class="legal-marks" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
+                    <p class="theme-toggle" role="group" aria-label="Light or dark"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></p>
+                    <img class="legal-marks on-dark" src="/brand/eho-realtor.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60"><img class="legal-marks on-light" src="/brand/eho-realtor-dark.png" alt="Equal Housing Opportunity and REALTOR marks" width="170" height="60">
                 </div>
             </div>
         </div>
