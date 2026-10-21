@@ -15,16 +15,15 @@
 .lockup-broker b { display: block; font-size: 14px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; white-space: nowrap; }
 .legal .franchise { font-size: 11px; opacity: 0.9; }
 
-/* The Agency wordmark, set in type until The Agency Dallas logo file is in /brand */
-.agency-mark { display: inline-flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--soft-white); line-height: 1; }
-.agency-mark .am-name { font-family: 'Noto Serif Display', Georgia, serif; font-weight: 400; font-size: 34px; letter-spacing: 7px; padding-left: 7px; }
-.agency-mark .am-rule { display: block; width: 44px; height: 1px; background: #ED2127; margin: 12px auto 10px; }
-.agency-mark .am-sub { font-family: 'Barlow Condensed', 'Roboto', sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 3.5px; padding-left: 3.5px; text-transform: uppercase; color: var(--silver); }
-.welcome-content > .agency-mark { margin-bottom: 44px; }
-.contact-block > .agency-mark { margin-bottom: 28px; }
-.agency-mark.sm .am-name { font-size: 18px; letter-spacing: 4px; padding-left: 4px; }
-.agency-mark.sm .am-rule { width: 26px; margin: 7px auto 6px; }
-.agency-mark.sm .am-sub { font-size: 10px; letter-spacing: 2.5px; padding-left: 2.5px; }
+/* The Agency Dallas logo (secondary, white, for black grounds). Square file with clear space built in.
+   Brand Standards Manual: min 70 px digital, clear space = the "A". */
+.agency-mark { display: inline-block; line-height: 0; }
+.agency-mark img { display: block; width: 210px; height: auto; }
+.welcome-content > .agency-mark { margin-bottom: 28px; }
+.contact-block > .agency-mark { margin-bottom: 18px; }
+.contact-block > .agency-mark img { width: 170px; }
+footer .agency-mark img { width: 150px; margin: 0 auto; }
+.agency-mark.sm img { width: 84px; }
 
 /* ===== The Agency look: Brand Standards Manual (Mar 2023), dark =====
    Black ground, Plaster text, warm Plaster accent, flat (no glow), square corners.
@@ -41,16 +40,12 @@
 :root[data-brand="agency"] body::after { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 3px; background: #ED2127; z-index: 9999; pointer-events: none; }
 :root[data-brand="agency"] body,
 :root[data-brand="agency"] body * { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-:root[data-brand="agency"] h1, :root[data-brand="agency"] h2, :root[data-brand="agency"] h3,
-:root[data-brand="agency"] .agency-mark .am-name {
+:root[data-brand="agency"] h1, :root[data-brand="agency"] h2, :root[data-brand="agency"] h3 {
   font-family: 'Noto Serif Display', Georgia, serif; font-weight: 400; letter-spacing: 0;
 }
-:root[data-brand="agency"] .agency-mark .am-name { letter-spacing: 7px; }
-:root[data-brand="agency"] .agency-mark.sm .am-name { letter-spacing: 4px; }
 :root[data-brand="agency"] .welcome-kicker span,
 :root[data-brand="agency"] .progress-indicator,
 :root[data-brand="agency"] .social-title,
-:root[data-brand="agency"] .agency-mark .am-sub,
 :root[data-brand="agency"] .lockup-broker small {
   font-family: 'Barlow Condensed', 'Roboto', sans-serif; font-weight: 500; letter-spacing: 3px;
 }
