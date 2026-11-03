@@ -18,15 +18,16 @@
     t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   }
 
-  if (b === 'agency') {
-    r.setAttribute('data-brand', 'agency');
+  if (b === 'agency') r.setAttribute('data-brand', 'agency');
+  /* 2 Nov 2026: every look wears The Agency type, so its fonts load for DCG too */
+  {
     var l = document.createElement('link');
     l.rel = 'stylesheet';
     l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Serif+Display:wght@400;500&family=Roboto:wght@400;500;700&display=swap';
     document.head.appendChild(l);
   }
 
-  var GROUND = { dcg: { dark: '#030C0D', light: '#F5F5F3' }, agency: { dark: '#000000', light: '#F7F8F6' } };
+  var GROUND = { dcg: { dark: '#000000', light: '#F7F8F6' }, agency: { dark: '#000000', light: '#F7F8F6' } };
   function paint(theme) {
     r.setAttribute('data-theme', theme);
     var m = document.querySelector('meta[name="theme-color"]');
