@@ -12,9 +12,9 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
 async function emailJosh(subject, lines, link) {
   if (!process.env.RESEND_API_KEY) return false;
   const text = [...lines, '', link ? 'Open: ' + link : ''].join('\n');
-  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#030C0D;max-width:560px">
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#000000;max-width:560px">
     ${lines.map((l) => `<p style="margin:0 0 8px">${esc(l)}</p>`).join('')}
-    ${link ? `<p style="margin:16px 0 0"><a href="${esc(link)}" style="color:#B8892B;font-weight:600">Open</a></p>` : ''}</div>`;
+    ${link ? `<p style="margin:16px 0 0"><a href="${esc(link)}" style="color:#1A1A19;font-weight:600">Open</a></p>` : ''}</div>`;
   // The email service allows two sends a second, so wait and retry when it says slow down.
   for (let i = 0; i < 4; i++) {
     try {

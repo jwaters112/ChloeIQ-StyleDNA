@@ -44,13 +44,13 @@ async function sendConfirm(b, entry, member) {
   const name = member && member.name ? `Hi ${member.name},` : 'Hi,';
   const text = [name, '', `Tap below to turn on email alerts for ${b.name}.`, '', url, '',
     "If you didn't ask for this, ignore this email and nothing will be sent.", `StyleDNA, ${ADDRESS}`].join('\n');
-  const html = `<!doctype html><html><body style="margin:0;background:#F5F5F3;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+  const html = `<!doctype html><html><body style="margin:0;background:#F7F8F6;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 16px">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border-radius:12px"><tr><td style="padding:28px;font-size:15px;line-height:1.55;color:#030C0D">
-      <div style="font-size:18px;font-weight:600;font-style:italic;margin-bottom:18px">Style<span style="color:#B8892B">DNA</span></div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border-radius:0"><tr><td style="padding:28px;font-size:15px;line-height:1.55;color:#000000">
+      <div style="font-size:18px;font-weight:600;font-style:italic;margin-bottom:18px">Style<span style="color:#1A1A19">DNA</span></div>
       <p style="margin:0 0 10px">${esc(name)}</p>
       <p style="margin:0 0 22px">Tap below to turn on email alerts for ${esc(b.name)}.</p>
-      <p style="margin:0 0 22px;text-align:center"><a href="${esc(url)}" style="display:inline-block;background:#030C0D;color:#FFFFFF;text-decoration:none;font-weight:600;padding:13px 26px;border-radius:999px">Confirm email alerts</a></p>
+      <p style="margin:0 0 22px;text-align:center"><a href="${esc(url)}" style="display:inline-block;background:#000000;color:#FFFFFF;text-decoration:none;font-weight:600;padding:13px 26px;border-radius:0">Confirm email alerts</a></p>
       <p style="margin:0;font-size:13px;color:#5A5F5E">If you didn't ask for this, ignore this email and nothing will be sent.</p>
     </td></tr></table>
     <div style="max-width:520px;font-size:12px;color:#7A7F7E;padding:16px 8px 0">StyleDNA, ${ADDRESS}</div>
