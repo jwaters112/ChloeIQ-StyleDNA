@@ -97,7 +97,7 @@ footer .agency-mark img { width: 150px; margin: 0 auto; }
   --gold: #E0B24D; --accent-gold: #E0B24D; --gold-highlight: #F6CE72;
 }
 :root[data-theme="light"] .swipe-card, :root[data-theme="light"] .reveal,
-:root[data-theme="light"] .swipe-card-near {
+:root[data-theme="light"] .swipe-room, :root[data-theme="light"] .swipe-card-miss, :root[data-theme="light"] .swipe-card-near {
   --soft-white: #F7F8F6; --primary-white: #F7F8F6; --gold: #D8D5CC; --accent-gold: #D8D5CC; --gold-highlight: #F7F8F6;
 }
 /* Results header photo: washed to the light ground so the writing sits on light */
